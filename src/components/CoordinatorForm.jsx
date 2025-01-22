@@ -1,9 +1,21 @@
+import React from 'react'
+import { useState } from 'react';
+
 export const CoordinatorForm = () => {
+
+   const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+     
+    const handleSubmit = (e) => {
+      e.preventDefault();
+      console.log({ email, password }); // Replace this with backend API integration
+    };
+  
     return (
       <div className="flex ">
   
       <div className=" flex flex-col justify-center items-center">
-        <form className=" bg-white  p-8 rounded">
+        <form className=" bg-white  p-8 rounded" onSubmit={handleSubmit}>
           <h1 className="text-2xl font-bold text-center mb-6 text-blue-800">
             Coordinator Login
           </h1>
@@ -14,6 +26,7 @@ export const CoordinatorForm = () => {
               type="email"
               id="email"
               placeholder="Enter your email"
+              onChange={(e) => setEmail(e.target.value)}
             />
             <div className="border-b border-gray-300 mb-6"></div>
           </div>
@@ -23,6 +36,7 @@ export const CoordinatorForm = () => {
               type="password"
               id="password"
               placeholder="Enter your password"
+              onChange={(e) => setPassword(e.target.value)}
             />
             <div className="border-b border-gray-300 mb-6"></div>
           </div>

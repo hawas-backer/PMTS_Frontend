@@ -1,12 +1,22 @@
 import React from 'react'
-
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
  const StudentForm = () => {
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+   
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log({ email, password }); // Replace this with backend API integration
+  };
+
   return (
     <div className="flex ">
 
     <div className=" flex flex-col justify-center items-center">
-      <form className=" bg-white  p-8 rounded">
+      <form className=" bg-white  p-8 rounded" onSubmit={handleSubmit}>
         <h1 className="text-2xl font-bold text-center mb-6 text-blue-800">
           Student  Login
         </h1>
@@ -17,6 +27,7 @@ import React from 'react'
             type="email"
             id="email"
             placeholder="Enter your email"
+            onChange={(e) => setEmail(e.target.value)}
           />
           <div className="border-b border-gray-300 mb-6"></div>
         </div>
@@ -26,6 +37,7 @@ import React from 'react'
             type="password"
             id="password"
             placeholder="Enter your password"
+            onChange={(e) => setPassword(e.target.value)}
           />
           <div className="border-b border-gray-300 mb-6"></div>
         </div>
@@ -40,10 +52,11 @@ import React from 'react'
         </div>
         <div className='mt-8 flex justify-center items-center'>
         <p className='font-medium text-base'>Don't have an account?</p>
-            <button onClick={() => setAuthState('register')}
+            <Link
+              to="/StudentRegister"
               className='ml-2 font-medium text-base text-blue-800'>
              Register Now
-            </button>
+            </Link>
         </div>
 
       </form>
