@@ -1,11 +1,18 @@
 
 import React from 'react'
+import  { useState } from 'react';
 import StudentForm from './StudentForm'
 import { CoordinatorForm} from './CoordinatorForm'
 import Nabar from './Nabar'
 import gcek from '../assets/gcek.png'
+import {AlumniForm } from './AlumniForm'
+import { AdvisorForm } from './AdvisorForm';
+
 
 const LoginPage = () => {
+  
+  const [activeRole, setActiveRole] = useState('Student');
+
   return (
     <div className="flex h-screen">
       <div className="w-2/4 h-auto flex justify-center items-center">
@@ -23,7 +30,7 @@ const LoginPage = () => {
         
  
         <div >
-            <Nabar/>
+            <Nabar  activeRole={activeRole} setActiveRole={setActiveRole}/>
         </div>
         
         <div className='underline'>
@@ -35,8 +42,10 @@ const LoginPage = () => {
 
       </div>
       <div className='p-8 m-4'>
-          {/* <StudentForm/> */}
-          <CoordinatorForm/>
+        {activeRole === "Student" && <StudentForm />}
+        {activeRole === "Coordinator" && <CoordinatorForm />}
+        {activeRole === "Advisor" && <AdvisorForm/>}
+        {activeRole === "Alumni" && <AlumniForm/>}
       </div>
     </div>
     </div>
