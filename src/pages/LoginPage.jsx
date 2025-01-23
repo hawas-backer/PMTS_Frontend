@@ -1,12 +1,12 @@
 
 import React from 'react'
 import  { useState } from 'react';
-import StudentForm from './StudentForm'
-import { CoordinatorForm} from './CoordinatorForm'
-import Nabar from './Nabar'
+import StudentForm from '../components/StudentForm'
+import { CoordinatorForm} from '../components/CoordinatorForm'
+import Nabar from '../components/TabNavigator'
 import gcek from '../assets/gcek.png'
-import {AlumniForm } from './AlumniForm'
-import { AdvisorForm } from './AdvisorForm';
+import {AlumniForm } from '../components/AlumniForm'
+import { AdvisorForm } from '../components/AdvisorForm';
 
 
 const LoginPage = () => {
