@@ -1,5 +1,6 @@
 import React from 'react'
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 export const AdvisorForm = () => {
     const [email, setEmail] = useState('');
@@ -45,9 +46,10 @@ export const AdvisorForm = () => {
           >
             Login
           </button>
-          <div className='text-blue-600 hover:text-blue-800 text-sm  mt-4 flex justify-center'>
-              <a href="#">Forgot password?</a>
-          </div>
+          <Link className='text-blue-600 hover:text-blue-800 text-sm  mt-4 flex justify-center'
+              to='/ForgotPassword'
+              >Forgot password?
+          </Link>
 
   
         </form>

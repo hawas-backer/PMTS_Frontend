@@ -1,6 +1,6 @@
 import React from 'react'
 import { useState } from 'react';
-
+import {Link} from 'react-router-dom';
 export const AlumniForm = () => {
   const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -46,14 +46,19 @@ export const AlumniForm = () => {
             Login
           </button>
           <div className='text-blue-600 hover:text-blue-800 text-sm  mt-4 flex justify-center'>
-              <a href="#">Forgot password?</a>
+         <Link className='text-blue-600 hover:text-blue-800 text-sm  mt-4 flex justify-center'
+              to='/ForgotPassword'
+              >Forgot password?
+          </Link>
           </div>
           <div className='mt-8 flex justify-center items-center'>
           <p className='font-medium text-base'>Don't have an account?</p>
-            <button onClick={() => setAuthState('register')}
+            <Link
+              to="/AlumniRegister"
               className='ml-2 font-medium text-base text-blue-800'>
              Register Now
-            </button>
+            </Link>
+
           </div>
 
   

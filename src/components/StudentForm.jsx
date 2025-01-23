@@ -48,7 +48,10 @@ import { Link } from 'react-router-dom';
           Login
         </button>
         <div className='text-blue-600 hover:text-blue-800 text-sm  mt-4 flex justify-center'>
-            <a href="#">Forgot password?</a>
+         <Link className='text-blue-600 hover:text-blue-800 text-sm  mt-4 flex justify-center'
+              to='/ForgotPassword'
+              >Forgot password?
+          </Link>
         </div>
         <div className='mt-8 flex justify-center items-center'>
         <p className='font-medium text-base'>Don't have an account?</p>
