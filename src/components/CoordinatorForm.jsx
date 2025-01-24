@@ -1,15 +1,19 @@
 import React from 'react'
 import { useState } from 'react';
 import {Link} from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 
 export const CoordinatorForm = () => {
 
    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const navigate = useNavigate();
      
     const handleSubmit = (e) => {
       e.preventDefault();
       console.log({ email, password }); // Replace this with backend API integration
+      //just for fronted
+      navigate("/Coordinator");
     };
   
     return (
