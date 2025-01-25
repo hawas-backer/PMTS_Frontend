@@ -1,10 +1,10 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import Header from './HeaderCoordinator';
+import HeaderCoordinator from './HeaderCoordinator';
 
 const Layout = () => (
   <div>
-    <Header />
+    <HeaderCoordinator />
     <main className="container mx-auto mt-4">
       <Outlet />
     </main>

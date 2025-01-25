@@ -57,12 +57,12 @@ const HeaderCoordinator = () => {
               </li>
             ))}
           </ul>
-          {/*<div className="hidden lg:flex justify-center space-x-12 items center">
+          <div className="hidden lg:flex justify-center space-x-12 items center">
 
-            <a href="#" className='bg-gradient-to-r from-orange-500 to-orange-800 py-2 px-3 rounded-md'>
-                LOGIN
-            </a>
-          </div>*/}
+            <Link to="/" className='bg-gradient-to-r from-orange-500 to-orange-800 py-2 px-3 rounded-md'>
+                LOG OUT
+            </Link>
+          </div>
           <div className="lg:hidden md:flex flex-col justify-end">
             <button onClick={toggleNavbar} aria-label="Toggle mobile menu">
                 {mobileDrawerOpen ? <X/> :<Menu/>}
@@ -88,11 +88,11 @@ const HeaderCoordinator = () => {
 
                 ))}
             </ul>
-           {/* <div className="flex space-x-6">
+           <div className="flex space-x-6">
                 <a href="#" className="py-2 px-3 border rounded-md bg-gradient-to-r from-orange-500 to-orange-800">
-                   LOGIN
+                   LOG OUT
                 </a>
-            </div>*/}
+            </div>
         </div>
 
         )}
