@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import {Link} from 'react-router-dom';
 
 //edit the otp verifying parts
 
@@ -94,7 +95,7 @@ const StudentRegister = () => {
               onClick={() => alert("Proceed to complete registration")}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4"
             >
-              Submit Registration
+            <Link to="/CreateStudent"> Register</Link>  
             </button>
           </div>
         )}

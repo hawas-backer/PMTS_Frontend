@@ -1,194 +1,205 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
-const AddTest = () => {
-  const [testName, setTestName] = useState('');
-  const [description, setDescription] = useState('');
-  const [duration, setDuration] = useState('');
-  const [maxMarks, setMaxMarks] = useState('');
+const AddAptitudeTest = () => {
+  const [testName, setTestName] = useState("");
+  const [description, setDescription] = useState("");
+  const [duration, setDuration] = useState("");
+  const [maxMarks, setMaxMarks] = useState("");
   const [questions, setQuestions] = useState([
-    { questionText: '', options: ['', '', '', ''], correctAnswer: '' }
+    { question: "", options: ["", "", "", ""], correctAnswerIndex: 0 },
   ]);
-
-  const handleChangeTestName = (e) => setTestName(e.target.value);
-  const handleChangeDescription = (e) => setDescription(e.target.value);
-  const handleChangeDuration = (e) => setDuration(e.target.value);
-  const handleChangeMaxMarks = (e) => setMaxMarks(e.target.value);
-
-  const handleChangeQuestion = (index, field, value) => {
-    const updatedQuestions = [...questions];
-    updatedQuestions[index][field] = value;
-    setQuestions(updatedQuestions);
-  };
 
   const handleAddQuestion = () => {
     setQuestions([
       ...questions,
-      { questionText: '', options: ['', '', '', ''], correctAnswer: '' }
+      { question: "", options: ["", "", "", ""], correctAnswerIndex: 0 },
     ]);
   };
 
   const handleRemoveQuestion = (index) => {
-    const updatedQuestions = questions.filter((_, i) => i !== index);
+    const newQuestions = [...questions];
+    newQuestions.splice(index, 1);
+    setQuestions(newQuestions);
+  };
+
+  const handleQuestionChange = (index, value, field) => {
+    const updatedQuestions = [...questions];
+    if (field === "question") {
+      updatedQuestions[index].question = value;
+    }
+    setQuestions(updatedQuestions);
+  };
+
+  const handleOptionChange = (index, optionIndex, value) => {
+    const updatedQuestions = [...questions];
+    updatedQuestions[index].options[optionIndex] = value;
+    setQuestions(updatedQuestions);
+  };
+
+  const handleCorrectAnswerChange = (index, selectedIndex) => {
+    const updatedQuestions = [...questions];
+    updatedQuestions[index].correctAnswerIndex = selectedIndex;
     setQuestions(updatedQuestions);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    // Validation for max marks and duration
-    if (isNaN(maxMarks) || maxMarks <= 0) {
-      alert('Max Marks must be a valid number greater than 0');
-      return;
-    }
-    if (isNaN(duration) || duration <= 0) {
-      alert('Duration must be a valid number greater than 0');
-      return;
-    }
-
-    // Validation for questions
-    for (let i = 0; i < questions.length; i++) {
-      const question = questions[i];
-      if (!question.questionText || !question.correctAnswer || question.options.length !== 4 || !question.options.includes(question.correctAnswer)) {
-        alert(`Question ${i + 1} is invalid. Ensure all fields are filled correctly.`);
-        return;
-      }
-    }
-
-    // If all validations pass, submit the test data (simulated here)
-    alert('Aptitude test added successfully!');
-    // You can now call an API to save the test
+    // Add validation here before submitting
+    console.log({
+      testName,
+      description,
+      duration,
+      maxMarks,
+      questions,
+    });
   };
 
   return (
-    <div className="container px-4 mx-auto">
-      <h2 className="text-2xl font-bold mb-4">Add Aptitude Test</h2>
-      <form onSubmit={handleSubmit} className="bg-white p-4 shadow-md rounded-lg">
-        {/* Test Name */}
-        <div className="mb-4">
-          <label className="block text-gray-700">Test Name</label>
+    <div className="p-6 space-y-4">
+      <h1 className="text-2xl font-bold mb-4">Add Aptitude Test</h1>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div>
+          <label htmlFor="testName" className="block text-lg font-semibold">
+            Test Name
+          </label>
           <input
             type="text"
+            id="testName"
             value={testName}
-            onChange={handleChangeTestName}
-            className="mt-2 p-2 w-full border rounded-md"
+            onChange={(e) => setTestName(e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded mt-1"
             required
           />
         </div>
 
-        {/* Description */}
-        <div className="mb-4">
-          <label className="block text-gray-700">Description</label>
-          <textarea
-            value={description}
-            onChange={handleChangeDescription}
-            className="mt-2 p-2 w-full border rounded-md"
-            required
-          />
-        </div>
-
-        {/* Duration */}
-        <div className="mb-4">
-          <label className="block text-gray-700">Duration (min)</label>
-          <input
-            type="number"
-            value={duration}
-            onChange={handleChangeDuration}
-            className="mt-2 p-2 w-full border rounded-md"
-            required
-          />
-        </div>
-
-        {/* Max Marks */}
-        <div className="mb-4">
-          <label className="block text-gray-700">Max Marks</label>
-          <input
-            type="number"
-            value={maxMarks}
-            onChange={handleChangeMaxMarks}
-            className="mt-2 p-2 w-full border rounded-md"
-            required
-          />
-        </div>
-
-        {/* Questions */}
         <div>
-          <h3 className="text-xl font-bold mb-2">Questions</h3>
+          <label htmlFor="description" className="block text-lg font-semibold">
+            Description
+          </label>
+          <textarea
+            id="description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded mt-1"
+            required
+          />
+        </div>
+
+        <div>
+          <label htmlFor="duration" className="block text-lg font-semibold">
+            Duration (in minutes)
+          </label>
+          <input
+            type="number"
+            id="duration"
+            value={duration}
+            onChange={(e) => setDuration(e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded mt-1"
+            required
+          />
+        </div>
+
+        <div>
+          <label htmlFor="maxMarks" className="block text-lg font-semibold">
+            Max Marks
+          </label>
+          <input
+            type="number"
+            id="maxMarks"
+            value={maxMarks}
+            onChange={(e) => setMaxMarks(e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded mt-1"
+            required
+          />
+        </div>
+
+        <div className="space-y-4">
+          <h3 className="text-xl font-semibold">Questions</h3>
           {questions.map((question, index) => (
-            <div key={index} className="mb-6">
-              <div className="mb-4">
-                <label className="block text-gray-700">Question {index + 1}</label>
+            <div key={index} className="border p-4 rounded shadow-sm">
+              <div>
+                <label htmlFor={`question-${index}`} className="block text-lg font-semibold">
+                  Question {index + 1}
+                </label>
                 <input
                   type="text"
-                  value={question.questionText}
-                  onChange={(e) => handleChangeQuestion(index, 'questionText', e.target.value)}
-                  className="mt-2 p-2 w-full border rounded-md"
+                  id={`question-${index}`}
+                  value={question.question}
+                  onChange={(e) => handleQuestionChange(index, e.target.value, "question")}
+                  className="w-full p-2 border border-gray-300 rounded mt-1"
                   required
                 />
               </div>
 
-              {/* Options */}
-              <div className="grid grid-cols-2 gap-4 mb-4">
-                {question.options.map((option, i) => (
-                  <div key={i} className="mb-4">
-                    <label className="block text-gray-700">Option {i + 1}</label>
+              <div className="mt-3">
+                <label className="block text-lg font-semibold">Options</label>
+                {question.options.map((option, optIndex) => (
+                  <div key={optIndex} className="mt-2">
                     <input
                       type="text"
                       value={option}
-                      onChange={(e) => handleChangeQuestion(index, 'options', e.target.value.split(', '))}
-                      className="mt-2 p-2 w-full border rounded-md"
+                      onChange={(e) =>
+                        handleOptionChange(index, optIndex, e.target.value)
+                      }
+                      className="w-full p-2 border border-gray-300 rounded mt-1"
+                      placeholder={`Option ${optIndex + 1}`}
                       required
                     />
                   </div>
                 ))}
               </div>
 
-              {/* Correct Answer */}
-              <div className="mb-4">
-                <label className="block text-gray-700">Correct Answer</label>
+              <div>
+                <label htmlFor={`correctAnswer-${index}`} className="block text-lg font-semibold">
+                  Correct Answer
+                </label>
                 <select
-                  value={question.correctAnswer}
-                  onChange={(e) => handleChangeQuestion(index, 'correctAnswer', e.target.value)}
-                  className="mt-2 p-2 w-full border rounded-md"
+                  id={`correctAnswer-${index}`}
+                  value={question.correctAnswerIndex}
+                  onChange={(e) =>
+                    handleCorrectAnswerChange(index, parseInt(e.target.value))
+                  }
+                  className="w-full p-2 border border-gray-300 rounded mt-1"
                   required
                 >
-                  <option value="">Select Correct Answer</option>
-                  {question.options.map((option, i) => (
-                    <option key={i} value={option}>{option}</option>
+                  {question.options.map((option, optIndex) => (
+                    <option key={optIndex} value={optIndex}>
+                      {option}
+                    </option>
                   ))}
                 </select>
               </div>
 
-              {/* Remove Question */}
               <button
                 type="button"
                 onClick={() => handleRemoveQuestion(index)}
-                className="text-red-500 hover:underline"
+                className="mt-3 text-red-500 hover:text-red-700"
               >
                 Remove Question
               </button>
             </div>
           ))}
 
-          {/* Add Question */}
           <button
             type="button"
             onClick={handleAddQuestion}
-            className="text-blue-500 hover:underline"
+            className="mt-4 bg-green-500 text-white p-2 rounded hover:bg-green-600"
           >
-            Add Question
+            Add Another Question
           </button>
         </div>
 
-        {/* Submit Button */}
-        <button
-          type="submit"
-          className="mt-4 bg-blue-500 text-white py-2 px-4 rounded-md"
-        >
-          Add Aptitude Test
-        </button>
+        <div className="flex justify-end">
+          <button
+            type="submit"
+            className="mt-4 bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+          >
+            Submit
+          </button>
+        </div>
       </form>
     </div>
   );
 };
 
-export default AddTest;
+export default AddAptitudeTest;

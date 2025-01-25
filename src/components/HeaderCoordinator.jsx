@@ -13,10 +13,10 @@ const HeaderCoordinator = () => {
     const location = useLocation();
     const navItems = [
       { label: "HOME", href: "/Coordinator" },
-      { label: "Add Aptitude Test", href: "/add-test" },
-      { label: "Add Event", href: "/add-event" },
-      { label: "Add Resources", href: "/add-resources" },
-      { label: "Placement Results", href: "/add-results" },
+      { label: "Aptitude Test", href: "/AptitudeTest" },
+      { label: "Event", href: "/Event" },
+      { label: "Resources", href: "/Resources" },
+      { label: "Placement Results", href: "/PlacementResults" },
     ];
     {navItems.map((item, index) => (
       <li key={index}>
