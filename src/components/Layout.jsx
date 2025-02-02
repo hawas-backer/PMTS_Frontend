@@ -5,7 +5,7 @@ import HeaderCoordinator from './HeaderCoordinator';
 const Layout = () => (
   <div>
     <HeaderCoordinator />
-    <main className="container mx-auto mt-4">
+    <main className="container ">
       <Outlet />
     </main>
   </div>

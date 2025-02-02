@@ -1,62 +1,191 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Plus, Edit, Trash2, Building2, User } from 'lucide-react';
 
 const PlacementResults = () => {
-    const [placementResults, setPlacementResults] = useState([]);
+  const [showAddResult, setShowAddResult] = useState(false);
+  const [results, setResults] = useState([
+    {
+      id: 1,
+      companyName: 'TCS Digital',
+      studentName: 'John Doe',
+      batch: '2025',
+      package: '7.5 LPA',
+      designation: 'Digital Engineer',
+      date: '2025-02-15'
+    },
+    {
+      id: 2,
+      companyName: 'Infosys',
+      studentName: 'Jane Smith',
+      batch: '2025',
+      package: '6.8 LPA',
+      designation: 'Systems Engineer',
+      date: '2025-02-10'
+    }
+  ]);
 
-    // Simulate fetching data from the backend (image URLs and captions)
-    useEffect(() => {
-        // Example data fetching:
-        // axios.get('/placement-results').then(response => setPlacementResults(response.data));
+  return (
+    <div className="p-6 bg-[#0f1218]">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold text-gray-200">Placement Results</h2>
+        <button
+          onClick={() => setShowAddResult(true)}
+          className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
+        >
+          <Plus size={20} />
+          Add Result
+        </button>
+      </div>
 
-        setPlacementResults([
-            { id: 1, imageUrl: '/images/result1.jpg', caption: 'Placement Year 2023' },
-            { id: 2, imageUrl: '/images/result2.jpg', caption: 'Placement Year 2022' }
-        ]);
-    }, []);
-
-    const handleDelete = (id) => {
-        // Call to the backend to delete the result by ID
-        // Example: axios.delete(`/placement-results/${id}`).then(() => {
-        setPlacementResults(placementResults.filter(result => result.id !== id));
-        alert('Placement result deleted!');
-        // });
-    };
-
-    return (
-        <div className="p-8 max-w-6xl mx-auto">
-            <h2 className="text-2xl font-bold text-center mb-6">Placement Results</h2>
-
-            {/* Button to Add Placement Result */}
-            <div className="text-center mb-6">
-                <Link to="/add-results">
-                    <button className="bg-green-500 text-white py-2 px-6 rounded-lg hover:bg-green-600 transition duration-300">
-                        Add Placement Result
-                    </button>
-                </Link>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {results.map((result) => (
+          <div key={result.id} className="bg-[#1a1f2c] rounded-lg p-6">
+            <div className="flex justify-between items-start">
+              <div className="flex items-center gap-2">
+                <Building2 className="text-gray-400" size={20} />
+                <h3 className="text-xl font-bold text-gray-200">{result.companyName}</h3>
+              </div>
+              <div className="flex gap-2">
+                <button className="text-gray-400 hover:text-blue-400">
+                  <Edit size={18} />
+                </button>
+                <button className="text-gray-400 hover:text-red-400">
+                  <Trash2 size={18} />
+                </button>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {placementResults.map((result) => (
-                    <div key={result.id} className="relative text-center">
-                        <img src={result.imageUrl} alt={result.caption} className="w-full h-auto rounded-lg shadow-lg" />
-                        <p className="mt-4 font-semibold text-lg text-gray-800">{result.caption}</p>
-                        <button 
-                            onClick={() => handleDelete(result.id)} 
-                            className="absolute top-2 right-2 text-red-500 hover:text-red-700"
-                        >
-                            Delete
-                        </button>
-                    </div>
-                ))}
+            <div className="mt-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <User size={16} className="text-gray-400" />
+                <span className="text-gray-200">{result.studentName}</span>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-gray-400">Batch</p>
+                  <p className="text-gray-200">{result.batch}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-400">Package</p>
+                  <p className="text-green-400">{result.package}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-400">Designation</p>
+                  <p className="text-gray-200">{result.designation}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-400">Date</p>
+                  <p className="text-gray-200">{result.date}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {showAddResult && (
+        <AddResult onClose={() => setShowAddResult(false)} />
+      )}
+    </div>
+  );
+};
+
+const AddResult = ({ onClose }) => {
+  const [resultData, setResultData] = useState({
+    companyName: '',
+    studentName: '',
+    batch: '',
+    package: '',
+    designation: '',
+    date: ''
+  });
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+      <div className="bg-[#1a1f2c] rounded-lg p-6 w-full max-w-md">
+        <h3 className="text-xl font-bold text-gray-200 mb-4">Add Placement Result</h3>
+        
+        <div className="space-y-4">
+          <div>
+            <label className="block text-gray-300 mb-2">Company Name</label>
+            <input
+              type="text"
+              className="w-full bg-[#0f1218] text-gray-200 p-2 rounded"
+              value={resultData.companyName}
+              onChange={(e) => setResultData({...resultData, companyName: e.target.value})}
+            />
+          </div>
+
+          <div>
+            <label className="block text-gray-300 mb-2">Student Name</label>
+            <input
+              type="text"
+              className="w-full bg-[#0f1218] text-gray-200 p-2 rounded"
+              value={resultData.studentName}
+              onChange={(e) => setResultData({...resultData, studentName: e.target.value})}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-gray-300 mb-2">Batch</label>
+              <input
+                type="text"
+                className="w-full bg-[#0f1218] text-gray-200 p-2 rounded"
+                value={resultData.batch}
+                onChange={(e) => setResultData({...resultData, batch: e.target.value})}
+              />
             </div>
 
-            {/* Placeholder for where the results would be displayed on the home page */}
-            {/* <div className="home-placement-results">
-                Add a component or logic here to display these results on the homepage.
-            </div> */}
+            <div>
+              <label className="block text-gray-300 mb-2">Package (LPA)</label>
+              <input
+                type="text"
+                className="w-full bg-[#0f1218] text-gray-200 p-2 rounded"
+                value={resultData.package}
+                onChange={(e) => setResultData({...resultData, package: e.target.value})}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-gray-300 mb-2">Designation</label>
+            <input
+              type="text"
+              className="w-full bg-[#0f1218] text-gray-200 p-2 rounded"
+              value={resultData.designation}
+              onChange={(e) => setResultData({...resultData, designation: e.target.value})}
+            />
+          </div>
+
+          <div>
+            <label className="block text-gray-300 mb-2">Date</label>
+            <input
+              type="date"
+              className="w-full bg-[#0f1218] text-gray-200 p-2 rounded"
+              value={resultData.date}
+              onChange={(e) => setResultData({...resultData, date: e.target.value})}
+            />
+          </div>
         </div>
-    );
+
+        <div className="flex justify-end gap-4 mt-6">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-gray-400 hover:text-gray-200"
+          >
+            Cancel
+          </button>
+          <button
+            className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+          >
+            Add Result
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default PlacementResults;
