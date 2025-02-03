@@ -1,13 +1,15 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import HeaderCoordinator from './HeaderCoordinator';
+import Header from './Header';
+import Footer from './Footer';
 
 const Layout = () => (
   <div>
-    <HeaderCoordinator />
+    <Header />
     <main className="container ">
       <Outlet />
     </main>
+    <Footer/>
   </div>
 );
 

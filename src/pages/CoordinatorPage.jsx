@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import Events from '../components/Events';
-import AptitudeTest from '../components/AptitudeTest'
-import Resources from '../components/Resources';
-import PlacementResults from '../components/PlacementResults';
+import Events from '../components/Coordinator/Events';
+import AptitudeTest from '../components/Coordinator/AptitudeTest'
+import Resources from '../components/Coordinator/Resources';
+import PlacementResults from '../components/Coordinator/PlacementResults';
 import { 
   Home, BrainCircuit, Calendar, BookOpen, 
   BarChart3, Settings, Plus 

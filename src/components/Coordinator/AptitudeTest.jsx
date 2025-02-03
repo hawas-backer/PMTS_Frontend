@@ -11,7 +11,6 @@ const AptitudeTest = () => {
       date: '2025-03-15',
       duration: '60 minutes',
       totalQuestions: 50,
-      status: 'Upcoming'
     },
     {
       id: 2,
@@ -19,7 +18,6 @@ const AptitudeTest = () => {
       date: '2025-03-20',
       duration: '45 minutes',
       totalQuestions: 30,
-      status: 'Draft'
     }
   ]);
 
@@ -59,12 +57,6 @@ const AptitudeTest = () => {
               <div className="flex justify-between text-sm">
                 <span className="text-gray-400">Questions:</span>
                 <span className="text-gray-200">{test.totalQuestions}</span>
-              </div>
-              <div className="pt-2">
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                  ${test.status === 'Upcoming' ? 'bg-green-900 text-green-200' : 'bg-yellow-900 text-yellow-200'}`}>
-                  {test.status}
-                </span>
               </div>
             </div>
           </div>
