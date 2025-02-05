@@ -3,7 +3,7 @@ import { Bell, Settings, LogOut, User, Home, Users, BookOpen, Calendar, Mail, Me
 import gcekLogo from '../assets/gcek.jpg';
 import { Link } from 'react-router-dom';
 
-const Header = ({ username, profilePic, unreadCount }) => {
+const Header = ({ username,userrole, profilePic, unreadCount }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
@@ -102,7 +102,7 @@ const Header = ({ username, profilePic, unreadCount }) => {
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-semibold text-gray-900 dark:text-white">{user.name}</span>
                       <span className="px-2 py-0.5 bg-blue-50 text-blue-700 text-xs font-medium rounded-full">
-                        {user.role}
+                        {userrole}
                       </span>
                     </div>
                     <span className="text-xs text-gray-500 dark:text-gray-400">{user.department}</span>
@@ -135,14 +135,14 @@ const Header = ({ username, profilePic, unreadCount }) => {
                           <p className="text-xs text-gray-500 dark:text-gray-400">{user.email}</p>
                           <div className="mt-1">
                             <span className="px-2 py-0.5 bg-blue-50 text-blue-700 text-xs font-medium rounded-full">
-                              {user.role}
+                              {userrole}
                             </span>
                           </div>
                         </div>
                       </div>
                       <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
                         <p>{user.department}</p>
-                        <p>Batch of {user.batch}</p>
+                        <p>{ userrole==='Alumni' || userrole==='Student'  ?`Batch of ${user.batch}` : ""}</p>
                       </div>
                     </div>
 

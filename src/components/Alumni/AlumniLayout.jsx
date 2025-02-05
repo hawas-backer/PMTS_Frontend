@@ -11,7 +11,7 @@ const AlumniLayout = ({ username, profilePic, unreadCount }) => {
     <div className="min-h-screen flex flex-col bg-gray-900 text-white relative">
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-gray-900/90 backdrop-blur-md shadow-md border-b border-gray-700">
-        <Header username={username} profilePic={profilePic} />
+        <Header username={username} profilePic={profilePic} userrole={'Alumni'}/>
       </header>
 
       {/* Main Content Area */}

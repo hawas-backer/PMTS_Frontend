@@ -5,7 +5,7 @@ import ForgotPassword from './components/ForgotPassword'
 import AlumniRegister from './components/AlumniRegister'
 import { BrowserRouter,Routes,Route ,createBrowserRouter,createRoutesFromElements,RouterProvider} from 'react-router-dom'
 import CoordinatorPage from './pages/CoordinatorPage'
-import Layout from './components/Layout';
+import CoordinatorLayout from './components/Coordinator/CoordinatorLayout';
 import CreateStudentAccount from './components/CreateStudentAccount'
 import CreateTest from './components/Coordinator/CreateTest'
 import AlumniDashboard from './pages/AlumniDashboard'
@@ -19,6 +19,9 @@ import Networking from './components/alumni/Networking'
 import Notifications from './components/alumni/Notifications'
 import Feedback from './components/Alumni/Feedback'
 import StudentPage from './pages/StudentPage'
+import StudentLayout from './components/Student/StudentLayout'
+import AdvisorLayout from './components/Advisor/AdvisorLayout'
+
 
 
 const App = () => {
@@ -45,13 +48,18 @@ const router = createBrowserRouter(
         <Route path="feedback" element={<Feedback />} />
       </Route>
 
-      <Route path="Coordinator" element={<Layout />}>
+      <Route path="Coordinator" element={<CoordinatorLayout />}>
       <Route index element={<CoordinatorPage />} />
 
       </Route>
 
-      <Route path="Student" element={<Layout />}>
+      <Route path="Student" element={<StudentLayout />}>
       <Route index element={<StudentPage />} />
+
+      </Route>
+
+      <Route path="Advisor" element={<AdvisorLayout />}>
+      <Route index element={<AdvisorPage />} />
 
       </Route>
     </>
