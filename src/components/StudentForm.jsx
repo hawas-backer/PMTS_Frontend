@@ -12,7 +12,7 @@ import { useNavigate } from 'react-router-dom';
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log({ email, password }); // Replace this with backend API integration
-    navigate("/student")
+    navigate("/Student")
   };
 
   return (

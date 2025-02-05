@@ -17,7 +17,7 @@ import PlacementDrive from '../components/Student/PlacementDrive';
 import HomePage from './HomePage';
 
 const StudentPage = () => {
-  const [activeTab, setActiveTab] = useState('home');
+  const [activeTab, setActiveTab] = useState('Home');
   const [tooltipItem, setTooltipItem] = useState(null);
 
   const navItems = [
