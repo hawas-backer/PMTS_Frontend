@@ -18,6 +18,7 @@ import Events from './components/alumni/Events'
 import Networking from './components/alumni/Networking'
 import Notifications from './components/alumni/Notifications'
 import Feedback from './components/Alumni/Feedback'
+import StudentPage from './pages/StudentPage'
 
 
 const App = () => {
@@ -46,6 +47,11 @@ const router = createBrowserRouter(
 
       <Route path="Coordinator" element={<Layout />}>
       <Route index element={<CoordinatorPage />} />
+
+      </Route>
+
+      <Route path="Student" element={<Layout />}>
+      <Route index element={<StudentPage />} />
 
       </Route>
     </>
