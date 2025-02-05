@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { useState } from 'react';
 const Notifications = ({ notifications, markAsRead, clearAllNotifications }) => {
   return (
-    <div className="max-w-4xl mx-auto bg-gray-900 text-white p-8 rounded-lg shadow-md ">
+    <div className="max-w-4xl mx-auto bg-gray-900 text-white p-8 rounded-lg shadow-md h-full overflow-y-auto">
       <h1 className="text-3xl font-bold mb-8 text-center">Notifications and Alerts</h1>
       <div className="mb-4 flex justify-end">
         <button

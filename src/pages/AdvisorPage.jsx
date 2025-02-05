@@ -1,24 +1,21 @@
 import React, { useState } from 'react';
-import Events from '../components/Coordinator/Events';
-import AptitudeTest from '../components/Coordinator/AptitudeTest'
-import Resources from '../components/Coordinator/Resources';
-import PlacementResults from '../components/Coordinator/PlacementResults';
-import { 
-  Home, BrainCircuit, Calendar, BookOpen, 
-  BarChart3, Settings, Plus ,Pen
-} from 'lucide-react';
 import HomePage from './HomePage';
+import ViewAnalysis from '../components/Advisor/ViewAnalysis';
+import PendingRequests from '../components/Advisor/PendingRequests';
+import { 
+  Home, ClipboardList, BarChart
+} from 'lucide-react';
+
 
 const CoordinatorPage = () => {
   const [activeTab, setActiveTab] = useState('home');
-  const [showModal, setShowModal] = useState(false);
+ 
 
   const navItems = [
     { id: 'home', icon: Home, label: 'Home' },
-    { id: 'aptitude', icon: Pen, label: 'Aptitude Test' },
-    { id: 'events', icon: Calendar, label: 'Events' },
-    { id: 'resources', icon: BookOpen, label: 'Resources' },
-    { id: 'results', icon: BarChart3, label: 'Placement Results' },
+    { id: 'aptitude', icon: ClipboardList, label: 'Pending requests' },
+    { id: 'events', icon: BarChart, label: 'View Analysis' },
+
   ];
 
   return (
@@ -45,10 +42,9 @@ const CoordinatorPage = () => {
       <div className="flex-1 flex flex-col bg-[#0f1218]">
         <div className="flex-1 overflow-auto">
         {activeTab === 'home' && <HomePage/>}
-          {activeTab === 'aptitude' && <AptitudeTest />}
-          {activeTab === 'events' && <Events />}
-          {activeTab === 'resources' && <Resources />}
-          {activeTab === 'results' && <PlacementResults />}
+          {activeTab === 'aptitude' && <ViewAnalysis/>}
+          {activeTab === 'events' && <PendingRequests />}
+
         </div>
       </div>
     </div>
