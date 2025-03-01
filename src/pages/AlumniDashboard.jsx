@@ -1,14 +1,5 @@
 import React, { useState } from "react";
 import { createBrowserRouter, createRoutesFromElements, RouterProvider, Route } from "react-router-dom";
-import ShareOpportunities from "../components/alumni/ShareOpportunities";
-import ShareResources from "../components/alumni/ShareResources";
-import Events from "../components/alumni/Events";
-import Networking from "../components/alumni/Networking";
-import Notifications from "../components/alumni/Notifications";
-import HomePage from "./HomePage";
-import AlumniLayout from "../components/Alumni/AlumniLayout";
-import profilePic from "../assets/profile-pictures/user1.jpg";
-import Feedback from "../components/Alumni/Feedback"
  import { useEffect } from "react";
 
 const AlumniDashboard = () => {

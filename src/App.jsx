@@ -21,6 +21,9 @@ import Feedback from './components/Alumni/Feedback'
 import StudentPage from './pages/StudentPage'
 import StudentLayout from './components/Student/StudentLayout'
 import AdvisorLayout from './components/Advisor/AdvisorLayout'
+import PlacementData from './components/Home/PlacementData'
+import Recruiters from './components/Home/Recruiters'
+import HomeLayout from './components/Home/HomeLayout'
 
 
 
@@ -38,8 +41,13 @@ const router = createBrowserRouter(
       <Route path="Alumni" element={<AlumniDashboard />} />
       <Route path="Coordinator" element={<CoordinatorPage />} />
 
+
       <Route path="Alumni" element={<AlumniLayout />}>
-        <Route index element={<HomePage />} />
+        <Route path="" element={<HomeLayout />} >
+          <Route index element={<HomePage />} />
+          <Route path="placementData" element={<PlacementData />} />
+          <Route path="recruiters" element={<Recruiters />} />
+        </Route>
         <Route path="shareOportunities" element={<ShareOpportunities />} />
         <Route path="shareResources" element={<ShareResources />} />
         <Route path="events" element={<Events />} />
@@ -48,9 +56,9 @@ const router = createBrowserRouter(
         <Route path="feedback" element={<Feedback />} />
       </Route>
 
-      <Route path="Coordinator" element={<CoordinatorLayout />}>
+      <Route path="Coordinator" element={<CoordinatorLayout home={"Coordinator"}/>}>
       <Route index element={<CoordinatorPage />} />
-
+      <Route path="create-test" element={<CreateTest />} />
       </Route>
 
       <Route path="Student" element={<StudentLayout />}>
