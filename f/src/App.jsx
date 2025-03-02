@@ -7,9 +7,9 @@ import CreateStudentAccount from './pages/CreateStudentAccount';
 import ForgotPassword from './pages/ForgotPassword';
 import Dashboard from './pages/Dashboard';
 import StudentDashboard from './components/Student/StudentLayout';
-import AlumniDashboard from './pages/AlumniDashboard';
-import CoordinatorDashboard from './pages/CoordinatorDashboard';
-import AdvisorDashboard from './pages/AdvisorDashboard';
+import AlumniDashboard from './components/Alumni/AlumniLayout';
+import CoordinatorDashboard from './components/Coordinator/CoordinatorLayout';
+import AdvisorDashboard from './components/Advisor/AdvisorLayout';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
