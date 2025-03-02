@@ -18,7 +18,7 @@ const Layout = () => {
   ];
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col w-screen h-screen bg-[#0f1218]">
       {/* Top Header */}
       <Header userrole={"Coordinator"} />
 
@@ -46,13 +46,15 @@ const Layout = () => {
         </nav>
 
         {/* Main Content Area */}
-       
+        <div className="overflow-y-auto w-full">
           <Outlet />
+        </div>
+         
         
       </div>
 
       {/* Footer */}
-      <Footer />
+      <Footer className="mt-auto bg-gray-900/90 backdrop-blur-md py-4 border-t border-gray-700 text-center text-sm"/>
     </div>
   );
 };

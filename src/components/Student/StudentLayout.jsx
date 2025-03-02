@@ -116,7 +116,7 @@ const Layout = () => {
       </div>
 
       {/* Main Content */}
-      <div className='h-screen w-full bg-[#1a1f2c]'>
+      <div className='h-screen w-full bg-[#1a1f2c] overflow-y-auto'>
         <Outlet />
       </div>
      

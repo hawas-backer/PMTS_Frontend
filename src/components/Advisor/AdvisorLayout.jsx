@@ -40,13 +40,13 @@ const AdvisorLayout = () => {
           </button>
         ))}
       </div>
-     <main className="container h-screen">
+     <main className="container h-screen w-full overflow-y-auto">
       <Outlet />
      </main>
 
     </div>
 
-    <Footer/>
+    <Footer className="mt-auto bg-gray-900/90 backdrop-blur-md py-4 border-t border-gray-700 text-center text-sm"/>
   </div>
 
   );
