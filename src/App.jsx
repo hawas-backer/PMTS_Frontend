@@ -4,7 +4,6 @@ import StudentRegister from './components/StudentRegister'
 import ForgotPassword from './components/ForgotPassword'
 import AlumniRegister from './components/AlumniRegister'
 import { BrowserRouter,Routes,Route ,createBrowserRouter,createRoutesFromElements,RouterProvider} from 'react-router-dom'
-import CoordinatorPage from './pages/CoordinatorPage'
 import CoordinatorLayout from './components/Coordinator/CoordinatorLayout';
 import CreateStudentAccount from './components/CreateStudentAccount'
 import CreateTest from './components/Coordinator/CreateTest'
@@ -14,7 +13,7 @@ import AdvisorPage from './pages/AdvisorPage'
 import AlumniLayout from './components/Alumni/AlumniLayout'
 import ShareOpportunities from './components/alumni/ShareOpportunities'
 import ShareResources from './components/alumni/ShareResources'
-import Events from './components/alumni/Events'
+import Events from './components/Coordinator/Events'
 import Networking from './components/alumni/Networking'
 import Notifications from './components/alumni/Notifications'
 import Feedback from './components/Alumni/Feedback'
@@ -24,6 +23,15 @@ import AdvisorLayout from './components/Advisor/AdvisorLayout'
 import PlacementData from './components/Home/PlacementData'
 import Recruiters from './components/Home/Recruiters'
 import HomeLayout from './components/Home/HomeLayout'
+import AptitudeTest from './components/Coordinator/AptitudeTest'
+import Resources from './components/Coordinator/Resources'
+import PlacementResults from './components/Coordinator/PlacementResults'
+import PlacementDrive from './components/Student/PlacementDrive'
+import ResourceAdd from './components/Student/ResourceAdd'
+import Analytics from './components/Student/Analytics'
+import EventAdd from './components/Student/EventAdd'
+import JobOpportunities from './components/Student/JobOpportunities'
+import ExamCorner from './components/Student/ExamCorner'
 
 
 
@@ -38,8 +46,6 @@ const router = createBrowserRouter(
       <Route path="AlumniRegister" element={<AlumniRegister />} />
       <Route path="ForgotPassword" element={<ForgotPassword />} />
       <Route path="CreateStudent" element={<CreateStudentAccount />} />
-      <Route path="Alumni" element={<AlumniDashboard />} />
-      <Route path="Coordinator" element={<CoordinatorPage />} />
 
 
       <Route path="Alumni" element={<AlumniLayout />}>
@@ -57,13 +63,30 @@ const router = createBrowserRouter(
       </Route>
 
       <Route path="Coordinator" element={<CoordinatorLayout home={"Coordinator"}/>}>
-      <Route index element={<CoordinatorPage />} />
+        <Route path="" element={<HomeLayout />} >
+          <Route index element={<HomePage />} />
+          <Route path="placementData" element={<PlacementData />} />
+          <Route path="recruiters" element={<Recruiters />} />
+        </Route>
+      <Route path="aptitude" element={<AptitudeTest />} />
+      <Route path="events" element={<Events />} />
+      <Route path="resources" element={<Resources />} />
+      <Route path="results" element={<PlacementResults />} />
       <Route path="create-test" element={<CreateTest />} />
       </Route>
 
       <Route path="Student" element={<StudentLayout />}>
-      <Route index element={<StudentPage />} />
-
+        <Route path="" element={<HomeLayout />} >
+          <Route index element={<HomePage />} />
+          <Route path="placementData" element={<PlacementData />} />
+          <Route path="recruiters" element={<Recruiters />} />
+        </Route>
+        <Route path="placement" element={<PlacementDrive/>} />
+        <Route path="resources" element={<ResourceAdd />} />
+        <Route path="analytics" element={<Analytics />} />
+        <Route path="events" element={<EventAdd />} />
+        <Route path="jobs" element={<JobOpportunities />} />
+        <Route path="exam" element={<ExamCorner />} />
       </Route>
 
       <Route path="Advisor" element={<AdvisorLayout />}>

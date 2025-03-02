@@ -13,10 +13,10 @@ const HomeLayout = () => {
         { label: 'Contact', icon: Mail, href: 'Contact' },
       ];
   return (
-    <div>
+    <div className="w-full bg-gray-80 h-screen" >
 
       <nav className="bg-gray-50 dark:bg-gray-800 border-t   border-gray-200 dark:border-gray-700 md:border-t-0 ">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ">
             <div className="hidden md:flex space-x-8  h-12">
               {navItems.map((item) => (
                 <Link

@@ -22,9 +22,9 @@ const AptitudeTest = () => {
   ]);
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 h-screen bg-[#0f1218] w-full">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-200">Aptitude Tests</h2>
+        <h2 className="text-2xl font-bold text-white">Aptitude Tests</h2>
         <button onClick={() => navigate('/Coordinator/create-test')} className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
           <Plus size={20} />
           Create New Test

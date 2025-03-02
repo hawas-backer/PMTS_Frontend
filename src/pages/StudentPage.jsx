@@ -73,7 +73,7 @@ const StudentPage = () => {
   ];
 
   return (
-    <div className="flex  h-screen w-screen bg-[#0f1218] ">
+    <div className="flex  h-screen w-screen bg-[#0f1218]">
       {/* Sidebar with Navigation Icons */}
       <div className="w-16 bg-[#1a1f2c] h-screen py-4 flex flex-col items-center space-y-4">
         {navItems.map((item) => (

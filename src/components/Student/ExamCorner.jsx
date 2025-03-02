@@ -6,7 +6,7 @@ const Exam = () => {
   const [selectedSection, setSelectedSection] = useState(false);
 
   return (
-    <div className="space-y-6 max-w-4xl pt-8">
+    <div className="space-y-6 w-full bg-[#1a1f2c] h-screen pt-8">
       {!selectedSection ? (
         <div className="grid sm:grid-cols-1 md:grid-cols-2 gap-5 text-white">
           <div
