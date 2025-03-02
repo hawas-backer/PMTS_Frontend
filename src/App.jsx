@@ -7,9 +7,7 @@ import { BrowserRouter,Routes,Route ,createBrowserRouter,createRoutesFromElement
 import CoordinatorLayout from './components/Coordinator/CoordinatorLayout';
 import CreateStudentAccount from './components/CreateStudentAccount'
 import CreateTest from './components/Coordinator/CreateTest'
-import AlumniDashboard from './pages/AlumniDashboard'
 import HomePage from './pages/HomePage'
-import AdvisorPage from './pages/AdvisorPage'
 import AlumniLayout from './components/Alumni/AlumniLayout'
 import ShareOpportunities from './components/alumni/ShareOpportunities'
 import ShareResources from './components/alumni/ShareResources'
@@ -17,7 +15,6 @@ import Events from './components/Coordinator/Events'
 import Networking from './components/alumni/Networking'
 import Notifications from './components/alumni/Notifications'
 import Feedback from './components/Alumni/Feedback'
-import StudentPage from './pages/StudentPage'
 import StudentLayout from './components/Student/StudentLayout'
 import AdvisorLayout from './components/Advisor/AdvisorLayout'
 import PlacementData from './components/Home/PlacementData'
@@ -32,8 +29,12 @@ import Analytics from './components/Student/Analytics'
 import EventAdd from './components/Student/EventAdd'
 import JobOpportunities from './components/Student/JobOpportunities'
 import ExamCorner from './components/Student/ExamCorner'
-
-
+import PendingRequests from './components/Advisor/PendingRequests'
+import ViewAnalysis from './components/Advisor/ViewAnalysis'
+import Contact from './components/Home/Contact'
+import Gallery from './components/Home/Gallery'
+import Procedure from './components/Home/Procedure'
+import Testimonial from './components/Home/Testimonial'
 
 const App = () => {
   
@@ -53,6 +54,10 @@ const router = createBrowserRouter(
           <Route index element={<HomePage />} />
           <Route path="placementData" element={<PlacementData />} />
           <Route path="recruiters" element={<Recruiters />} />
+          <Route path="gallery" element={<Gallery />} />
+          <Route path="contact" element={<Contact />} />
+          <Route path="procedure" element={<Procedure />} />
+          <Route path="testimonial" element={<Testimonial />} />
         </Route>
         <Route path="shareOportunities" element={<ShareOpportunities />} />
         <Route path="shareResources" element={<ShareResources />} />
@@ -67,6 +72,10 @@ const router = createBrowserRouter(
           <Route index element={<HomePage />} />
           <Route path="placementData" element={<PlacementData />} />
           <Route path="recruiters" element={<Recruiters />} />
+          <Route path="gallery" element={<Gallery />} />
+          <Route path="contact" element={<Contact />} />
+          <Route path="procedure" element={<Procedure />} />
+          <Route path="testimonial" element={<Testimonial />} />
         </Route>
       <Route path="aptitude" element={<AptitudeTest />} />
       <Route path="events" element={<Events />} />
@@ -80,6 +89,10 @@ const router = createBrowserRouter(
           <Route index element={<HomePage />} />
           <Route path="placementData" element={<PlacementData />} />
           <Route path="recruiters" element={<Recruiters />} />
+          <Route path="gallery" element={<Gallery />} />
+          <Route path="contact" element={<Contact />} />
+          <Route path="procedure" element={<Procedure />} />
+          <Route path="testimonial" element={<Testimonial />} />
         </Route>
         <Route path="placement" element={<PlacementDrive/>} />
         <Route path="resources" element={<ResourceAdd />} />
@@ -90,8 +103,17 @@ const router = createBrowserRouter(
       </Route>
 
       <Route path="Advisor" element={<AdvisorLayout />}>
-      <Route index element={<AdvisorPage />} />
-
+        <Route path="" element={<HomeLayout />} >
+          <Route index element={<HomePage />} />
+          <Route path="placementData" element={<PlacementData />} />
+          <Route path="recruiters" element={<Recruiters />} />
+          <Route path="gallery" element={<Gallery />} />
+          <Route path="contact" element={<Contact />} />
+          <Route path="procedure" element={<Procedure />} />
+          <Route path="testimonial" element={<Testimonial />} />
+        </Route>
+        <Route path="pendingRequests" element={<PendingRequests />} />
+        <Route path="viewAnalysis" element={<ViewAnalysis />} />
       </Route>
     </>
     
