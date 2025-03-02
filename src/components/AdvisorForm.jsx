@@ -1,44 +1,53 @@
-import React from 'react'
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useContext } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 
-export const AdvisorForm = () => {
-    const [email, setEmail] = useState('');
-      const [password, setPassword] = useState('');
-      const navigate = useNavigate()
-      const handleSubmit = (e) => {
-        e.preventDefault();
-        console.log({ email, password }); // Replace this with backend API integration
-        navigate('./Advisor')
-      };
-    
-    return (
-      <div className="flex ">
-  
-      <div className=" flex flex-col justify-center items-center">
-        <form className=" bg-white  p-8 rounded" onSubmit={handleSubmit}>
+export const AdvisorForm = ({ onGoogleLogin }) => {
+  const { emailLogin } = useContext(AuthContext);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await emailLogin(email, password);
+      navigate('/dashboard');
+    } catch (err) {
+      setError('Invalid email or password');
+    }
+  };
+
+  return (
+    <div className="flex">
+      <div className="flex flex-col justify-center items-center">
+        <form className="bg-white p-8 rounded" onSubmit={handleSubmit}>
           <h1 className="text-2xl font-bold text-center mb-6 text-blue-800">
             Advisor Login
           </h1>
+          {error && <p className="text-red-500 text-center mb-4">{error}</p>}
           <div className="mb-4">
-     
             <input
-              className="w-full px-4 py-2  focus:outline-none focus:ring-2 focus:ring-blue-600 "
+              className="w-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
               type="email"
               id="email"
               placeholder="Enter your email"
+              value={email}
               onChange={(e) => setEmail(e.target.value)}
+              required
             />
             <div className="border-b border-gray-300 mb-6"></div>
           </div>
           <div className="mb-6">
             <input
-              className="w-full px-4 py-2  focus:outline-none focus:ring-2 focus:ring-blue-600"
+              className="w-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
               type="password"
               id="password"
               placeholder="Enter your password"
+              value={password}
               onChange={(e) => setPassword(e.target.value)}
+              required
             />
             <div className="border-b border-gray-300 mb-6"></div>
           </div>
@@ -48,14 +57,21 @@ export const AdvisorForm = () => {
           >
             Login
           </button>
-          <Link className='text-blue-600 hover:text-blue-800 text-sm  mt-4 flex justify-center'
-              to='/ForgotPassword'
-              >Forgot password?
+          <button
+            type="button"
+            onClick={onGoogleLogin}
+            className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mt-2"
+          >
+            Login with Google
+          </button>
+          <Link
+            className="text-blue-600 hover:text-blue-800 text-sm mt-4 flex justify-center"
+            to="/forgotpassword"
+          >
+            Forgot password?
           </Link>
-
-  
         </form>
       </div>
     </div>
-    )
-  };
+  );
+};
