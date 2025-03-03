@@ -50,15 +50,7 @@ const router = createBrowserRouter(
 
 
       <Route path="Alumni" element={<AlumniLayout />}>
-        <Route path="" element={<HomeLayout />} >
-          <Route index element={<HomePage />} />
-          <Route path="placementData" element={<PlacementData />} />
-          <Route path="recruiters" element={<Recruiters />} />
-          <Route path="gallery" element={<Gallery />} />
-          <Route path="contact" element={<Contact />} />
-          <Route path="procedure" element={<Procedure />} />
-          <Route path="testimonial" element={<Testimonial />} />
-        </Route>
+        <Route path="" element={<HomeLayout  userType="alumni"/>}/>
         <Route path="shareOportunities" element={<ShareOpportunities />} />
         <Route path="shareResources" element={<ShareResources />} />
         <Route path="events" element={<Events />} />
@@ -68,15 +60,8 @@ const router = createBrowserRouter(
       </Route>
 
       <Route path="Coordinator" element={<CoordinatorLayout home={"Coordinator"}/>}>
-        <Route path="" element={<HomeLayout />} >
-          <Route index element={<HomePage />} />
-          <Route path="placementData" element={<PlacementData />} />
-          <Route path="recruiters" element={<Recruiters />} />
-          <Route path="gallery" element={<Gallery />} />
-          <Route path="contact" element={<Contact />} />
-          <Route path="procedure" element={<Procedure />} />
-          <Route path="testimonial" element={<Testimonial />} />
-        </Route>
+        <Route path="" element={<HomeLayout userType="coordinator" />} />
+
       <Route path="aptitude" element={<AptitudeTest />} />
       <Route path="events" element={<Events />} />
       <Route path="resources" element={<Resources />} />
@@ -85,15 +70,8 @@ const router = createBrowserRouter(
       </Route>
 
       <Route path="Student" element={<StudentLayout />}>
-        <Route path="" element={<HomeLayout />} >
-          <Route index element={<HomePage />} />
-          <Route path="placementData" element={<PlacementData />} />
-          <Route path="recruiters" element={<Recruiters />} />
-          <Route path="gallery" element={<Gallery />} />
-          <Route path="contact" element={<Contact />} />
-          <Route path="procedure" element={<Procedure />} />
-          <Route path="testimonial" element={<Testimonial />} />
-        </Route>
+        <Route path="" element={<HomeLayout />} />
+  
         <Route path="placement" element={<PlacementDrive/>} />
         <Route path="resources" element={<ResourceAdd />} />
         <Route path="analytics" element={<Analytics />} />
@@ -103,15 +81,7 @@ const router = createBrowserRouter(
       </Route>
 
       <Route path="Advisor" element={<AdvisorLayout />}>
-        <Route path="" element={<HomeLayout />} >
-          <Route index element={<HomePage />} />
-          <Route path="placementData" element={<PlacementData />} />
-          <Route path="recruiters" element={<Recruiters />} />
-          <Route path="gallery" element={<Gallery />} />
-          <Route path="contact" element={<Contact />} />
-          <Route path="procedure" element={<Procedure />} />
-          <Route path="testimonial" element={<Testimonial />} />
-        </Route>
+        <Route path="" element={<HomeLayout />} />
         <Route path="pendingRequests" element={<PendingRequests />} />
         <Route path="viewAnalysis" element={<ViewAnalysis />} />
       </Route>

@@ -25,7 +25,7 @@ const Layout = () => {
       {/* Main Content - Flexbox Layout */}
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar (Navbar) */}
-        <nav className="w-20 bg-[#1a1f2c] py-4 flex flex-col items-center space-y-4 h-full">
+        <nav className=" relative bg-[#1a1f2c] py-4 flex flex-col items-center  w-20 space-y-4 h-full">
           {navItems.map((item) => (
             <button
               key={item.id}
@@ -46,7 +46,7 @@ const Layout = () => {
         </nav>
 
         {/* Main Content Area */}
-        <div className="overflow-y-auto w-full">
+        <div className=" overflow-y-auto w-full">
           <Outlet />
         </div>
          

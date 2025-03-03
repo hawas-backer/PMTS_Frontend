@@ -5,8 +5,8 @@ const images = import.meta.glob("/src/assets/recruiters/*.{png,jpg,jpeg}", { eag
 
 const Recruiters= () => {
   return (
-    <div className="p-4">
-      <h2 className="text-center text-2xl font-bold mb-6 text-white">
+    <div className="p-4 text-black">
+      <h2 className="text-center text-2xl font-bold mb-6 text-black">
         OUR RECRUITERS
       </h2>
       <div className="grid grid-cols-2 md:grid-cols-5 lg:grid-cols-4 gap-4">
