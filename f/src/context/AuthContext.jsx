@@ -24,13 +24,13 @@ export const AuthProvider = ({ children }) => {
           const res = await axios.get('http://localhost:5000/api/auth/me', {
             headers: { Authorization: `Bearer ${token}` },
           });
-          console.log('Role from /me:', res.data.role);
+          console.log('Role fetched from /me:', res.data.role);
           setUser(firebaseUser);
-          setRole(res.data.role);
+          setRole(res.data.role || null); // Ensure role is null if undefined
         } catch (err) {
           console.error('Failed to fetch role:', err.response?.data || err.message);
-          setUser(null);
-          setRole(null);
+          setUser(firebaseUser); // Keep user but no role
+          setRole(null); // Role fetch failed
         }
       } else {
         console.log('No user signed in');
@@ -54,9 +54,9 @@ export const AuthProvider = ({ children }) => {
       );
       console.log('Google login response:', res.data);
       setRole(res.data.role);
-      return res.data.role;
+      return { email: result.user.email, role: res.data.role };
     } catch (err) {
-      throw new Error('Google login failed: ' + err.message);
+      throw new Error(err.response?.data.message || 'Google login failed: ' + err.message);
     }
   };
 
@@ -69,7 +69,7 @@ export const AuthProvider = ({ children }) => {
       });
       console.log('Email login role:', res.data.role);
       setRole(res.data.role);
-      return res.data.role; // Return role for immediate navigation
+      return res.data.role;
     } catch (err) {
       throw new Error('Email login failed: ' + err.message);
     }

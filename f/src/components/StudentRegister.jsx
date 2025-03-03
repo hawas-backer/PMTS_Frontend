@@ -36,6 +36,12 @@ const StudentRegister = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Validate email domain
+      if (!email.endsWith('@gcek.ac.in')) {
+        setError('Email must end with @gcek.ac.in for students');
+        return;
+      }
+
       console.log('Checking if user exists:', email);
       const checkResponse = await axios.post('http://localhost:5000/api/auth/check-user', { email });
       if (checkResponse.data.exists) {
@@ -84,6 +90,7 @@ const StudentRegister = () => {
       console.error('Verification error:', err.response?.data || err);
     }
   };
+
   return (
     <div className="flex flex-col h-screen justify-center items-center bg-gray-100">
       <div className="bg-white p-8 rounded shadow-md w-96">
@@ -127,7 +134,7 @@ const StudentRegister = () => {
               <input
                 className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-600"
                 type="email"
-                placeholder="Enter Email"
+                placeholder="Enter Email (must be @gcek.ac.in)"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required

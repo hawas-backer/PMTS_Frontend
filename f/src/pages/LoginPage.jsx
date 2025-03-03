@@ -17,11 +17,28 @@ const LoginPage = () => {
   const handleGoogleLogin = async () => {
     try {
       console.log('Starting Google login for role:', activeRole);
-      const role = await googleLogin(activeRole);
-      console.log('Google login successful, role:', role);
-      navigate(`/${role.toLowerCase()}`); // Direct navigation based on role
+      const result = await googleLogin(activeRole);
+      console.log('Google login result:', result);
+
+      if (activeRole === 'Student') {
+        if (!result.email || !result.email.endsWith('@gcek.ac.in')) {
+          setError('Students must use a @gcek.ac.in email');
+          console.log('Email validation failed:', result.email);
+          return;
+        }
+      }
+
+      console.log('Google login successful, navigating to:', `/${result.role.toLowerCase()}`);
+      navigate(`/${result.role.toLowerCase()}`, { replace: true });
     } catch (err) {
-      setError('Google login failed: ' + err.message);
+      if (err.message === 'Not allowed: Coordinator/Advisor must exist in database') {
+        setError('Not allowed: Only existing Coordinators or Advisors can use Google Sign-In');
+      } else if (err.message === 'Role mismatch: User registered with a different role') {
+        setError('Role mismatch: This email is registered with a different role');
+      } else {
+        setError('Google login failed: ' + err.message);
+      }
+      console.error('Google login error:', err);
     }
   };
 
