@@ -1,11 +1,6 @@
 import { createContext, useState, useEffect } from 'react';
 import { auth, googleProvider } from '../firebase';
-import {
-  signInWithPopup,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  signOut,
-} from 'firebase/auth';
+import { signInWithPopup, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import axios from 'axios';
 
 export const AuthContext = createContext();
@@ -26,11 +21,18 @@ export const AuthProvider = ({ children }) => {
           });
           console.log('Role fetched from /me:', res.data.role);
           setUser(firebaseUser);
-          setRole(res.data.role || null); // Ensure role is null if undefined
+          setRole(res.data.role || null);
         } catch (err) {
           console.error('Failed to fetch role:', err.response?.data || err.message);
-          setUser(firebaseUser); // Keep user but no role
-          setRole(null); // Role fetch failed
+          if (err.response?.status === 404) {
+            console.log('User not found in MongoDB, signing out:', firebaseUser.email);
+            await signOut(auth); // Sign out if user not in MongoDB
+            setUser(null);
+            setRole(null);
+          } else {
+            setUser(firebaseUser); // Keep user but no role
+            setRole(null);
+          }
         }
       } else {
         console.log('No user signed in');
@@ -75,23 +77,15 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const register = async (email, password, role) => {
-    const result = await createUserWithEmailAndPassword(auth, email, password);
-    const res = await axios.post('http://localhost:5000/api/auth/register', {
-      email,
-      firebaseUid: result.user.uid,
-      role,
-    });
-    return res.data.otpToken;
-  };
-
   const logout = async () => {
     await signOut(auth);
   };
 
   return (
-    <AuthContext.Provider value={{ user, role, loading, googleLogin, emailLogin, register, logout }}>
+    <AuthContext.Provider value={{ user, role, loading, googleLogin, emailLogin, logout }}>
       {children}
     </AuthContext.Provider>
   );
 };
+
+export default AuthProvider;

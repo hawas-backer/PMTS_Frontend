@@ -1,9 +1,8 @@
 import React from 'react';
 import LoginPage from './pages/LoginPage';
-import StudentRegister from './components/StudentRegister';
+import Register from './pages/Register'; // New import
 import ForgotPassword from './components/ForgotPassword';
-import AlumniRegister from './components/AlumniRegister';
-import { createBrowserRouter, createRoutesFromElements, RouterProvider ,Route} from 'react-router-dom';
+import { createBrowserRouter, createRoutesFromElements, RouterProvider,Route } from 'react-router-dom';
 import CoordinatorLayout from './components/Coordinator/CoordinatorLayout';
 import CreateStudentAccount from './components/CreateStudentAccount';
 import CreateTest from './components/Coordinator/CreateTest';
@@ -42,12 +41,13 @@ const App = () => {
   const router = createBrowserRouter(
     createRoutesFromElements(
       <>
+        {/* Public Routes */}
         <Route path="/" element={<LoginPage />} />
-        <Route path="StudentRegister" element={<StudentRegister />} />
-        <Route path="AlumniRegister" element={<AlumniRegister />} />
+        <Route path="register" element={<Register />} /> {/* Replaced StudentRegister/AlumniRegister */}
         <Route path="ForgotPassword" element={<ForgotPassword />} />
-        <Route path="CreateStudent" element={<CreateStudentAccount />} />
+        
 
+        {/* Protected Routes */}
         <Route
           path="Alumni"
           element={<ProtectedRoute allowedRoles={['Alumni']}><AlumniLayout /></ProtectedRoute>}

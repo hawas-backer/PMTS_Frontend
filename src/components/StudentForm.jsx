@@ -1,4 +1,3 @@
-
 import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
@@ -14,11 +13,11 @@ const StudentForm = ({ onGoogleLogin }) => {
     e.preventDefault();
     try {
       const role = await emailLogin(email, password);
-      console.log('Login successful, role:', role);
-      navigate(`/${role.toLowerCase()}`); // Direct navigation based on role
-      console.log('Login successful1212, role:', role);
+      console.log('Student login successful, role:', role);
+      navigate(`/${role.toLowerCase()}`, { replace: true });
     } catch (err) {
       setError('Invalid email or password: ' + err.message);
+      console.error('Student login error:', err);
     }
   };
 
@@ -26,33 +25,27 @@ const StudentForm = ({ onGoogleLogin }) => {
     <div className="flex">
       <div className="flex flex-col justify-center items-center">
         <form className="bg-white p-8 rounded" onSubmit={handleSubmit}>
-          <h1 className="text-2xl font-bold text-center mb-6 text-blue-800">
-            Student Login
-          </h1>
+          <h1 className="text-2xl font-bold text-center mb-6 text-blue-800">Student Login</h1>
           {error && <p className="text-red-500 text-center mb-4">{error}</p>}
           <div className="mb-4">
             <input
-              className="w-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
+              className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-600"
               type="email"
-              id="email"
-              placeholder="Enter your email"
+              placeholder="Enter your email (e.g., @gcek.ac.in)"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
-            <div className="border-b border-gray-300 mb-6"></div>
           </div>
-          <div className="mb-6">
+          <div className="mb-4">
             <input
-              className="w-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
+              className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-600"
               type="password"
-              id="password"
               placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-            <div className="border-b border-gray-300 mb-6"></div>
           </div>
           <button
             type="submit"
@@ -67,20 +60,9 @@ const StudentForm = ({ onGoogleLogin }) => {
           >
             Login with Google
           </button>
-          <div className="text-blue-600 hover:text-blue-800 text-sm mt-4 flex justify-center">
-            <Link
-              className="text-blue-600 hover:text-blue-800 text-sm flex justify-center"
-              to="/forgotpassword"
-            >
-              Forgot password?
-            </Link>
-          </div>
-          <div className="mt-8 flex justify-center items-center">
+          <div className="mt-4 flex justify-center items-center">
             <p className="font-medium text-base">Don't have an account?</p>
-            <Link
-              to="/studentregister"
-              className="ml-2 font-medium text-base text-blue-800"
-            >
+            <Link to="/register" className="ml-2 font-medium text-base text-blue-800">
               Register Now
             </Link>
           </div>
@@ -90,4 +72,4 @@ const StudentForm = ({ onGoogleLogin }) => {
   );
 };
 
-export default StudentForm;
+export { StudentForm }; // Named export
