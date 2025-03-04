@@ -43,14 +43,14 @@ const StudentRegister = () => {
       }
 
       console.log('Checking if user exists:', email);
-      const checkResponse = await axios.post('http://localhost:5000/api/auth/check-user', { email });
+      const checkResponse = await axios.post('http://localhost:8080/api/auth/check-user', { email });
       if (checkResponse.data.exists) {
         setError('User already exists');
         return;
       }
 
       console.log('Sending OTP request:', { name, year, branch, email, password });
-      const otpResponse = await axios.post('http://localhost:5000/api/auth/send-otp', {
+      const otpResponse = await axios.post('http://localhost:8080/api/auth/send-otp', {
         name,
         year,
         branch,
@@ -72,7 +72,7 @@ const StudentRegister = () => {
     e.preventDefault();
     try {
       console.log('Verifying OTP:', { otpToken, otp });
-      const response = await axios.post('http://localhost:5000/api/auth/verify-and-register', {
+      const response = await axios.post('http://localhost:8080/api/auth/verify-and-register', {
         name,
         year,
         branch,

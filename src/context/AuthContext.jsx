@@ -21,7 +21,7 @@ export const AuthProvider = ({ children }) => {
         const token = await firebaseUser.getIdToken();
         console.log('User signed in:', firebaseUser.email);
         try {
-          const res = await axios.get('http://localhost:5000/api/auth/me', {
+          const res = await axios.get('http://localhost:8080/api/auth/me', {
             headers: { Authorization: `Bearer ${token}` },
           });
           console.log('Role fetched from /me:', res.data.role);
@@ -48,7 +48,7 @@ export const AuthProvider = ({ children }) => {
       const token = await result.user.getIdToken();
       console.log('Google token:', token);
       const res = await axios.post(
-        'http://localhost:5000/api/auth/google-login',
+        'http://localhost:8080/api/auth/google-login',
         { firebaseUid: result.user.uid, email: result.user.email, role },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -64,7 +64,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const result = await signInWithEmailAndPassword(auth, email, password);
       const token = await result.user.getIdToken();
-      const res = await axios.get('http://localhost:5000/api/auth/me', {
+      const res = await axios.get('http://localhost:8080/api/auth/me', {
         headers: { Authorization: `Bearer ${token}` },
       });
       console.log('Email login role:', res.data.role);
@@ -77,7 +77,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (email, password, role) => {
     const result = await createUserWithEmailAndPassword(auth, email, password);
-    const res = await axios.post('http://localhost:5000/api/auth/register', {
+    const res = await axios.post('http://localhost:8080/api/auth/register', {
       email,
       firebaseUid: result.user.uid,
       role,

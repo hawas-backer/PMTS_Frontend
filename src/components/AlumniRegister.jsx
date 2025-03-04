@@ -48,7 +48,7 @@ const AlumniRegister = () => {
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/auth/verify-otp', { otpToken, otp });
+      await axios.post('http://localhost:8080/api/auth/verify-otp', { otpToken, otp });
       alert('Registration successful. Please log in.');
       window.location.href = '/';
     } catch (err) {

@@ -50,7 +50,7 @@ const App = () => {
 
         <Route
           path="Alumni"
-          element={<ProtectedRoute allowedRoles={['Alumni']}><AlumniLayout /></ProtectedRoute>}
+          element={<AlumniLayout />}
         >
           <Route path="" element={<HomeLayout />}>
             <Route index element={<HomePage />} />
@@ -71,7 +71,7 @@ const App = () => {
 
         <Route
           path="Coordinator"
-          element={<ProtectedRoute allowedRoles={['Coordinator']}><CoordinatorLayout home={'Coordinator'} /></ProtectedRoute>}
+          element={<CoordinatorLayout home={'Coordinator'} />}
         >
           <Route path="" element={<HomeLayout />}>
             <Route index element={<HomePage />} />
@@ -91,7 +91,7 @@ const App = () => {
 
         <Route
           path="Student"
-          element={<ProtectedRoute allowedRoles={['Student']}><StudentLayout /></ProtectedRoute>}
+          element={<StudentLayout />}
         >
           <Route path="" element={<HomeLayout />}>
             <Route index element={<HomePage />} />
@@ -112,7 +112,7 @@ const App = () => {
 
         <Route
           path="Advisor"
-          element={<ProtectedRoute allowedRoles={['Advisor']}><AdvisorLayout /></ProtectedRoute>}
+          element={<AdvisorLayout />}
         >
           <Route path="" element={<HomeLayout />}>
             <Route index element={<HomePage />} />
