@@ -47,7 +47,7 @@ const AdvisorLayout = () => {
 
     </div>
 
-    <Footer className="mt-auto bg-gray-900/90 backdrop-blur-md py-4 border-t border-gray-700 text-center text-sm"/>
+    <Footer className=" relative mt-auto bg-gray-900/90 backdrop-blur-md py-4 border-t border-gray-700 text-center text-sm"/>
   </div>
 
   );
