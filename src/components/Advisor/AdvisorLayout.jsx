@@ -3,7 +3,7 @@ import { Outlet } from 'react-router-dom';
 import Header from '../Header';
 import Footer from '../Footer';
 import { 
-  Home, ClipboardList, BarChart
+  Home, ClipboardList, BarChart,Pen
 } from 'lucide-react';
 import  { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -16,6 +16,7 @@ const AdvisorLayout = () => {
       { id: '', icon: Home, label: 'Home' },
       { id: 'pendingRequests', icon: ClipboardList, label: 'Pending requests' },
       { id: 'viewAnalysis', icon: BarChart, label: 'View Analysis' },
+      { id: 'addStudent', icon:Pen, label: 'Add student details' },
   
     ];
 

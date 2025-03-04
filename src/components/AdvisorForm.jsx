@@ -2,7 +2,7 @@ import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 
-export const AdvisorForm = ({ onGoogleLogin }) => {
+const AdvisorForm = ({ onGoogleLogin }) => {
   const { emailLogin } = useContext(AuthContext);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -12,10 +12,12 @@ export const AdvisorForm = ({ onGoogleLogin }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await emailLogin(email, password);
-      navigate('/dashboard');
+      const role = await emailLogin(email, password);
+      console.log('Advisor login successful, role:', role);
+      navigate(`/${role.toLowerCase()}`, { replace: true });
     } catch (err) {
-      setError('Invalid email or password');
+      setError('Invalid email or password: ' + err.message);
+      console.error('Advisor login error:', err);
     }
   };
 
@@ -23,33 +25,27 @@ export const AdvisorForm = ({ onGoogleLogin }) => {
     <div className="flex">
       <div className="flex flex-col justify-center items-center">
         <form className="bg-white p-8 rounded" onSubmit={handleSubmit}>
-          <h1 className="text-2xl font-bold text-center mb-6 text-blue-800">
-            Advisor Login
-          </h1>
+          <h1 className="text-2xl font-bold text-center mb-6 text-blue-800">Advisor Login</h1>
           {error && <p className="text-red-500 text-center mb-4">{error}</p>}
           <div className="mb-4">
             <input
-              className="w-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
+              className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-600"
               type="email"
-              id="email"
               placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
-            <div className="border-b border-gray-300 mb-6"></div>
           </div>
-          <div className="mb-6">
+          <div className="mb-4">
             <input
-              className="w-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600"
+              className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-600"
               type="password"
-              id="password"
               placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-            <div className="border-b border-gray-300 mb-6"></div>
           </div>
           <button
             type="submit"
@@ -64,14 +60,16 @@ export const AdvisorForm = ({ onGoogleLogin }) => {
           >
             Login with Google
           </button>
-          <Link
-            className="text-blue-600 hover:text-blue-800 text-sm mt-4 flex justify-center"
-            to="/forgotpassword"
-          >
-            Forgot password?
-          </Link>
+          <div className="mt-4 flex justify-center items-center">
+            <p className="font-medium text-base">Don't have an account?</p>
+            <Link to="/register" className="ml-2 font-medium text-base text-blue-800">
+              Register Now
+            </Link>
+          </div>
         </form>
       </div>
     </div>
   );
 };
+
+export { AdvisorForm }; // Named export
