@@ -14,37 +14,31 @@ const Register = () => {
   const handleEmailSubmit = async (e) => {
     e.preventDefault();
     try {
-      console.log('Checking email:', email);
-      const res = await axios.post('http://localhost:5000/api/auth/check-email', { email });
-      if (res.data.allowed) {
-        const otpRes = await axios.post('http://localhost:5000/api/auth/send-registration-otp', { email });
-        console.log('OTP token received:', otpRes.data.otpToken);
+      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/check-email`, { email });
+      if (res.data.exists && !res.data.registered) {
+        const otpRes = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/send-registration-otp`, { email });
         setOtpToken(otpRes.data.otpToken);
         setOtpSent(true);
+        console.log('[FRONTEND] OTP sent for:', email);
       } else {
-        setError(res.data.message || 'This email is not allowed to register');
+        setError(res.data.message);
+        console.log('[FRONTEND] Email check failed:', res.data.message);
       }
     } catch (err) {
       setError(err.response?.data.message || 'Error checking email');
-      console.error('Email check error:', err);
+      console.error('[FRONTEND] Email check error:', err.response?.data.message || err.message);
     }
   };
 
   const handleOtpSubmit = async (e) => {
     e.preventDefault();
     try {
-      console.log('Verifying OTP:', { otpToken, otp });
-      const res = await axios.post('http://localhost:5000/api/auth/verify-and-set-password', {
-        email,
-        otp,
-        password,
-        otpToken,
-      });
-      console.log('Password set response:', res.data);
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/verify-and-set-password`, { email, otp, password, otpToken });
+      console.log('[FRONTEND] Registration successful for:', email);
       navigate('/', { replace: true });
     } catch (err) {
-      setError(err.response?.data.message || 'OTP verification failed');
-      console.error('OTP verification error:', err);
+      setError(err.response?.data.message || 'Registration failed');
+      console.error('[FRONTEND] Registration error:', err.response?.data.message || err.message);
     }
   };
 

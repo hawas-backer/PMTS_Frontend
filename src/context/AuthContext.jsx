@@ -1,6 +1,5 @@
-import { createContext, useState, useEffect } from 'react';
-import { auth, googleProvider } from '../firebase';
-import { signInWithPopup, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+// frontend/src/context/AuthContext.jsx
+import React, { createContext, useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 
 export const AuthContext = createContext();
@@ -11,81 +10,66 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
-      if (firebaseUser) {
-        const token = await firebaseUser.getIdToken();
-        console.log('User signed in:', firebaseUser.email);
-        try {
-          const res = await axios.get('http://localhost:5000/api/auth/me', {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          console.log('Role fetched from /me:', res.data.role);
-          setUser(firebaseUser);
-          setRole(res.data.role || null);
-        } catch (err) {
-          console.error('Failed to fetch role:', err.response?.data || err.message);
-          if (err.response?.status === 404) {
-            console.log('User not found in MongoDB, signing out:', firebaseUser.email);
-            await signOut(auth); // Sign out if user not in MongoDB
-            setUser(null);
-            setRole(null);
-          } else {
-            setUser(firebaseUser); // Keep user but no role
-            setRole(null);
-          }
-        }
-      } else {
-        console.log('No user signed in');
+    const checkAuth = async () => {
+      try {
+        const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'}/auth/me`, {
+          withCredentials: true,
+        });
+        setUser({ email: res.data.email });
+        setRole(res.data.role);
+        console.log('[AUTH] User authenticated:', res.data.email, res.data.role);
+      } catch (err) {
         setUser(null);
         setRole(null);
+        console.log('[AUTH] No user authenticated:', err.response?.data.message || err.message);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
-    });
-    return unsubscribe;
+    };
+    checkAuth();
   }, []);
 
-  const googleLogin = async (role) => {
+  const login = async (email, password) => {
     try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const token = await result.user.getIdToken();
-      console.log('Google token:', token);
       const res = await axios.post(
-        'http://localhost:5000/api/auth/google-login',
-        { firebaseUid: result.user.uid, email: result.user.email, role },
-        { headers: { Authorization: `Bearer ${token}` } }
+        `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'}/auth/login`,
+        { email, password },
+        { withCredentials: true }
       );
-      console.log('Google login response:', res.data);
-      setRole(res.data.role);
-      return { email: result.user.email, role: res.data.role };
+      setUser({ email: res.data.user.email });
+      setRole(res.data.user.role);
+      console.log('[AUTH] Login successful:', res.data.user.email, res.data.user.role);
+      return res.data.user.role; // Return role for navigation
     } catch (err) {
-      throw new Error(err.response?.data.message || 'Google login failed: ' + err.message);
-    }
-  };
-
-  const emailLogin = async (email, password) => {
-    try {
-      const result = await signInWithEmailAndPassword(auth, email, password);
-      const token = await result.user.getIdToken();
-      const res = await axios.get('http://localhost:5000/api/auth/me', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      console.log('Email login role:', res.data.role);
-      setRole(res.data.role);
-      return res.data.role;
-    } catch (err) {
-      throw new Error('Email login failed: ' + err.message);
+      console.error('[AUTH] Login error:', err.response?.data.message || err.message);
+      throw err;
     }
   };
 
   const logout = async () => {
-    await signOut(auth);
+    try {
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'}/auth/logout`, {}, { withCredentials: true });
+      setUser(null);
+      setRole(null);
+      console.log('[AUTH] Logged out');
+    } catch (err) {
+      console.error('[AUTH] Logout error:', err.message);
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ user, role, loading, googleLogin, emailLogin, logout }}>
-      {children}
+    <AuthContext.Provider value={{ user, role, loading, login, logout }}>
+      {!loading && children}
     </AuthContext.Provider>
   );
+};
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
 };
 
 export default AuthProvider;

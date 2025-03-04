@@ -1,8 +1,9 @@
+// frontend/src/App.jsx
 import React from 'react';
 import LoginPage from './pages/LoginPage';
-import Register from './pages/Register'; // New import
+import Register from './pages/Register';
 import ForgotPassword from './components/ForgotPassword';
-import { createBrowserRouter, createRoutesFromElements, RouterProvider,Route } from 'react-router-dom';
+import { createBrowserRouter, createRoutesFromElements, RouterProvider, Route } from 'react-router-dom';
 import CoordinatorLayout from './components/Coordinator/CoordinatorLayout';
 import CreateStudentAccount from './components/CreateStudentAccount';
 import CreateTest from './components/Coordinator/CreateTest';
@@ -43,9 +44,8 @@ const App = () => {
       <>
         {/* Public Routes */}
         <Route path="/" element={<LoginPage />} />
-        <Route path="register" element={<Register />} /> {/* Replaced StudentRegister/AlumniRegister */}
+        <Route path="register" element={<Register />} />
         <Route path="ForgotPassword" element={<ForgotPassword />} />
-        
 
         {/* Protected Routes */}
         <Route
