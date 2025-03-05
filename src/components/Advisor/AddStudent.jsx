@@ -1,14 +1,18 @@
 import React, { useState } from 'react';
 import { Upload, File, Plus } from 'lucide-react';
 import axios from 'axios';
+import { useAuth } from '../../context/AuthContext'; 
+import { Navigate } from 'react-router-dom';
 
+axios.defaults.baseURL = 'http://localhost:8080';
 const StudentAddForm = () => {
+  const { hasRole } = useAuth();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     batch: '',
     registrationNumber: '',
-    branch: '',
+    branch: '', // This should ideally be pre-filled from the advisor's branch
     semestersCompleted: '',
     numberOfBacklogs: '',
     phoneNumber: '',
@@ -18,6 +22,8 @@ const StudentAddForm = () => {
   const [file, setFile] = useState(null);
   const [errors, setErrors] = useState([]);
   const [successMessage, setSuccessMessage] = useState('');
+
+  // If user is not an Advisor, redirect
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -34,7 +40,7 @@ const StudentAddForm = () => {
 
   const downloadTemplate = async () => {
     try {
-      const response = await axios.get('/api/students/upload-template', {
+      const response = await axios.get('api/students/upload-template', {
         responseType: 'blob'
       });
       const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -45,6 +51,7 @@ const StudentAddForm = () => {
       link.click();
     } catch (error) {
       console.error('Template download failed', error);
+      setErrors(['Failed to download template']);
     }
   };
 
@@ -54,13 +61,19 @@ const StudentAddForm = () => {
     setSuccessMessage('');
 
     try {
-      const response = await axios.post('/api/students/add', formData);
+      const response = await axios.post('api/students/add', formData);
       setSuccessMessage('Student added successfully');
       // Reset form
       setFormData({
-        name: '', email: '', batch: '', registrationNumber: '', 
-        branch: '', semestersCompleted: '', numberOfBacklogs: '', 
-        phoneNumber: '', cgpa: ''
+        name: '', 
+        email: '', 
+        batch: '', 
+        registrationNumber: '', 
+        branch: '', 
+        semestersCompleted: '', 
+        numberOfBacklogs: '', 
+        phoneNumber: '', 
+        cgpa: ''
       });
     } catch (error) {
       if (error.response && error.response.data.errors) {
@@ -81,7 +94,7 @@ const StudentAddForm = () => {
     formData.append('studentFile', file);
 
     try {
-      const response = await axios.post('/api/students/bulk-add', formData, {
+      const response = await axios.post('api/students/bulk-add', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       
@@ -203,12 +216,14 @@ const StudentAddForm = () => {
               className="flex-grow bg-[#2c3e50] text-white p-2 rounded"
             />
             <button 
+              type="button"
               onClick={downloadTemplate}
               className="bg-green-600 hover:bg-green-700 p-2 rounded flex items-center"
             >
               <File className="mr-2" /> Download Template
             </button>
             <button 
+              type="button"
               onClick={submitBulkStudents}
               disabled={!file}
               className="bg-blue-600 hover:bg-blue-700 p-2 rounded flex items-center disabled:opacity-50"
