@@ -12,12 +12,14 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'}/auth/me`, {
+        const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'}/auth/status`, {
           withCredentials: true,
         });
-        setUser({ email: res.data.email });
-        setRole(res.data.role);
-        console.log('[AUTH] User authenticated:', res.data.email, res.data.role);
+        if (res.data.isAuthenticated) {
+          setUser({ email: res.data.user.email });
+          setRole(res.data.user.role);
+          console.log('[AUTH] User authenticated:', res.data.user.email, res.data.user.role);
+        }
       } catch (err) {
         setUser(null);
         setRole(null);
@@ -39,7 +41,7 @@ export const AuthProvider = ({ children }) => {
       setUser({ email: res.data.user.email });
       setRole(res.data.user.role);
       console.log('[AUTH] Login successful:', res.data.user.email, res.data.user.role);
-      return res.data.user.role; // Return role for navigation
+      return res.data.user.role;
     } catch (err) {
       console.error('[AUTH] Login error:', err.response?.data.message || err.message);
       throw err;
@@ -48,7 +50,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await axios.post(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'}/auth/logout`, {}, { withCredentials: true });
+      await axios.get(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'}/auth/logout`, { withCredentials: true });
       setUser(null);
       setRole(null);
       console.log('[AUTH] Logged out');
@@ -66,9 +68,7 @@ export const AuthProvider = ({ children }) => {
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
+  if (!context) throw new Error('useAuth must be used within an AuthProvider');
   return context;
 };
 
