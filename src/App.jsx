@@ -37,7 +37,7 @@ import Procedure from './components/Home/Procedure';
 import Testimonial from './components/Home/Testimonial';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
-import AddStudent from './components/Advisor/AddStudent'
+import StudentAddForm from './components/Advisor/AddStudent';
 
 const App = () => {
   const router = createBrowserRouter(
@@ -126,7 +126,7 @@ const App = () => {
           </Route>
           <Route path="pendingRequests" element={<PendingRequests />} />
           <Route path="viewAnalysis" element={<ViewAnalysis />} />
-          <Route path="addStudent" element={<AddStudent />} />
+          <Route path="add-students" element={<StudentAddForm />} /> {/* New route */}
         </Route>
       </>
     )

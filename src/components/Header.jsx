@@ -1,26 +1,31 @@
+// frontend/src/components/Header.jsx
 import React, { useState } from 'react';
-import { Bell, Settings, LogOut, User, Home, Users, BookOpen, Calendar, Mail, Menu, X } from 'lucide-react';
+import { Bell, Settings, LogOut, User, Home, Users, BookOpen, Calendar, Mail } from 'lucide-react';
 import gcekLogo from '../assets/gcek.jpg';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext'; // Import useAuth
 
-const Header = ({ username,userrole, profilePic, unreadCount }) => {
+const Header = ({ username, userrole, profilePic, unreadCount }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [selectedNavItem, setSelectedNavItem] = useState(null);
+  
+  const { logout } = useAuth(); // Get logout from AuthContext
+  const navigate = useNavigate(); // For redirect after logout
 
   const user = {
-    name: "John Doe",
-    role: "Alumni",
+    name: username || "John Doe",
+    role: userrole || "Alumni",
     batch: "2018-2022",
     department: "Computer Science",
     email: "john.doe@example.com",
-    notifications: unreadCount,
+    notifications: unreadCount || 0,
   };
 
   const navItems = [
-    { label: 'Home', icon: Home, href: '/alumni/gcek_iframe' },
-    { label: 'Placement data', icon: Users, href: '/alumni' },
+    { label: 'Home', icon: Home, href: `/${userrole.toLowerCase()}/gcek_iframe` },
+    { label: 'Placement data', icon: Users, href: `/${userrole.toLowerCase()}` },
     { label: 'Recruiters', icon: Calendar, href: '/events' },
     { label: 'Gallery', icon: BookOpen, href: '/resources' },
     { label: 'Procedure', icon: Mail, href: '/contact' },
@@ -30,10 +35,18 @@ const Header = ({ username,userrole, profilePic, unreadCount }) => {
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const toggleProfileMenu = () => setIsProfileMenuOpen(!isProfileMenuOpen);
-
   const handleNavItemClick = (item) => {
     setSelectedNavItem(item);
     setIsMobileMenuOpen(false);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout(); // Call logout from AuthContext
+      navigate('/', { replace: true }); // Redirect to login page
+    } catch (err) {
+      console.error('Logout failed:', err);
+    }
   };
 
   return (
@@ -49,7 +62,6 @@ const Header = ({ username,userrole, profilePic, unreadCount }) => {
                 alt="GCEK Logo"
                 className="h-10 w-auto dark:invert"
               />
-              
             </div>
 
             {/* Mobile Profile Picture and Notification Bell */}
@@ -97,7 +109,6 @@ const Header = ({ username,userrole, profilePic, unreadCount }) => {
                   onClick={toggleMenu}
                   className="flex items-center gap-4 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                 >
-                  {/* User Info Section */}
                   <div className="flex flex-col items-end">
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-semibold text-gray-900 dark:text-white">{user.name}</span>
@@ -107,8 +118,6 @@ const Header = ({ username,userrole, profilePic, unreadCount }) => {
                     </div>
                     <span className="text-xs text-gray-500 dark:text-gray-400">{user.department}</span>
                   </div>
-
-                  {/* Avatar */}
                   <div className="h-10 w-10 rounded-full bg-blue-600 flex items-center justify-center overflow-hidden">
                     {profilePic ? (
                       <img src={profilePic} alt="Profile Picture" className="h-full w-full rounded-full object-cover" />
@@ -142,10 +151,9 @@ const Header = ({ username,userrole, profilePic, unreadCount }) => {
                       </div>
                       <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
                         <p>{user.department}</p>
-                        <p>{ userrole==='Alumni' || userrole==='Student'  ?`Batch of ${user.batch}` : ""}</p>
+                        <p>{userrole === 'Alumni' || userrole === 'Student' ? `Batch of ${user.batch}` : ""}</p>
                       </div>
                     </div>
-
                     <div className="py-1">
                       <button className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2">
                         <User className="w-4 h-4" />
@@ -156,9 +164,11 @@ const Header = ({ username,userrole, profilePic, unreadCount }) => {
                         Settings
                       </button>
                     </div>
-
                     <div className="border-t border-gray-100 dark:border-gray-700">
-                      <button className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2">
+                      <button
+                        onClick={handleLogout} // Add logout handler
+                        className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2"
+                      >
                         <LogOut className="w-4 h-4" />
                         Sign out
                       </button>
@@ -168,13 +178,7 @@ const Header = ({ username,userrole, profilePic, unreadCount }) => {
               </div>
             </div>
           </div>
-
-          {/* Mobile Navbar Toggle Button and Selected Nav Item */}
-          
         </div>
-
-        {/* Navigation Bar*/}
-        
       </header>
 
       {/* Mobile Navigation */}
@@ -211,14 +215,14 @@ const Header = ({ username,userrole, profilePic, unreadCount }) => {
                 <p className="text-xs text-gray-500 dark:text-gray-400">{user.email}</p>
                 <div className="mt-1">
                   <span className="px-2 py-0.5 bg-blue-50 text-blue-700 text-xs font-medium rounded-full">
-                    {user.role}
+                    {userrole}
                   </span>
                 </div>
               </div>
             </div>
             <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
               <p>{user.department}</p>
-              <p>Batch of {user.batch}</p>
+              <p>{userrole === 'Alumni' || userrole === 'Student' ? `Batch of ${user.batch}` : ""}</p>
             </div>
           </div>
           <button className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2">
@@ -229,7 +233,10 @@ const Header = ({ username,userrole, profilePic, unreadCount }) => {
             <Settings className="w-4 h-4" />
             Settings
           </button>
-          <button className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2">
+          <button
+            onClick={handleLogout} // Add logout handler
+            className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2"
+          >
             <LogOut className="w-4 h-4" />
             Sign out
           </button>

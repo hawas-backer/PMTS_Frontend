@@ -1,6 +1,7 @@
 
 import  {Outlet}  from 'react-router-dom';
 import {useNavigate} from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import Header from '../Header';
 import Footer from '../Footer';
 import React, { useState } from 'react';
@@ -18,6 +19,7 @@ const Layout = () => {
   const navigate =useNavigate()
     const [activeTab, setActiveTab] = useState('');
     const [tooltipItem, setTooltipItem] = useState(null);
+    const { user, role } = useAuth();
     const navItems = [
       {
         id: '',
@@ -71,7 +73,7 @@ const Layout = () => {
     ];
   return(
     <div className="flex flex-col h-screen">
-    <Header userrole={'Student'} />
+    <Header username={user?.email} userrole={role} profilePic={null} unreadCount={0} />
 
     {/* Sidebar and content wrapper */}
     <div className="flex flex-1">
