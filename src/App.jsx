@@ -38,6 +38,8 @@ import Testimonial from './components/Home/Testimonial';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
 import StudentAddForm from './components/Advisor/AddStudent';
+import StudentList from './components/Advisor/StudentList';
+import EditStudent from './components/Advisor/EditStudent';
 
 const App = () => {
   const router = createBrowserRouter(
@@ -51,7 +53,11 @@ const App = () => {
         {/* Protected Routes */}
         <Route
           path="Alumni"
-          element={<AlumniLayout />}
+          element={
+            <ProtectedRoute allowedRoles={['Alumni']}>
+              <AlumniLayout />
+            </ProtectedRoute>
+          }
         >
           <Route path="" element={<HomeLayout />}>
             <Route index element={<HomePage />} />
@@ -72,7 +78,11 @@ const App = () => {
 
         <Route
           path="Coordinator"
-          element={<CoordinatorLayout home={'Coordinator'} />}
+          element={
+            <ProtectedRoute allowedRoles={['Coordinator']}>
+              <CoordinatorLayout home={'Coordinator'} />
+            </ProtectedRoute>
+          }
         >
           <Route path="" element={<HomeLayout />}>
             <Route index element={<HomePage />} />
@@ -92,7 +102,11 @@ const App = () => {
 
         <Route
           path="Student"
-          element={<StudentLayout />}
+          element={
+            <ProtectedRoute allowedRoles={['Student']}>
+              <StudentLayout />
+            </ProtectedRoute>
+          }
         >
           <Route path="" element={<HomeLayout />}>
             <Route index element={<HomePage />} />
@@ -113,7 +127,11 @@ const App = () => {
 
         <Route
           path="Advisor"
-          element={<AdvisorLayout />}
+          element={
+            <ProtectedRoute allowedRoles={['Advisor']}>
+              <AdvisorLayout />
+            </ProtectedRoute>
+          }
         >
           <Route path="" element={<HomeLayout />}>
             <Route index element={<HomePage />} />
@@ -126,7 +144,17 @@ const App = () => {
           </Route>
           <Route path="pendingRequests" element={<PendingRequests />} />
           <Route path="viewAnalysis" element={<ViewAnalysis />} />
-          <Route path="add-students" element={<StudentAddForm />} /> {/* New route */}
+          <Route path="add-students" element={<StudentAddForm />} /> 
+
+          <Route path="student-list" element={<StudentList />} />
+          <Route 
+           path="edit-student/:id" 
+           element={
+           <ProtectedRoute allowedRoles={['Advisor']}>
+          <EditStudent />
+          </ProtectedRoute>
+          } 
+          />
         </Route>
       </>
     )

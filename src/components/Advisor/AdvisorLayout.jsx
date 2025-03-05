@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import Header from '../Header';
 import Footer from '../Footer';
-import { Home, ClipboardList, BarChart, Pen } from 'lucide-react'; // Corrected 'pen' to 'Pen'
+import { Home, ClipboardList, BarChart, Pen ,UserPen,List} from 'lucide-react'; // Corrected 'pen' to 'Pen'
 
 const AdvisorLayout = () => {
   const [activeTab, setActiveTab] = useState('');
@@ -13,11 +13,17 @@ const AdvisorLayout = () => {
     { id: '', icon: Home, label: 'Home' },
     { id: 'pendingRequests', icon: ClipboardList, label: 'Pending requests' },
     { id: 'viewAnalysis', icon: BarChart, label: 'View Analysis' },
-    { id: 'add-students', icon: Pen, label: 'Add student details' }, // Adjusted to match route
+    { id: 'add-students', icon: Pen, label: 'Add student details' },
+    { id: 'student-list', icon: List, label: 'Student List' },
   ];
 
   const handleNavClick = (id) => {
     setActiveTab(id);
+    if (id === 'edit-student') {
+      // You might want to show a modal or prompt to enter student ID
+      alert('Please use the student list to edit a specific student');
+      return;
+    }
     navigate(`/Advisor/${id}`); // Prepend '/Advisor/' to match nested route structure
   };
 
