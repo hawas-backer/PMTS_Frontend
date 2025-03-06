@@ -1,17 +1,27 @@
+// frontend/src/components/Alumni/AlumniLayout.jsx
 import React, { useState } from "react";
 import { Outlet } from "react-router-dom";
 import Header from "../Header";
 import Footer from "../Footer";
 import Sidebar from "../alumni/Sidebar";
+import { useAuth } from '../../context/AuthContext'; // Import useAuth
 
 const AlumniLayout = ({ username, profilePic, unreadCount }) => {
   const [activeTab, setActiveTab] = useState("");
+  const { user, role } = useAuth(); // Get user and role from AuthContext
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-900 text-white relative">
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-gray-900/90 backdrop-blur-md shadow-md border-b border-gray-700">
-        <Header username={username} profilePic={profilePic} userrole={'Alumni'}/>
+        <Header
+          name={user?.name || user?.email} // Prefer name, fallback to email (from reference)
+          userrole={role} // Use role from useAuth
+          profilePic={null}
+          unreadCount={0}
+          email={user?.email || 'N/A'} // Pass email (from reference)
+          batch={user?.batch || 'N/A'} // Pass batch (from reference)
+        />
       </header>
 
       {/* Main Content Area */}

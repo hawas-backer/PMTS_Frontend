@@ -3,11 +3,13 @@ import React, { useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import Header from '../Header';
 import Footer from '../Footer';
-import { Home, ClipboardList, BarChart, Pen ,UserPen,List} from 'lucide-react'; // Corrected 'pen' to 'Pen'
+import { Home, ClipboardList, BarChart, Pen, List } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext'; // Import useAuth
 
 const AdvisorLayout = () => {
   const [activeTab, setActiveTab] = useState('');
   const navigate = useNavigate();
+  const { user, role } = useAuth(); // Get user and role from AuthContext
 
   const navItems = [
     { id: '', icon: Home, label: 'Home' },
@@ -29,7 +31,14 @@ const AdvisorLayout = () => {
 
   return (
     <div className="flex flex-col h-screen w-screen bg-[#0f1218]">
-      <Header userrole={'Advisor'} />
+      <Header
+        name={user?.name || user?.email} // Prefer name, fallback to email (from reference)
+        userrole={role} // Use role from useAuth
+        profilePic={null}
+        unreadCount={0}
+        email={user?.email || 'N/A'} // Pass email (from reference)
+        batch={user?.batch || 'N/A'} // Pass batch (from reference)
+      />
 
       <div className="flex flex-1 bg-[#0f1218]">
         <div className="w-16 bg-[#1a1f2c] py-4 flex flex-col items-center space-y-4">

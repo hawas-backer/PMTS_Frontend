@@ -71,64 +71,63 @@ const Layout = () => {
         labelColor: 'text-red-400'
       }
     ];
-  return(
-    <div className="flex flex-col h-screen">
-    <Header username={user?.email} userrole={role} profilePic={null} unreadCount={0} />
+    return (
+      <div className="flex flex-col h-screen">
+        <Header
+          name={user?.name || user?.email} // Prefer name, fallback to email
+          userrole={role}
+          profilePic={null}
+          unreadCount={0}
+          email={user?.email || 'N/A'} // Pass email to Header
+          batch={user?.batch || 'N/A'} // Pass batch to Header
+        />
+  
+        {/* Sidebar and content wrapper */}
+        <div className="flex flex-1">
+          {/* Sidebar */}
+          <div className="w-16 bg-[#1a1f2c] h-screen py-4 flex flex-col items-center space-y-4">
+            {navItems.map((item) => (
+              <div key={item.id} className="relative group">
+                <button
+                  onClick={() => {
+                    setActiveTab(item.id);
+                    navigate(item.id);
+                  }}
 
-    {/* Sidebar and content wrapper */}
-    <div className="flex flex-1">
-      
-      {/* Sidebar */}
-      <div className="w-16 bg-[#1a1f2c] h-screen py-4 flex flex-col items-center space-y-4">
-        {navItems.map((item) => (
-          <div key={item.id} className="relative group">
-            <button
-              onClick={() => {setActiveTab(item.id);navigate(item.id)}}
-              onMouseEnter={() => setTooltipItem(item.id)}
-              onMouseLeave={() => setTooltipItem(null)}
-              className={`p-3 rounded-lg transition-all duration-200 relative ${
-                activeTab === item.id
-                  ? 'bg-gray-700 scale-110'
-                  : 'hover:bg-gray-700/50 hover:scale-105'
-              }`}
-            >
-              <item.icon
-                size={24}
-                className={`${item.color} transition-all duration-200 ${
-                  activeTab === item.id ? 'stroke-2' : 'stroke-1'
-                }`}
-              />
-            </button>
-            
-            {/* Tooltip */}
-            {tooltipItem === item.id && (
-              <div 
-                className={`
-                  absolute top-1/2 -translate-y-1/2 left-full ml-4 
-                  px-3 py-1.5 bg-gray-800 rounded-md 
-                  whitespace-nowrap z-50 font-medium 
-                  ${item.labelColor}
-                `}
-              >
-                {item.label}
+                  onMouseEnter={() => setTooltipItem(item.id)}
+                  onMouseLeave={() => setTooltipItem(null)}
+                  className={`p-3 rounded-lg transition-all duration-200 relative ${
+                    activeTab === item.id ? 'bg-gray-700 scale-110' : 'hover:bg-gray-700/50 hover:scale-105'
+                  }`}
+                >
+                  <item.icon
+                    size={24}
+                    className={`${item.color} transition-all duration-200 ${
+                      activeTab === item.id ? 'stroke-2' : 'stroke-1'
+                    }`}
+                  />
+                </button>
+                {tooltipItem === item.id && (
+                  <div
+                    className={`absolute top-1/2 -translate-y-1/2 left-full ml-4 px-3 py-1.5 bg-gray-800 rounded-md whitespace-nowrap z-50 font-medium ${item.labelColor}`}
+                  >
+                    {item.label}
+                  </div>
+                )}
               </div>
-            )}
+            ))}
           </div>
-        ))}
-      </div>
-
-      {/* Main Content */}
-      <div className='h-screen w-full bg-[#1a1f2c] overflow-y-auto'>
-        <Outlet />
-      </div>
-     
    
 
-    </div>
+    {/* Main Content */}
+    <div className="h-screen w-full bg-[#1a1f2c] overflow-y-auto">
+          <Outlet />
+        </div>
+      </div>
 
-    <Footer />
-  </div>
-  )
+      <Footer />
+    </div>
+  );
 };
 
 export default Layout;
