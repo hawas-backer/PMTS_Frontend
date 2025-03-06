@@ -1,76 +1,54 @@
-// frontend/src/components/Alumni/AlumniLayout.jsx
-import React, { useState } from "react";
-import { Outlet } from "react-router-dom";
-import Header from "../Header";
-import Footer from "../Footer";
-import Sidebar from "../alumni/Sidebar";
-import { useAuth } from '../../context/AuthContext'; // Import useAuth
+import React, { useState, useEffect } from 'react';
+import { Outlet, useLocation } from 'react-router-dom';
+import Header from '../Header';
+import Footer from '../Footer';
+import Sidebar from '../alumni/Sidebar';
+import { useAuth } from '../../context/AuthContext';
 
 const AlumniLayout = ({ username, profilePic, unreadCount }) => {
-  const [activeTab, setActiveTab] = useState("");
-  const { user, role } = useAuth(); // Get user and role from AuthContext
+  const location = useLocation();
+  // Strip '/alumni/' for activeTab, but pass full path for currentRoute
+  const initialTab = location.pathname.startsWith('/alumni')
+    ? location.pathname.replace('/alumni/', '').replace('/alumni', '')
+    : '';
+  const [activeTab, setActiveTab] = useState(initialTab);
+  const { user, role } = useAuth();
+
+  useEffect(() => {
+    const currentTab = location.pathname.startsWith('/alumni')
+      ? location.pathname.replace('/alumni/', '').replace('/alumni', '')
+      : '';
+    setActiveTab(currentTab);
+  }, [location.pathname]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-900 text-white relative">
-      {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-gray-900/90 backdrop-blur-md shadow-md border-b border-gray-700">
+    <div className="min-h-screen flex flex-col bg-gray-900 text-gray-300">
+      <header className="fixed top-0 left-0 right-0 bg-gray-900 z-20">
         <Header
-          name={user?.name || user?.email} // Prefer name, fallback to email (from reference)
-          userrole={role} // Use role from useAuth
+          name={user?.name || user?.email}
+          userrole={role}
           profilePic={null}
-          unreadCount={0}
-          email={user?.email || 'N/A'} // Pass email (from reference)
-          batch={user?.batch || 'N/A'} // Pass batch (from reference)
+          unreadCount={unreadCount || 0}
+          newMessageCount={3}
+          email={user?.email || 'N/A'}
+          batch={user?.batch || 'N/A'}
+          currentRoute={location.pathname} // Pass full path
         />
       </header>
 
-      {/* Main Content Area */}
-      <div className="flex flex-1 pt-16">
-        {/* Sidebar */}
-        <aside className="hidden md:flex w-64 fixed h-full bg-gray-800 shadow-lg border-r border-gray-700">
+      <div className="flex flex-1 pt-24">
+        <aside className="w-16 fixed top-2 bottom-0 bg-gray-800 z-10">
           <Sidebar unreadCount={unreadCount} setActiveTab={setActiveTab} activeTab={activeTab} />
         </aside>
 
-        {/* Main Content */}
-        <main className="flex-1 bg-gray-800/50 md:ml-64 p-6 relative overflow-y-auto min-h-screen">
-          <div className="max-w-7xl mx-auto">
-            <Outlet />
-          </div>
+        <main className="flex-1 ml-16 p-2">
+          <Outlet />
         </main>
       </div>
 
-      {/* Footer */}
-      <footer className="mt-auto bg-gray-900/90 backdrop-blur-md py-4 border-t border-gray-700 text-center text-sm">
+      <footer className="p-2 text-center text-xs text-gray-500">
         <Footer />
       </footer>
-
-      {/* Background Elements */}
-      <div className="absolute inset-0 z-[-1] overflow-hidden">
-        {Array.from({ length: 15 }).map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 opacity-30 animate-float rounded-full"
-            style={{
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 5}s`,
-            }}
-          ></div>
-        ))}
-      </div>
-
-      {/* Tailwind Custom Styles */}
-      <style>
-        {`
-          @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-15px); }
-          }
-          .animate-float {
-            animation: float 6s ease-in-out infinite;
-          }
-        `}
-      </style>
     </div>
   );
 };

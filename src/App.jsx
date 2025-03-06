@@ -68,7 +68,7 @@ const App = () => {
             <Route path="procedure" element={<Procedure />} />
             <Route path="testimonial" element={<Testimonial />} />
           </Route>
-          <Route path="shareOportunities" element={<ShareOpportunities />} />
+          <Route path="shareOpportunities" element={<ShareOpportunities />} />
           <Route path="shareResources" element={<ShareResources />} />
           <Route path="events" element={<Events />} />
           <Route path="networking" element={<Networking />} />

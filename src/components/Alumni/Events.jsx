@@ -2,92 +2,105 @@ import React, { useState } from 'react';
 
 const Events = () => {
   const [events, setEvents] = useState([
-    // Your event data here
+    { id: 1, name: 'React Workshop', date: '2025-03-10', time: '10:00', location: 'Online', description: 'Learn React.' },
+    { id: 2, name: 'AI Webinar', date: '2025-02-01', time: '14:00', location: 'Zoom', description: 'AI trends.' },
   ]);
-
-  const [registration, setRegistration] = useState({
-    name: '', email: '', eventId: '',
-  });
-
-  const [showRegistrationForm, setShowRegistrationForm] = useState(false);
-  const [suggestion, setSuggestion] = useState('');
-  const [view, setView] = useState('upcoming');
   const [showForm, setShowForm] = useState(false);
-  const [newEvent, setNewEvent] = useState({
-    name: '', date: '', time: '', location: '', description: '',
-  });
+  const [newEvent, setNewEvent] = useState({ name: '', date: '', time: '', location: '', description: '' });
+  const [view, setView] = useState('upcoming');
 
-  // ... (Your event handlers: handleRegisterChange, handleRegisterSubmit, etc.)
+  const handleEventSubmit = (e) => {
+    e.preventDefault();
+    setEvents([...events, { id: events.length + 1, ...newEvent }]);
+    setNewEvent({ name: '', date: '', time: '', location: '', description: '' });
+    setShowForm(false);
+  };
 
   const upcomingEvents = events.filter(event => new Date(event.date) >= new Date());
   const pastEvents = events.filter(event => new Date(event.date) < new Date());
 
   return (
-    <div className="bg-gray-900 min-h-screen text-white p-8">
-      <div className="container mx-auto max-w-6xl">
-        <h1 className="text-4xl font-bold mb-8 text-center">Events & Webinars</h1>
+    <div className="bg-gray-900 min-h-screen text-gray-300 p-2"> {/* Reduced padding */}
+      <h1 className="text-lg font-semibold mb-4">Events</h1>
 
-        <div className="mb-8 flex justify-between">
-  <button onClick={() => setShowForm(!showForm)} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-    {showForm ? 'Hide Form' : 'Add New Event'}
-  </button>
-
-  <div className="flex space-x-2">
-    <button onClick={() => setView('upcoming')} className={`py-2 px-4 rounded ${view === 'upcoming' ? 'bg-blue-500 text-white' : 'bg-gray-700 hover:bg-gray-600 text-gray-300'}`}>
-      Upcoming
-    </button>
-    <button onClick={() => setView('past')} className={`py-2 px-4 rounded ${view === 'past' ? 'bg-blue-500 text-white' : 'bg-gray-700 hover:bg-gray-600 text-gray-300'}`}>
-      Past
-    </button>
-  </div>
-</div>
-
-{showForm && (
-  <form onSubmit={handleEventSubmit} className="mb-8 p-6 bg-gray-800 rounded-lg shadow-md">
-    {/* ... (Your form fields - name, date, time, location, description) */}
-    <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full">
-      Add Event
-    </button>
-  </form>
-)}
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div> {/* Events List */}
-          {view === 'upcoming' && (
-  <div>
-    <h2 className="text-3xl font-semibold mb-4">Upcoming Events</h2>
-    <ul className="space-y-6">
-      {upcomingEvents.map((event) => (
-        <li key={event.id} className="p-6 bg-gray-800 rounded-lg shadow-md hover:bg-gray-700 transition duration-300">
-          <h3 className="text-2xl font-bold mb-2">{event.name}</h3>
-          <p className="text-gray-400">{event.date} at {event.time} - {event.location}</p>
-          <p className="mt-2">{event.description}</p>
-        </li>
-      ))}
-    </ul>
-  </div>
-)}
-
-{view === 'past' && (
-  <div>
-    <h2 className="text-3xl font-semibold mb-4">Past Events</h2>
-    <ul className="space-y-6">
-      {pastEvents.map((event) => (
-        <li key={event.id} className="p-6 bg-gray-800 rounded-lg shadow-md hover:bg-gray-700 transition duration-300">
-          <h3 className="text-2xl font-bold mb-2">{event.name}</h3>
-          <p className="text-gray-400">{event.date} at {event.time} - {event.location}</p>
-          <p className="mt-2">{event.description}</p>
-        </li>
-      ))}
-    </ul>
-  </div>
-)}
-          </div>
-          <div> {/* Right Sidebar */}
-            
-          </div>
+      <div className="flex items-center justify-between mb-4">
+        <button
+          onClick={() => setShowForm(!showForm)}
+          className="text-blue-500 hover:text-blue-400 text-sm"
+        >
+          {showForm ? 'Close' : 'New'}
+        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setView('upcoming')}
+            className={`text-sm ${view === 'upcoming' ? 'text-blue-500' : 'text-gray-500 hover:text-gray-400'}`}
+          >
+            Upcoming
+          </button>
+          <button
+            onClick={() => setView('past')}
+            className={`text-sm ${view === 'past' ? 'text-blue-500' : 'text-gray-500 hover:text-gray-400'}`}
+          >
+            Past
+          </button>
         </div>
       </div>
+
+      {showForm && (
+        <form onSubmit={handleEventSubmit} className="mb-4 bg-gray-800 p-4 rounded">
+          <input
+            value={newEvent.name}
+            onChange={(e) => setNewEvent({ ...newEvent, name: e.target.value })}
+            placeholder="Name"
+            className="w-full p-2 bg-gray-900 rounded text-sm mb-2"
+            required
+          />
+          <input
+            type="date"
+            value={newEvent.date}
+            onChange={(e) => setNewEvent({ ...newEvent, date: e.target.value })}
+            className="w-full p-2 bg-gray-900 rounded text-sm mb-2"
+            required
+          />
+          <input
+            value={newEvent.time}
+            onChange={(e) => setNewEvent({ ...newEvent, time: e.target.value })}
+            placeholder="Time"
+            className="w-full p-2 bg-gray-900 rounded text-sm mb-2"
+            required
+          />
+          <input
+            value={newEvent.location}
+            onChange={(e) => setNewEvent({ ...newEvent, location: e.target.value })}
+            placeholder="Location"
+            className="w-full p-2 bg-gray-900 rounded text-sm mb-2"
+            required
+          />
+          <textarea
+            value={newEvent.description}
+            onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })}
+            placeholder="Description"
+            className="w-full p-2 bg-gray-900 rounded text-sm mb-2"
+            rows="2"
+            required
+          />
+          <button type="submit" className="w-full p-2 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded">
+            Add
+          </button>
+        </form>
+      )}
+
+      <ul className="space-y-2">
+        {(view === 'upcoming' ? upcomingEvents : pastEvents).map((event) => (
+          <li key={event.id} className="p-3 bg-gray-800 rounded hover:bg-gray-700 transition">
+            <h3 className="text-sm font-semibold">{event.name}</h3>
+            <p className="text-xs text-gray-500">
+              {new Date(event.date).toLocaleDateString()} {event.time} - {event.location}
+            </p>
+            <p className="text-xs">{event.description}</p>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };

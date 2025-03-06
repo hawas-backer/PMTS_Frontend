@@ -1,7 +1,7 @@
-// frontend/src/components/CoordinatorForm.jsx
 import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { FcGoogle } from 'react-icons/fc';
 
 const CoordinatorForm = ({ onGoogleLogin, setError }) => {
   const [email, setEmail] = useState('');
@@ -25,38 +25,47 @@ const CoordinatorForm = ({ onGoogleLogin, setError }) => {
   };
 
   return (
-    <form className="bg-white p-8 rounded shadow-md w-96" onSubmit={handleSubmit}>
+    <form className="w-full max-w-md" onSubmit={handleSubmit}>
       <h1 className="text-2xl font-bold text-center mb-6 text-blue-800">Coordinator Login</h1>
       {localError && <p className="text-red-500 text-center mb-4">{localError}</p>}
       <div className="mb-4">
+        <label className="block text-sm font-medium text-black mb-1" htmlFor="email">
+          Email
+        </label>
         <input
-          className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-600"
+          id="email"
+          className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none"
           type="email"
-          placeholder="Enter your email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
         />
       </div>
       <div className="mb-4">
+        <label className="block text-sm font-medium text-black mb-1" htmlFor="password">
+          Password
+        </label>
         <input
-          className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-600"
+          id="password"
+          className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none"
           type="password"
-          placeholder="Enter your password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
         />
       </div>
-      <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-2" type="submit">
+      <button
+        className="w-full bg-gray-200 hover:bg-gray-300 text-black font-medium py-2 rounded mb-2"
+        type="submit"
+      >
         Login
       </button>
       <button
-        className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+        className="w-full bg-gray-200 hover:bg-gray-300 text-black font-medium py-2 rounded mb-2 flex items-center justify-center"
         type="button"
         onClick={onGoogleLogin}
       >
-        Login with Google
+        <FcGoogle className="mr-2" /> Login with Google
       </button>
     </form>
   );

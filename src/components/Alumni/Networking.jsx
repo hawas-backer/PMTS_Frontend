@@ -1,52 +1,27 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 const Networking = () => {
-  const [people, setPeople] = useState([
-    {
-      id: 1,
-      name: 'John Doe',
-      role: 'Alumni',
-      major: 'Computer Science',
-      graduationYear: 2020,
-      bio: 'Experienced software engineer...',
-    },
-    {
-      id: 2,
-      name: 'Jane Smith',
-      role: 'Student',
-      major: 'Electrical Engineering',
-      graduationYear: 2024,
-      bio: 'Passionate about robotics...',
-    },
-    {
-      id: 3,
-      name: 'David Lee',
-      role: 'Alumni',
-      major: 'Mechanical Engineering',
-      graduationYear: 2018,
-      bio: 'Working in the automotive industry...',
-    },
-  ]);
+  const people = [
+    { id: 1, name: 'John Doe', role: 'Alumni', major: 'CS', year: 2020, bio: 'Software engineer.' },
+    { id: 2, name: 'Jane Smith', role: 'Student', major: 'EE', year: 2024, bio: 'Robotics enthusiast.' },
+    { id: 3, name: 'David Lee', role: 'Alumni', major: 'ME', year: 2018, bio: 'Automotive industry.' },
+  ];
 
   return (
-    <div className="bg-gray-900 min-h-screen text-white p-8">
-      <div className="container mx-auto max-w-6xl">
-        <h1 className="text-4xl font-bold mb-8 text-center">Networking</h1>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="bg-gray-900 min-h-screen text-gray-300 p-4">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-lg font-semibold mb-4">Networking</h1>
+        <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {people.map((person) => (
-            <div
-              key={person.id}
-              className="bg-gray-800 rounded-lg p-6 shadow-md hover:bg-gray-700 transition duration-300"
-            >
-              <h2 className="text-2xl font-semibold mb-2">{person.name}</h2>
-              <p className="text-gray-400">
-                {person.role} - {person.major} ({person.graduationYear})
+            <li key={person.id} className="p-3 bg-gray-800 rounded hover:bg-gray-700 transition">
+              <h2 className="text-sm font-semibold">{person.name}</h2>
+              <p className="text-xs text-gray-500">
+                {person.role} - {person.major} ({person.year})
               </p>
-              <p className="mt-2">{person.bio}</p>
-            </div>
+              <p className="text-xs">{person.bio}</p>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
     </div>
   );
