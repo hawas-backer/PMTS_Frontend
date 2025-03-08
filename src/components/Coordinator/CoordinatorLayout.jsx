@@ -1,39 +1,38 @@
-// frontend/src/components/Coordinator/CoordinatorLayout.jsx
 import React, { useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import Header from '../Header';
 import Footer from '../Footer';
-import { Home, Calendar, BarChart3, Users, FileText } from 'lucide-react';
+import { Home, Calendar, BarChart3, Users, FileText, Briefcase } from 'lucide-react';
 
 const CoordinatorLayout = () => {
   const [activeTab, setActiveTab] = useState('');
   const navigate = useNavigate();
-  const { user, role } = useAuth(); // Get user and role from AuthContext
+  const { user, role } = useAuth();
 
   const navItems = [
     { id: '', icon: Home, label: 'Home' },
     { id: 'events', icon: Calendar, label: 'Events' },
-    { id: 'aptitude', icon: BarChart3, label: 'Aptitude test' },
-    { id: 'resources', icon: Users, label: 'resources' },
-    { id: 'results', icon: FileText, label: 'placement results' },
-    { id: 'addPlacementDrive', icon: FileText, label: 'add placement drive' },
+    { id: 'aptitude', icon: BarChart3, label: 'Aptitude Test' },
+    { id: 'resources', icon: Users, label: 'Resources' },
+    { id: 'results', icon: FileText, label: 'Placement Results' },
+    { id: 'placement-drives', icon: Briefcase, label: 'Placement Drives' }, // Updated from addPlacementDrive
   ];
 
   const handleNavClick = (id) => {
     setActiveTab(id);
-    navigate(`/Coordinator/${id}`); // Prepend '/Coordinator/' to match nested route structure
+    navigate(`/Coordinator/${id}`);
   };
 
   return (
     <div className="flex flex-col h-screen w-screen bg-[#0f1218]">
       <Header
-        name={user?.name || user?.email} // Prefer name, fallback to email (from reference)
-        userrole={role} // Use role from useAuth
+        name={user?.name || user?.email}
+        userrole={role}
         profilePic={null}
         unreadCount={0}
-        email={user?.email || 'N/A'} // Pass email (from reference)
-        batch={user?.batch || 'N/A'} // Pass batch (from reference)
+        email={user?.email || 'N/A'}
+        batch={user?.batch || 'N/A'}
       />
 
       <div className="flex flex-1 bg-[#0f1218]">

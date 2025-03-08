@@ -1,4 +1,3 @@
-// frontend/src/App.jsx
 import React from 'react';
 import LoginPage from './pages/LoginPage';
 import Register from './pages/Register';
@@ -15,7 +14,7 @@ import Events from './components/Coordinator/Events';
 import Networking from './components/alumni/Networking';
 import Notifications from './components/alumni/Notifications';
 import Feedback from './components/Alumni/Feedback';
-import StudentLayout from './components/Student/StudentLayout';
+import StudentLayout from './components/Student/StudentLayout'; // Renamed from Layout
 import AdvisorLayout from './components/Advisor/AdvisorLayout';
 import PlacementData from './components/Home/PlacementData';
 import Recruiters from './components/Home/Recruiters';
@@ -23,7 +22,7 @@ import HomeLayout from './components/Home/HomeLayout';
 import AptitudeTest from './components/Coordinator/AptitudeTest';
 import Resources from './components/Coordinator/Resources';
 import PlacementResults from './components/Coordinator/PlacementResults';
-import PlacementDrive from './components/Student/PlacementDrive';
+import StudentPlacementDrives from './components/Student/StudentPlacementDrives'; // Updated import
 import ResourceAdd from './components/Student/ResourceAdd';
 import Analytics from './components/Student/Analytics';
 import EventAdd from './components/Student/EventAdd';
@@ -37,11 +36,11 @@ import Procedure from './components/Home/Procedure';
 import Testimonial from './components/Home/Testimonial';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
-import StudentAddForm from './components/Advisor/AddStudent';
+import StudentAddForm from './components/Advisor/AddStudent'; // Updated path
 import StudentList from './components/Advisor/StudentList';
 import EditStudent from './components/Advisor/EditStudent';
 import AlumniRegister from './components/AlumniRegister';
-import AddPlacementDrive from './components/Coordinator/AddPlacementDrive';
+import PlacementDriveDashboard from './components/Coordinator/PlacementDriveDashboard'; // New component
 
 const App = () => {
   const router = createBrowserRouter(
@@ -83,7 +82,7 @@ const App = () => {
           path="Coordinator"
           element={
             <ProtectedRoute allowedRoles={['Coordinator']}>
-              <CoordinatorLayout home={'Coordinator'} />
+              <CoordinatorLayout />
             </ProtectedRoute>
           }
         >
@@ -101,7 +100,7 @@ const App = () => {
           <Route path="resources" element={<Resources />} />
           <Route path="results" element={<PlacementResults />} />
           <Route path="create-test" element={<CreateTest />} />
-          <Route path="addPlacementDrive" element={<AddPlacementDrive />} />
+          <Route path="placement-drives" element={<PlacementDriveDashboard />} />
         </Route>
 
         <Route
@@ -121,7 +120,7 @@ const App = () => {
             <Route path="procedure" element={<Procedure />} />
             <Route path="testimonial" element={<Testimonial />} />
           </Route>
-          <Route path="placement" element={<PlacementDrive />} />
+          <Route path="placement" element={<StudentPlacementDrives />} />
           <Route path="resources" element={<ResourceAdd />} />
           <Route path="analytics" element={<Analytics />} />
           <Route path="events" element={<EventAdd />} />
@@ -148,17 +147,9 @@ const App = () => {
           </Route>
           <Route path="pendingRequests" element={<PendingRequests />} />
           <Route path="viewAnalysis" element={<ViewAnalysis />} />
-          <Route path="add-students" element={<StudentAddForm />} /> 
-
+          <Route path="add-students" element={<StudentAddForm />} />
           <Route path="student-list" element={<StudentList />} />
-          <Route 
-           path="edit-student/:id" 
-           element={
-           <ProtectedRoute allowedRoles={['Advisor']}>
-          <EditStudent />
-          </ProtectedRoute>
-          } 
-          />
+          <Route path="edit-student/:id" element={<EditStudent />} />
         </Route>
       </>
     )
