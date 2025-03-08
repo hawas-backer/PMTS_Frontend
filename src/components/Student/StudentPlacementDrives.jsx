@@ -26,6 +26,7 @@ const StudentPlacementDrives = () => {
     try {
       const response = await axios.get('/api/students/placements/me', { withCredentials: true });
       const studentDrives = response.data.eligibleDrives || [];
+
       // Sort drives by createdAt (most recent first)
       const sortedDrives = studentDrives.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
       setDrives(sortedDrives);
@@ -83,7 +84,7 @@ const StudentPlacementDrives = () => {
                 <h3 className="text-xl font-bold mb-2">{drive.companyName}</h3>
                 <p className="text-gray-400 mb-1">{drive.role}</p>
                 <p className="text-gray-400 mb-1">
-                  Date: {new Date(drive.date).toLocaleDateString()}
+                Date: {drive.date ? new Date(drive.date).toLocaleDateString('en-GB') : 'N/A'}
                 </p>
                 <p className="text-gray-400 mb-1">
                   Min CGPA: {drive.minCGPA}, Max Backlogs: {drive.maxBacklogs}
