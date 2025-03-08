@@ -24,13 +24,7 @@ const StudentPlacementDrives = () => {
     setLoading(true);
     try {
       const response = await axios.get('/api/students/placements/me', { withCredentials: true });
-      const studentDrives = (response.data.eligibleDrives || []).map(drive => {
-        const application = drive.applications?.find(app => app.student.toString() === user._id);
-        return {
-          ...drive,
-          status: application ? application.status : 'Not Applied'
-        };
-      });
+      const studentDrives = response.data.eligibleDrives || [];
       setDrives(studentDrives);
       setErrors([]); // Clear errors on success
     } catch (error) {
@@ -40,7 +34,6 @@ const StudentPlacementDrives = () => {
       setLoading(false);
     }
   };
-
   const applyToDrive = async (driveId) => {
     try {
       const response = await axios.post(`/api/placement-drives/apply/${driveId}`, {}, { withCredentials: true });
