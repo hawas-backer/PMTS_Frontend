@@ -1,221 +1,145 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { 
-  Plus, Edit, Trash2, FileText, 
-  Video, Link as LinkIcon, Download 
+  FileText, Video, Link as LinkIcon, 
+  Download, Play 
 } from 'lucide-react';
 
-const Resources = () => {
-  const [showAddResource, setShowAddResource] = useState(false);
-  const [resources, setResources] = useState([
-    {
-      id: 1,
-      title: 'Interview Preparation Guide',
-      description: 'Complete guide for technical interviews',
-      type: 'document',
-      url: 'interview-guide.pdf',
-      uploadDate: '2025-02-01'
-    },
-    {
-      id: 2,
-      title: 'Mock Interview Session',
-      description: 'Video recording of mock interview session',
-      type: 'video',
-      url: 'mock-interview.mp4',
-      uploadDate: '2025-02-05'
-    },
-    {
-      id: 3,
-      title: 'Practice Platform',
-      description: 'Online platform for coding practice',
-      type: 'link',
-      url: 'https://practice.example.com',
-      uploadDate: '2025-02-10'
-    }
-  ]);
+const getIcon = (type) => {
+  switch (type) {
+    case 'document':
+      return <FileText className="w-6 h-6 text-blue-500" />;
+    case 'video':
+      return <Play className="w-6 h-6 text-green-500" />;
+    case 'link':
+      return <LinkIcon className="w-6 h-6 text-purple-500" />;
+    default:
+      return <FileText className="w-6 h-6 text-gray-500" />;
+  }
+};
 
-  const getIcon = (type) => {
-    switch (type) {
-      case 'document':
-        return <FileText size={20} className="text-blue-400" />;
-      case 'video':
-        return <Video size={20} className="text-green-400" />;
-      case 'link':
-        return <LinkIcon size={20} className="text-purple-400" />;
-      default:
-        return <FileText size={20} />;
+const ResourceAdd = () => {
+  const [resources, setResources] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchResources = async () => {
+      try {
+        setIsLoading(true);
+        const response = await axios.get('http://localhost:8080/api/resources', {
+          withCredentials: true
+        });
+        
+        const resourceData = Array.isArray(response.data) 
+          ? response.data 
+          : response.data.resources || [];
+        
+        setResources(resourceData);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching resources:', err);
+        setError(err.message || 'Failed to fetch resources');
+        setResources([]); 
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchResources();
+  }, []);
+
+  const handleResourceAction = async (resource) => {
+    try {
+      if (resource.type === 'link') {
+        // Open link in a new tab
+        window.open(resource.url, '_blank', 'noopener,noreferrer');
+      } else {
+        // Download file
+        const response = await axios({
+          url: `http://localhost:8080/api/resources/download/${resource._id}`,
+          method: 'GET',
+          responseType: 'blob',
+          withCredentials: true
+        });
+        
+        const blob = new Blob([response.data]);
+        const link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        link.download = resource.originalFileName || 'download';
+        link.click();
+      }
+    } catch (error) {
+      console.error('Resource action error:', error);
+      alert('Failed to process resource');
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="p-6 min-h-screen bg-[#0B0F1A] flex items-center justify-center">
+        <div className="text-white">Loading resources...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 min-h-screen bg-[#0B0F1A] flex items-center justify-center">
+        <div className="text-red-500">{error}</div>
+      </div>
+    );
+  }
+
   return (
-    <div className="p-6 bg-[#0f1218] h-screen w-full">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-200">Resources</h2>
-        <button
-          onClick={() => setShowAddResource(true)}
-          className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
-        >
-          <Plus size={20} />
-          Add Resource
-        </button>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {resources.map((resource) => (
-          <div key={resource.id} className="bg-[#1a1f2c] rounded-lg p-6">
-            <div className="flex justify-between items-start">
-              <div className="flex items-center gap-2">
+    <div className="p-6 min-h-screen bg-[#0B0F1A]">
+      <h1 className="text-2xl font-bold text-white mb-6">Learning Resources</h1>
+      
+      {resources.length === 0 ? (
+        <div className="text-center text-gray-400">
+          No resources available at the moment.
+        </div>
+      ) : (
+        <div className="max-w-5xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {resources.map((resource) => (
+            <div 
+              key={resource._id} 
+              className="bg-gray-800 rounded-xl p-6 flex flex-col transition-all transform hover:-translate-y-1"
+            >
+              <div className="flex items-center gap-3 mb-2">
                 {getIcon(resource.type)}
-                <h3 className="text-xl font-bold text-gray-200">{resource.title}</h3>
+                <h3 className="text-lg font-semibold text-white">{resource.title}</h3>
               </div>
-              <div className="flex gap-2">
-                <button className="text-gray-400 hover:text-blue-400">
-                  <Edit size={18} />
-                </button>
-                <button className="text-gray-400 hover:text-red-400">
-                  <Trash2 size={18} />
-                </button>
-              </div>
-            </div>
-
-            <p className="mt-2 text-gray-400">{resource.description}</p>
-            
-            <div className="mt-4 flex justify-between items-center">
-              <span className="text-sm text-gray-500">{resource.uploadDate}</span>
-              {resource.type === 'link' ? (
-                <a
-                  href={resource.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-400 hover:text-blue-300 flex items-center gap-1"
+              <p className="text-gray-400 text-sm mb-4 flex-grow">
+                {resource.description}
+              </p>
+              <div className="flex justify-between items-center mt-auto">
+                <span className="text-xs text-gray-500">
+                  {resource.type.charAt(0).toUpperCase() + resource.type.slice(1)}
+                </span>
+                <button 
+                  onClick={() => handleResourceAction(resource)}
+                  className="bg-violet-800 hover:bg-violet-700 text-white px-4 py-2 rounded text-sm flex items-center gap-2"
                 >
-                  <LinkIcon size={16} />
-                  Visit
-                </a>
-              ) : (
-                <button className="text-blue-400 hover:text-blue-300 flex items-center gap-1">
-                  <Download size={16} />
-                  Download
+                  {resource.type === 'link' ? (
+                    <>
+                      <LinkIcon className="w-4 h-4" />
+                      Open
+                    </>
+                  ) : (
+                    <>
+                      <Download className="w-4 h-4" />
+                      Download
+                    </>
+                  )}
                 </button>
-              )}
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
-
-      {showAddResource && (
-        <AddResource onClose={() => setShowAddResource(false)} />
+          ))}
+        </div>
       )}
     </div>
   );
 };
 
-const AddResource = ({ onClose }) => {
-  const [resourceData, setResourceData] = useState({
-    title: '',
-    description: '',
-    type: 'document',
-    file: null,
-    url: ''
-  });
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setResourceData({ ...resourceData, file });
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-      <div className="bg-[#1a1f2c] rounded-lg p-6 w-full max-w-md">
-        <h3 className="text-xl font-bold text-gray-200 mb-4">Add Resource</h3>
-        
-        <div className="space-y-4">
-          <div>
-            <label className="block text-gray-300 mb-2">Title</label>
-            <input
-              type="text"
-              className="w-full bg-[#0f1218] text-gray-200 p-2 rounded"
-              value={resourceData.title}
-              onChange={(e) => setResourceData({...resourceData, title: e.target.value})}
-            />
-          </div>
-
-          <div>
-            <label className="block text-gray-300 mb-2">Description</label>
-            <textarea
-              className="w-full bg-[#0f1218] text-gray-200 p-2 rounded"
-              value={resourceData.description}
-              onChange={(e) => setResourceData({...resourceData, description: e.target.value})}
-              rows="3"
-            />
-          </div>
-
-          <div>
-            <label className="block text-gray-300 mb-2">Resource Type</label>
-            <select
-              className="w-full bg-[#0f1218] text-gray-200 p-2 rounded"
-              value={resourceData.type}
-              onChange={(e) => setResourceData({...resourceData, type: e.target.value})}
-            >
-              <option value="document">Document</option>
-              <option value="video">Video</option>
-              <option value="link">External Link</option>
-            </select>
-          </div>
-
-          {resourceData.type === 'link' ? (
-            <div>
-              <label className="block text-gray-300 mb-2">URL</label>
-              <input
-                type="url"
-                className="w-full bg-[#0f1218] text-gray-200 p-2 rounded"
-                value={resourceData.url}
-                onChange={(e) => setResourceData({...resourceData, url: e.target.value})}
-                placeholder="https://"
-              />
-            </div>
-          ) : (
-            <div>
-              <label className="block text-gray-300 mb-2">
-                Upload {resourceData.type === 'document' ? 'Document' : 'Video'}
-              </label>
-              <div className="relative">
-                <input
-                  type="file"
-                  onChange={handleFileChange}
-                  className="w-full bg-[#0f1218] text-gray-200 p-2 rounded"
-                  accept={resourceData.type === 'document' ? 
-                    '.pdf,.doc,.docx,.txt' : 
-                    '.mp4,.webm,.mov'
-                  }
-                />
-              </div>
-              {resourceData.file && (
-                <p className="mt-2 text-sm text-gray-400">
-                  Selected: {resourceData.file.name}
-                </p>
-              )}
-            </div>
-          )}
-        </div>
-
-        <div className="flex justify-end gap-4 mt-6">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 text-gray-400 hover:text-gray-200"
-          >
-            Cancel
-          </button>
-          <button
-            className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-          >
-            Add Resource
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default Resources;
+export default ResourceAdd;
