@@ -27,7 +27,7 @@ import ResourceAdd from './components/Student/ResourceAdd';
 import Analytics from './components/Student/Analytics';
 import EventAdd from './components/Student/EventAdd';
 import JobOpportunities from './components/Student/JobOpportunities';
-import ExamCorner from './components/Student/ExamCorner';
+import ExamCorner from './components/Student/StudentAptitudeTests';
 import PendingRequests from './components/Advisor/PendingRequests';
 import ViewAnalysis from './components/Advisor/ViewAnalysis';
 import Contact from './components/Home/Contact';
@@ -42,6 +42,10 @@ import EditStudent from './components/Advisor/EditStudent';
 import AlumniRegister from './components/AlumniRegister';
 import PlacementDriveDashboard from './components/Coordinator/PlacementDriveDashboard';
 import PlacementDriveDetail from './components/Coordinator/PlacementDriveDetail'; // New import
+import AddPlacementDrive from './components/Coordinator/AddPlacementDrive';
+import StudentAptitudeTests from './components/Student/StudentAptitudeTests';
+import TakeQuiz from './components/Student/TakeQuiz';
+import QuizResults from './components/Student/QuizResults';
 
 const App = () => {
   const router = createBrowserRouter(
@@ -96,13 +100,16 @@ const App = () => {
             <Route path="procedure" element={<Procedure />} />
             <Route path="testimonial" element={<Testimonial />} />
           </Route>
-          <Route path="aptitude" element={<AptitudeTest />} />
           <Route path="events" element={<Events />} />
           <Route path="resources" element={<Resources />} />
           <Route path="results" element={<PlacementResults />} />
+          <Route path="aptitude-tests" element={<AptitudeTest />} />
           <Route path="create-test" element={<CreateTest />} />
           <Route path="placement-drives" element={<PlacementDriveDashboard />} />
           <Route path="placement-drives/:id" element={<PlacementDriveDetail />} /> {/* New route */}
+          <Route path="edit-test/:id" element={<CreateTest />} />
+          <Route path="quiz-results/:id" element={<QuizResults />} />
+          <Route path="addPlacementDrive" element={<AddPlacementDrive />} />
         </Route>
 
         <Route
@@ -127,7 +134,10 @@ const App = () => {
           <Route path="analytics" element={<Analytics />} />
           <Route path="events" element={<EventAdd />} />
           <Route path="jobs" element={<JobOpportunities />} />
-          <Route path="exam" element={<ExamCorner />} />
+          <Route path="aptitude-tests" element={<StudentAptitudeTests />} />
+          <Route path="take-quiz/:id" element={<TakeQuiz />} />
+          <Route path="quiz-results/:id" element={<QuizResults />} />
+
         </Route>
 
         <Route

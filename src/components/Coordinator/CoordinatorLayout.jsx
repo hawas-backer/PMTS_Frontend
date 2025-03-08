@@ -13,10 +13,14 @@ const CoordinatorLayout = () => {
   const navItems = [
     { id: '', icon: Home, label: 'Home' },
     { id: 'events', icon: Calendar, label: 'Events' },
-    { id: 'aptitude', icon: BarChart3, label: 'Aptitude Test' },
-    { id: 'resources', icon: Users, label: 'Resources' },
-    { id: 'results', icon: FileText, label: 'Placement Results' },
+    
+   
+    { id: 'results', icon: FileText, label: 'Placement Results' }, 
     { id: 'placement-drives', icon: Briefcase, label: 'Placement Drives' }, // Updated from addPlacementDrive
+    { id: 'aptitude-tests', icon: BarChart3, label: 'Aptitude test' },
+    { id: 'resources', icon: Users, label: 'resources' },
+    
+    
   ];
 
   const handleNavClick = (id) => {
