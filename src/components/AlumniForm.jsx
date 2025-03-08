@@ -76,7 +76,7 @@ const AlumniForm = ({ onGoogleLogin, setError }) => {
       </button>
       <div className="flex justify-between items-center text-sm mt-4">
         <p className="text-gray-600">Don't have an account?</p>
-        <Link to="/register" className="text-blue-600 hover:underline">
+        <Link to="/alumni-register" className="text-blue-600 hover:underline">
           Register Now
         </Link>
       </div>

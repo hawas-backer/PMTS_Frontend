@@ -40,6 +40,7 @@ import { AuthProvider } from './context/AuthContext';
 import StudentAddForm from './components/Advisor/AddStudent';
 import StudentList from './components/Advisor/StudentList';
 import EditStudent from './components/Advisor/EditStudent';
+import AlumniRegister from './components/AlumniRegister'
 
 const App = () => {
   const router = createBrowserRouter(
@@ -49,6 +50,7 @@ const App = () => {
         <Route path="/" element={<LoginPage />} />
         <Route path="register" element={<Register />} />
         <Route path="ForgotPassword" element={<ForgotPassword />} />
+        <Route path="alumni-register" element={<AlumniRegister />} />
 
         {/* Protected Routes */}
         <Route

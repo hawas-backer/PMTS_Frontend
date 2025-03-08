@@ -14,9 +14,9 @@ const CoordinatorLayout = () => {
   const navItems = [
     { id: '', icon: Home, label: 'Home' },
     { id: 'events', icon: Calendar, label: 'Events' },
-    { id: 'reports', icon: BarChart3, label: 'Reports' },
-    { id: 'students', icon: Users, label: 'Students' },
-    { id: 'documents', icon: FileText, label: 'Documents' },
+    { id: 'aptitude', icon: BarChart3, label: 'Aptitude test' },
+    { id: 'resources', icon: Users, label: 'resources' },
+    { id: 'results', icon: FileText, label: 'placement results' },
   ];
 
   const handleNavClick = (id) => {
