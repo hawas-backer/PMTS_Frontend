@@ -14,7 +14,7 @@ const CoordinatorLayout = () => {
   const navItems = [
     { id: '', icon: Home, label: 'Home' },
     { id: 'events', icon: Calendar, label: 'Events' },
-    { id: 'aptitude', icon: BarChart3, label: 'Aptitude test' },
+    { id: 'aptitude-tests', icon: BarChart3, label: 'Aptitude test' },
     { id: 'resources', icon: Users, label: 'resources' },
     { id: 'results', icon: FileText, label: 'placement results' },
     { id: 'addPlacementDrive', icon: FileText, label: 'add placement drive' },

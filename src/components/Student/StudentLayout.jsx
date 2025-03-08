@@ -64,7 +64,7 @@ const Layout = () => {
         labelColor: 'text-orange-400'
       },
       {
-        id: 'exam',
+        id: 'aptitude-tests',
         icon: BrainCircuit,
         label: 'Exam Corner',
         color: 'text-red-500',
