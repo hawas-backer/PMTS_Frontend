@@ -40,7 +40,8 @@ import { AuthProvider } from './context/AuthContext';
 import StudentAddForm from './components/Advisor/AddStudent';
 import StudentList from './components/Advisor/StudentList';
 import EditStudent from './components/Advisor/EditStudent';
-import AlumniRegister from './components/AlumniRegister'
+import AlumniRegister from './components/AlumniRegister';
+import AddPlacementDrive from './components/Coordinator/AddPlacementDrive';
 
 const App = () => {
   const router = createBrowserRouter(
@@ -100,6 +101,7 @@ const App = () => {
           <Route path="resources" element={<Resources />} />
           <Route path="results" element={<PlacementResults />} />
           <Route path="create-test" element={<CreateTest />} />
+          <Route path="addPlacementDrive" element={<AddPlacementDrive />} />
         </Route>
 
         <Route

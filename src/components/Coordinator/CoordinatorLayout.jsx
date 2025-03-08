@@ -17,6 +17,7 @@ const CoordinatorLayout = () => {
     { id: 'aptitude', icon: BarChart3, label: 'Aptitude test' },
     { id: 'resources', icon: Users, label: 'resources' },
     { id: 'results', icon: FileText, label: 'placement results' },
+    { id: 'addPlacementDrive', icon: FileText, label: 'add placement drive' },
   ];
 
   const handleNavClick = (id) => {
