@@ -40,23 +40,27 @@ const Analytics = () => {
   useEffect(() => {
     const fetchResults = async () => {
       try {
-        const userId = localStorage.getItem('userId');
-        if (!userId) {
-          throw new Error('User ID not found in localStorage. Please log in again.');
-        }
-        const response = await axios.get(`/api/aptitude-tests/result/${userId}`, {
-          withCredentials: true
+        // Don't look for userId in localStorage
+        // Instead, rely on the session cookie that's automatically sent
+        const response = await axios.get('/api/aptitude-tests/result/current', {
+          withCredentials: true // This ensures cookies are sent
         });
+        
         setResults(response.data.results);
         setAnalytics(response.data.analytics);
         setLoading(false);
       } catch (err) {
-        console.error('Error fetching analytics data:', err);
-        setError(err.message || 'Failed to load analytics data. Please try again later.');
-        setLoading(false);
+        if (err.response && err.response.status === 401) {
+          // Redirect to login if unauthorized
+          navigate('/login');
+        } else {
+          console.error('Error fetching analytics data:', err);
+          setError(err.message || 'Failed to load analytics data. Please try again later.');
+          setLoading(false);
+        }
       }
     };
-
+  
     fetchResults();
   }, []);
 
