@@ -14,7 +14,7 @@ import Events from './components/Coordinator/Events';
 import Networking from './components/alumni/Networking';
 import Notifications from './components/alumni/Notifications';
 import Feedback from './components/Alumni/Feedback';
-import StudentLayout from './components/Student/StudentLayout'; // Renamed from Layout
+import StudentLayout from './components/Student/StudentLayout';
 import AdvisorLayout from './components/Advisor/AdvisorLayout';
 import PlacementData from './components/Home/PlacementData';
 import Recruiters from './components/Home/Recruiters';
@@ -22,7 +22,7 @@ import HomeLayout from './components/Home/HomeLayout';
 import AptitudeTest from './components/Coordinator/AptitudeTest';
 import Resources from './components/Coordinator/Resources';
 import PlacementResults from './components/Coordinator/PlacementResults';
-import StudentPlacementDrives from './components/Student/StudentPlacementDrives'; // Updated import
+import StudentPlacementDrives from './components/Student/StudentPlacementDrives';
 import ResourceAdd from './components/Student/ResourceAdd';
 import Analytics from './components/Student/Analytics';
 import EventAdd from './components/Student/EventAdd';
@@ -36,11 +36,12 @@ import Procedure from './components/Home/Procedure';
 import Testimonial from './components/Home/Testimonial';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
-import StudentAddForm from './components/Advisor/AddStudent'; // Updated path
+import StudentAddForm from './components/Advisor/AddStudent';
 import StudentList from './components/Advisor/StudentList';
 import EditStudent from './components/Advisor/EditStudent';
 import AlumniRegister from './components/AlumniRegister';
-import PlacementDriveDashboard from './components/Coordinator/PlacementDriveDashboard'; // New component
+import PlacementDriveDashboard from './components/Coordinator/PlacementDriveDashboard';
+import PlacementDriveDetail from './components/Coordinator/PlacementDriveDetail'; // New import
 
 const App = () => {
   const router = createBrowserRouter(
@@ -101,6 +102,7 @@ const App = () => {
           <Route path="results" element={<PlacementResults />} />
           <Route path="create-test" element={<CreateTest />} />
           <Route path="placement-drives" element={<PlacementDriveDashboard />} />
+          <Route path="placement-drives/:id" element={<PlacementDriveDetail />} /> {/* New route */}
         </Route>
 
         <Route

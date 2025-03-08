@@ -1,25 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 
 axios.defaults.baseURL = 'http://localhost:8080';
 
 const PlacementDriveDashboard = () => {
   const { role } = useAuth();
   const [formData, setFormData] = useState({
-    companyName: '',
-    role: '',
-    description: '',
-    minCGPA: '',
-    maxBacklogs: '',
-    eligibleBranches: '',
-    minSemestersCompleted: '',
-    date: ''
+    companyName: '', role: '', description: '', minCGPA: '',
+    maxBacklogs: '', eligibleBranches: '', minSemestersCompleted: '', date: ''
   });
   const [drives, setDrives] = useState([]);
   const [message, setMessage] = useState('');
   const [errors, setErrors] = useState([]);
+  const navigate = useNavigate();
 
   if (role !== 'Coordinator') {
     return <Navigate to="/" replace />;
@@ -67,18 +62,9 @@ const PlacementDriveDashboard = () => {
     }
   };
 
-  const updateStatus = async (driveId, studentId, status) => {
-    try {
-      await axios.put(`/api/placement-drives/status/${driveId}/${studentId}`, { status }, { withCredentials: true });
-      fetchDrives();
-    } catch (error) {
-      setErrors([error.response?.data.message || 'Error updating status']);
-    }
-  };
-
   return (
     <div className="bg-[#0f1218] min-h-screen p-8 text-white">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-6xl mx-auto">
         <h2 className="text-2xl font-bold mb-6 text-center">Placement Drive Dashboard</h2>
 
         <div className="bg-[#1a2233] p-6 rounded-lg shadow-lg mb-8">
@@ -98,40 +84,29 @@ const PlacementDriveDashboard = () => {
           </form>
         </div>
 
-        <div className="bg-[#1a2233] p-6 rounded-lg shadow-lg">
-          <h3 className="text-xl mb-4">Placement Drives</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {drives.map(drive => (
-            <div key={drive._id} className="border-b border-[#2c3e50] py-4">
-              <p><strong>{drive.companyName} - {drive.role}</strong></p>
-              <p>Date: {new Date(drive.date).toLocaleDateString()}</p>
-              <p>Eligible Branches: {drive.eligibleBranches.join(', ')}</p>
-              <p>Applications: {drive.applications.length}</p>
-              {drive.applications.map(app => (
-                <div key={app._id} className="ml-4 mt-2">
-                  <p>{app.student.name} ({app.student.registrationNumber}) - {app.status}</p>
-                  <select
-                    value={app.status}
-                    onChange={(e) => updateStatus(drive._id, app.student._id, e.target.value)}
-                    className="bg-[#2c3e50] text-white p-1 rounded"
-                  >
-                    <option value="Applied">Applied</option>
-                    <option value="Interview">Interview</option>
-                    <option value="Selected">Selected</option>
-                    <option value="Rejected">Rejected</option>
-                  </select>
-                </div>
-              ))}
+            <div
+              key={drive._id}
+              className="bg-[#1a2233] p-6 rounded-lg shadow-lg border border-[#2c3e50] hover:shadow-xl transition-shadow cursor-pointer"
+              onClick={() => navigate(`/Coordinator/placement-drives/${drive._id}`)} // Updated path
+            >
+              <h3 className="text-xl font-bold mb-2">{drive.companyName} - {drive.role}</h3>
+              <p className="text-gray-400 mb-1">Date: {new Date(drive.date).toLocaleDateString()}</p>
+              <p className="text-gray-400 mb-1">Applicants: {drive.applications.length}</p>
+              <p className="text-gray-400 mb-1">Phases: {drive.phases.length}</p>
+              <p className="text-gray-400">Status: <span className={drive.status === 'Completed' ? 'text-green-400' : 'text-yellow-400'}>{drive.status}</span></p>
             </div>
           ))}
         </div>
 
         {errors.length > 0 && (
-          <div className="mt-4 bg-red-600 bg-opacity-20 p-4 rounded">
+          <div className="mt-6 bg-red-600 bg-opacity-20 p-4 rounded">
             {errors.map((error, index) => <p key={index} className="text-red-400">{error}</p>)}
           </div>
         )}
         {message && (
-          <div className="mt-4 bg-green-600 bg-opacity-20 p-4 rounded">
+          <div className="mt-6 bg-green-600 bg-opacity-20 p-4 rounded">
             <p className="text-green-400">{message}</p>
           </div>
         )}
