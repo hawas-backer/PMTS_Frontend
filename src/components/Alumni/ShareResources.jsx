@@ -92,52 +92,37 @@ const ShareResource = () => {
   }
 
   return (
-    <div className="p-6 min-h-screen bg-[#0B0F1A]">
-      <h1 className="text-2xl font-bold text-white mb-6">Learning Resources</h1>
-      
-      {resources.length === 0 ? (
-        <div className="text-center text-gray-400">
-          No resources available at the moment.
+    <div className="bg-gray-900 min-h-screen text-white p-8">
+      <div className="container mx-auto">
+        <h1 className="text-3xl font-bold mb-4">Resources</h1>
+
+        <div className="flex justify-end mb-4">
+          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            Share Resource +
+          </button>
         </div>
-      ) : (
-        <div className="max-w-5xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {resources.map((resource) => (
-            <div 
-              key={resource._id} 
-              className="bg-gray-800 rounded-xl p-6 flex flex-col transition-all transform hover:-translate-y-1"
-            >
-              <div className="flex items-center gap-3 mb-2">
-                {getIcon(resource.type)}
-                <h3 className="text-lg font-semibold text-white">{resource.title}</h3>
-              </div>
-              <p className="text-gray-400 text-sm mb-4 flex-grow">
-                {resource.description}
-              </p>
-              <div className="flex justify-between items-center mt-auto">
-                <span className="text-xs text-gray-500">
-                  {resource.type.charAt(0).toUpperCase() + resource.type.slice(1)}
-                </span>
-                <button 
-                  onClick={() => handleResourceAction(resource)}
-                  className="bg-violet-800 hover:bg-violet-700 text-white px-4 py-2 rounded text-sm flex items-center gap-2"
-                >
-                  {resource.type === 'link' ? (
-                    <>
-                      <LinkIcon className="w-4 h-4" />
-                      Open
-                    </>
-                  ) : (
-                    <>
-                      <Download className="w-4 h-4" />
-                      Download
-                    </>
-                  )}
+            <div key={resource.id} className="bg-gray-800 rounded-lg p-6 shadow-md hover:bg-gray-700 transition duration-300 h-full">
+              <h2 className="text-xl font-semibold mb-2">{resource.title}</h2>
+              <p className="text-gray-500 mb-4">{resource.description}</p>
+
+              {resource.type === 'link' && (
+                <a href={resource.link} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                  View Link
+                </a>
+              )}
+
+              {resource.type === 'file' && (
+                <button onClick={() => handleDownload(resource.file)} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                  Download
                 </button>
-              </div>
+              )}
             </div>
           ))}
         </div>
-      )}
+      </div>
     </div>
   );
 };

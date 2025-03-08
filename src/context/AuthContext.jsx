@@ -16,7 +16,11 @@ export const AuthProvider = ({ children }) => {
           withCredentials: true,
         });
         if (res.data.isAuthenticated) {
-          setUser({ email: res.data.user.email });
+          setUser({
+            email: res.data.user.email,
+            name: res.data.user.name, // Store name
+            batch: res.data.user.batch // Store batch
+          });
           setRole(res.data.user.role);
           console.log('[AUTH] User authenticated:', res.data.user.email, res.data.user.role);
         }
@@ -38,7 +42,11 @@ export const AuthProvider = ({ children }) => {
         { email, password },
         { withCredentials: true }
       );
-      setUser({ email: res.data.user.email });
+      setUser({
+        email: res.data.user.email,
+        name: res.data.user.name, // Store name
+        batch: res.data.user.batch // Store batch
+      });
       setRole(res.data.user.role);
       console.log('[AUTH] Login successful:', res.data.user.email, res.data.user.role);
       return res.data.user.role;

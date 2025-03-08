@@ -40,6 +40,8 @@ import { AuthProvider } from './context/AuthContext';
 import StudentAddForm from './components/Advisor/AddStudent';
 import StudentList from './components/Advisor/StudentList';
 import EditStudent from './components/Advisor/EditStudent';
+import AlumniRegister from './components/AlumniRegister';
+import AddPlacementDrive from './components/Coordinator/AddPlacementDrive';
 
 const App = () => {
   const router = createBrowserRouter(
@@ -49,6 +51,7 @@ const App = () => {
         <Route path="/" element={<LoginPage />} />
         <Route path="register" element={<Register />} />
         <Route path="ForgotPassword" element={<ForgotPassword />} />
+        <Route path="alumni-register" element={<AlumniRegister />} />
 
         {/* Protected Routes */}
         <Route
@@ -68,7 +71,7 @@ const App = () => {
             <Route path="procedure" element={<Procedure />} />
             <Route path="testimonial" element={<Testimonial />} />
           </Route>
-          <Route path="shareOportunities" element={<ShareOpportunities />} />
+          <Route path="shareOpportunities" element={<ShareOpportunities />} />
           <Route path="shareResources" element={<ShareResources />} />
           <Route path="events" element={<Events />} />
           <Route path="networking" element={<Networking />} />
@@ -98,6 +101,7 @@ const App = () => {
           <Route path="resources" element={<Resources />} />
           <Route path="results" element={<PlacementResults />} />
           <Route path="create-test" element={<CreateTest />} />
+          <Route path="addPlacementDrive" element={<AddPlacementDrive />} />
         </Route>
 
         <Route
