@@ -10,8 +10,9 @@ const StudentPlacementDrives = () => {
   const [drives, setDrives] = useState([]);
   const [message, setMessage] = useState('');
   const [errors, setErrors] = useState([]);
-  const [loading, setLoading] = useState(true); // Add loading state
+  const [loading, setLoading] = useState(true);
 
+  // Redirect if user is not a student
   if (role !== 'Student') {
     return <Navigate to="/" replace />;
   }
@@ -25,7 +26,9 @@ const StudentPlacementDrives = () => {
     try {
       const response = await axios.get('/api/students/placements/me', { withCredentials: true });
       const studentDrives = response.data.eligibleDrives || [];
-      setDrives(studentDrives);
+      // Sort drives by createdAt (most recent first)
+      const sortedDrives = studentDrives.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      setDrives(sortedDrives);
       setErrors([]); // Clear errors on success
     } catch (error) {
       console.error('Fetch error:', error.response?.data);
@@ -34,6 +37,7 @@ const StudentPlacementDrives = () => {
       setLoading(false);
     }
   };
+
   const applyToDrive = async (driveId) => {
     try {
       const response = await axios.post(`/api/placement-drives/apply/${driveId}`, {}, { withCredentials: true });
@@ -64,43 +68,55 @@ const StudentPlacementDrives = () => {
 
   return (
     <div className="bg-[#0f1218] min-h-screen p-8 text-white">
-      <div className="max-w-4xl mx-auto bg-[#1a2233] p-6 rounded-lg shadow-lg">
+      <div className="max-w-6xl mx-auto">
         <h2 className="text-2xl font-bold mb-6 text-center">Eligible Placement Drives</h2>
 
         {loading ? (
           <p className="text-gray-400 text-center">Loading placement drives...</p>
         ) : drives.length > 0 ? (
-          drives.map(drive => (
-            <div key={drive._id} className="border-b border-[#2c3e50] py-4">
-              <p><strong>{drive.companyName} - {drive.role}</strong></p>
-              <p>Date: {new Date(drive.date).toLocaleDateString()}</p>
-              <p>Min CGPA: {drive.minCGPA}, Max Backlogs: {drive.maxBacklogs}</p>
-              <p>
-                Status: <span className={getStatusStyle(drive.status)}>{drive.status}</span>
-              </p>
-              {drive.status === 'Not Applied' && (
-                <button
-                  onClick={() => applyToDrive(drive._id)}
-                  className="mt-2 bg-blue-600 hover:bg-blue-700 p-2 rounded text-sm"
-                >
-                  Apply Now
-                </button>
-              )}
-            </div>
-          ))
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {drives.map((drive) => (
+              <div
+                key={drive._id}
+                className="bg-[#1a2233] p-6 rounded-lg shadow-lg border border-[#2c3e50] hover:shadow-xl transition-shadow"
+              >
+                <h3 className="text-xl font-bold mb-2">{drive.companyName}</h3>
+                <p className="text-gray-400 mb-1">{drive.role}</p>
+                <p className="text-gray-400 mb-1">
+                  Date: {new Date(drive.date).toLocaleDateString()}
+                </p>
+                <p className="text-gray-400 mb-1">
+                  Min CGPA: {drive.minCGPA}, Max Backlogs: {drive.maxBacklogs}
+                </p>
+                <p className="mb-4">
+                  Status:{' '}
+                  <span className={getStatusStyle(drive.status)}>{drive.status}</span>
+                </p>
+                {drive.status === 'Not Applied' && (
+                  <button
+                    onClick={() => applyToDrive(drive._id)}
+                    className="w-full bg-blue-600 hover:bg-blue-700 py-2 px-4 rounded text-sm font-medium transition-colors"
+                  >
+                    Apply Now
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
         ) : (
           <p className="text-gray-400 text-center">No eligible placement drives available.</p>
         )}
 
         {errors.length > 0 && (
-          <div className="mt-4 bg-red-600 bg-opacity-20 p-4 rounded">
+          <div className="mt-6 bg-red-600 bg-opacity-20 p-4 rounded">
             {errors.map((error, index) => (
               <p key={index} className="text-red-400">{error}</p>
             ))}
           </div>
         )}
+
         {message && (
-          <div className="mt-4 bg-green-600 bg-opacity-20 p-4 rounded">
+          <div className="mt-6 bg-green-600 bg-opacity-20 p-4 rounded">
             <p className="text-green-400">{message}</p>
           </div>
         )}
