@@ -1,83 +1,107 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 import { FcGoogle } from 'react-icons/fc';
 
-const StudentForm = ({ onGoogleLogin, setError }) => {
+const StudentForm = ({ onGoogleLogin }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [localError, setLocalError] = useState('');
-  const { login } = useContext(AuthContext);
+  const [error, setError] = useState('');
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    
     try {
-      const role = await login(email, password);
-      console.log('[FRONTEND] Login successful, role:', role);
-      navigate(`/${role}`, { replace: true });
+      const result = await login(email, password);
+      if (result.success) {
+        console.log('[FRONTEND] Login successful, role:', result.role);
+        navigate(`/${result.role.toLowerCase()}`, { replace: true });
+      } else {
+        setError(result.message || 'Login failed');
+      }
     } catch (err) {
-      const errorMsg = err.response?.data.message || 'Login failed';
-      setLocalError(errorMsg);
+      const errorMsg = err.response?.data?.message || 'Login failed';
       setError(errorMsg);
       console.error('[FRONTEND] Login error:', errorMsg);
     }
   };
 
   return (
-    <form className="w-full max-w-md" onSubmit={handleSubmit}>
-      {localError && <p className="text-red-500 text-center mb-4">{localError}</p>}
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-black mb-1" htmlFor="email">
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {error && (
+        <div className="p-3 bg-red-100 text-red-700 rounded">
+          {error}
+        </div>
+      )}
+      
+      <div>
+        <label htmlFor="email" className="block text-sm font-medium text-gray-700">
           Email
         </label>
         <input
           id="email"
-          className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
+          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
           aria-label="Email"
         />
       </div>
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-black mb-1" htmlFor="password">
+      
+      <div>
+        <label htmlFor="password" className="block text-sm font-medium text-gray-700">
           Password
         </label>
         <input
           id="password"
-          className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
+          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
           aria-label="Password"
         />
       </div>
-      <div className="flex justify-end mb-4">
-        <Link to="/forgot-password" className="text-sm text-blue-600 hover:underline">
+      
+      <div className="text-right">
+        <Link to="/forgot-password" className="text-sm text-indigo-600 hover:text-indigo-800">
           Forgot password?
         </Link>
       </div>
-      <button
-        className="w-full bg-gray-200 hover:bg-gray-300 text-black font-medium py-2 rounded mb-2"
-        type="submit"
-      >
-        Sign In
-      </button>
-      <button
-        className="w-full bg-gray-200 hover:bg-gray-300 text-black font-medium py-2 rounded mb-2 flex items-center justify-center"
-        type="button"
-        onClick={onGoogleLogin}
-      >
-        <FcGoogle className="mr-2" /> Login with Google
-      </button>
-      <div className="flex justify-between items-center text-sm mt-4">
-        <p className="text-gray-600">Don't have an account?</p>
-        <Link to="/register" className="text-blue-600 hover:underline">
-          Register Now
-        </Link>
+      
+      <div>
+        <button
+          type="submit"
+          className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700"
+        >
+          Sign In
+        </button>
+      </div>
+      
+      {onGoogleLogin && (
+        <div>
+          <button
+            type="button"
+            onClick={onGoogleLogin}
+            className="w-full flex justify-center items-center gap-2 py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white hover:bg-gray-50"
+          >
+            <FcGoogle className="text-xl" />
+            Login with Google
+          </button>
+        </div>
+      )}
+      
+      <div className="text-center mt-4">
+        <p className="text-sm text-gray-600">
+          Don't have an account?{' '}
+          <Link to="/register" className="text-indigo-600 hover:text-indigo-800">
+            Register Now
+          </Link>
+        </p>
       </div>
     </form>
   );

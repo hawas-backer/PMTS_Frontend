@@ -12,15 +12,37 @@ const AlumniForm = ({ onGoogleLogin, setError }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLocalError(''); // Clear previous errors
     try {
-      const role = await login(email, password);
-      console.log('[FRONTEND] Login successful, role:', role);
-      navigate(`/${role}`, { replace: true });
+      const result = await login(email, password);
+      console.log('[FRONTEND] Login result:', JSON.stringify(result, null, 2)); // Log full result
+
+      if (result.success) {
+        if (result.role === 'Alumni') {
+          navigate(`/alumni`, { replace: true }); // Navigate to /alumni
+        } else {
+          setLocalError('This account is not registered as an Alumni');
+          setError('This account is not registered as an Alumni');
+        }
+      } else {
+        setLocalError(result.message || 'Login failed');
+        setError(result.message || 'Login failed');
+      }
     } catch (err) {
-      const errorMsg = err.response?.data.message || 'Login failed';
-      setLocalError(errorMsg);
-      setError(errorMsg);
-      console.error('[FRONTEND] Login error:', errorMsg);
+      console.error('[FRONTEND] Login error:', err.response?.data || err.message);
+      if (err.response?.status === 401 || err.response?.status === 403) {
+        if (err.response?.data?.pending) {
+          setLocalError('Your alumni account is pending approval. Please contact the administrator.');
+          setError('Your alumni account is pending approval. Please contact the administrator.');
+        } else {
+          setLocalError(err.response?.data.message || 'Login failed');
+          setError(err.response?.data.message || 'Login failed');
+        }
+      } else {
+        const errorMsg = err.response?.data.message || 'Login failed';
+        setLocalError(errorMsg);
+        setError(errorMsg);
+      }
     }
   };
 
