@@ -1,4 +1,3 @@
-// frontend/src/App.jsx
 import React from 'react';
 import LoginPage from './pages/LoginPage';
 import Register from './pages/Register';
@@ -23,7 +22,7 @@ import HomeLayout from './components/Home/HomeLayout';
 import AptitudeTest from './components/Coordinator/AptitudeTest';
 import Resources from './components/Coordinator/Resources';
 import PlacementResults from './components/Coordinator/PlacementResults';
-import PlacementDrive from './components/Student/PlacementDrive';
+import StudentPlacementDrives from './components/Student/StudentPlacementDrives';
 import ResourceAdd from './components/Student/ResourceAdd';
 import Analytics from './components/Student/Analytics';
 import EventAdd from './components/Student/EventAdd';
@@ -40,6 +39,8 @@ import StudentAddForm from './components/Advisor/AddStudent';
 import StudentList from './components/Advisor/StudentList';
 import EditStudent from './components/Advisor/EditStudent';
 import AlumniRegister from './components/AlumniRegister';
+import PlacementDriveDashboard from './components/Coordinator/PlacementDriveDashboard';
+import PlacementDriveDetail from './components/Coordinator/PlacementDriveDetail'; // New import
 import AddPlacementDrive from './components/Coordinator/AddPlacementDrive';
 import StudentAptitudeTests from './components/Student/StudentAptitudeTests';
 import TakeQuiz from './components/Student/TakeQuiz';
@@ -100,6 +101,8 @@ const App = () => {
           <Route path="results" element={<PlacementResults />} />
           <Route path="aptitude-tests" element={<AptitudeTest />} />
           <Route path="create-test" element={<CreateTest />} />
+          <Route path="placement-drives" element={<PlacementDriveDashboard />} />
+          <Route path="placement-drives/:id" element={<PlacementDriveDetail />} /> {/* New route */}
           <Route path="edit-test/:id" element={<CreateTest />} />
           <Route path="quiz-results/:id" element={<QuizResults />} />
           <Route path="addPlacementDrive" element={<AddPlacementDrive />} />
@@ -121,7 +124,7 @@ const App = () => {
             <Route path="procedure" element={<Procedure />} />
             <Route path="testimonial" element={<Testimonial />} />
           </Route>
-          <Route path="placement" element={<PlacementDrive />} />
+          <Route path="placement" element={<StudentPlacementDrives />} />
           <Route path="resources" element={<ResourceAdd />} />
           <Route path="analytics" element={<Analytics />} />
           <Route path="events" element={<EventAdd />} />
@@ -147,17 +150,9 @@ const App = () => {
           </Route>
           <Route path="pendingRequests" element={<PendingRequests />} />
           <Route path="viewAnalysis" element={<ViewAnalysis />} />
-          <Route path="add-students" element={<StudentAddForm />} /> 
-
+          <Route path="add-students" element={<StudentAddForm />} />
           <Route path="student-list" element={<StudentList />} />
-          <Route 
-           path="edit-student/:id" 
-           element={
-           <ProtectedRoute allowedRoles={['Advisor']}>
-          <EditStudent />
-          </ProtectedRoute>
-          } 
-          />
+          <Route path="edit-student/:id" element={<EditStudent />} />
         </Route>
       </>
     )
