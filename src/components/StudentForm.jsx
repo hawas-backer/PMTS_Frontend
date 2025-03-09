@@ -1,26 +1,32 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 import { FcGoogle } from 'react-icons/fc';
 
-const StudentForm = ({ onGoogleLogin, setError }) => {
+const StudentForm = ({ onGoogleLogin }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [localError, setLocalError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useContext(AuthContext);
+  const [error, setError] = useState('');
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setError('');
+    
     try {
-      const role = await login(email, password);
-      console.log('[FRONTEND] Login successful, role:', role);
-      navigate(`/${role}`, { replace: true });
+      const result = await login(email, password);
+      if (result.success) {
+        console.log('[FRONTEND] Login successful, role:', result.role);
+        navigate(`/${result.role.toLowerCase()}`, { replace: true });
+      } else {
+        setError(result.message || 'Login failed');
+      }
     } catch (err) {
-      const errorMsg = err.response?.data.message || 'Login failed';
-      setLocalError(errorMsg);
+      const errorMsg = err.response?.data?.message || 'Login failed';
       setError(errorMsg);
       console.error('[FRONTEND] Login error:', errorMsg);
     } finally {
@@ -29,21 +35,16 @@ const StudentForm = ({ onGoogleLogin, setError }) => {
   };
 
   return (
-    <form className="w-full max-w-md space-y-4" onSubmit={handleSubmit}>
-      {localError && (
-        <p
-          className="text-blue-600 text-sm text-center bg-blue-200 p-2 rounded-lg animate-fade-in"
-          role="alert"
-        >
-          {localError}
-        </p>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {error && (
+        <div className="p-3 bg-red-100 text-red-700 rounded">
+          {error}
+        </div>
       )}
+      
       <div>
-        <label
-          htmlFor="email"
-          className="block text-sm font-poppins text-gray-800 mb-1"
-        >
-          Email <span className="text-blue-600">*</span>
+        <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+          Email
         </label>
         <input
           id="email"
@@ -53,15 +54,14 @@ const StudentForm = ({ onGoogleLogin, setError }) => {
           placeholder="Enter your email"
           className="w-full p-3 rounded-lg border border-gray-300 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition-all duration-200 font-poppins text-gray-600"
           required
+          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
           aria-label="Email"
         />
       </div>
+      
       <div>
-        <label
-          htmlFor="password"
-          className="block text-sm font-poppins text-gray-800 mb-1"
-        >
-          Password <span className="text-blue-600">*</span>
+        <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+          Password
         </label>
         <input
           id="password"
@@ -71,87 +71,46 @@ const StudentForm = ({ onGoogleLogin, setError }) => {
           placeholder="Enter your password"
           className="w-full p-3 rounded-lg border border-gray-300 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition-all duration-200 font-poppins text-gray-600"
           required
+          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
           aria-label="Password"
         />
       </div>
-      <div className="flex justify-end">
-        <Link
-          to="/forgot-password"
-          className="text-sm font-poppins text-blue-600 hover:underline"
-        >
+      
+      <div className="text-right">
+        <Link to="/forgot-password" className="text-sm text-indigo-600 hover:text-indigo-800">
           Forgot password?
         </Link>
       </div>
-      <button
-        type="submit"
-        disabled={isLoading}
-        className="w-full py-3 rounded-lg bg-gradient-to-r from-blue-900 to-blue-400 text-white font-poppins font-medium text-base hover:from-blue-800 hover:to-blue-300 hover:scale-105 transition-all duration-200 flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed"
-      >
-        {isLoading ? (
-          <svg
-            className="animate-spin h-5 w-5 text-white"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
+      
+      <div>
+        <button
+          type="submit"
+          className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700"
+        >
+          Sign In
+        </button>
+      </div>
+      
+      {onGoogleLogin && (
+        <div>
+          <button
+            type="button"
+            onClick={onGoogleLogin}
+            className="w-full flex justify-center items-center gap-2 py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white hover:bg-gray-50"
           >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            ></circle>
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            ></path>
-          </svg>
-        ) : (
-          'Sign In'
-        )}
-      </button>
-      <button
-        type="button"
-        onClick={onGoogleLogin}
-        disabled={isLoading}
-        className="w-full py-3 rounded-lg border border-gray-300 flex items-center justify-center gap-2 font-poppins text-gray-800 bg-white hover:bg-gray-50 hover:shadow-md hover:shadow-blue-100/50 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed"
-        aria-label="Sign in with Google"
-      >
-        {isLoading ? (
-          <svg
-            className="animate-spin h-5 w-5 text-gray-500"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            ></circle>
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            ></path>
-          </svg>
-        ) : (
-          <>
-            <FcGoogle size={20} />
-            Sign in with Google
-          </>
-        )}
-      </button>
-      <div className="flex justify-between items-center text-sm mt-4">
-        <p className="text-gray-600 font-poppins">Don't have an account?</p>
-        <Link to="/register" className="text-blue-600 hover:underline font-poppins">
-          Register Now
-        </Link>
+            <FcGoogle className="text-xl" />
+            Login with Google
+          </button>
+        </div>
+      )}
+      
+      <div className="text-center mt-4">
+        <p className="text-sm text-gray-600">
+          Don't have an account?{' '}
+          <Link to="/register" className="text-indigo-600 hover:text-indigo-800">
+            Register Now
+          </Link>
+        </p>
       </div>
     </form>
   );

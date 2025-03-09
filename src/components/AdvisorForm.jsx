@@ -1,33 +1,46 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';  // Change this line
 import { FcGoogle } from 'react-icons/fc';
 
 const AdvisorForm = ({ onGoogleLogin, setError }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [localError, setLocalError] = useState('');
+<<<<<<< HEAD
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useContext(AuthContext);
+=======
+  
+  // Use the hook instead of direct context
+  const { login } = useAuth();  
+  
+>>>>>>> 6d2e9307a219b7df480386de496189d07448aadb
   const navigate = useNavigate();
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const role = await login(email, password);
-      console.log('[FRONTEND] Login successful, role:', role);
-      navigate(`/${role}`, { replace: true });
+      const result = await login(email, password);
+      console.log('[FRONTEND] Login successful, role:', result.role);
+      
+      if (result.success) {
+        navigate(`/${result.role.toLowerCase()}`, { replace: true });
+      } else {
+        setLocalError(result.message || 'Login failed');
+        if (setError) setError(result.message || 'Login failed');
+      }
     } catch (err) {
-      const errorMsg = err.response?.data.message || 'Login failed';
+      const errorMsg = err.response?.data?.message || 'Login failed';
       setLocalError(errorMsg);
-      setError(errorMsg);
+      if (setError) setError(errorMsg);
       console.error('[FRONTEND] Login error:', errorMsg);
     } finally {
       setIsLoading(false);
     }
   };
-
+  
   return (
     <form className="w-full max-w-md space-y-4" onSubmit={handleSubmit}>
       {localError && (

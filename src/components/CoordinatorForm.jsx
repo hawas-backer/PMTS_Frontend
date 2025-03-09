@@ -1,3 +1,4 @@
+// CoordinatorForm.jsx
 import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
@@ -15,9 +16,15 @@ const CoordinatorForm = ({ onGoogleLogin, setError }) => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const role = await login(email, password);
-      console.log('[FRONTEND] Login successful, role:', role);
-      navigate(`/${role}`, { replace: true });
+      const result = await login(email, password);
+      console.log('[FRONTEND] Login successful, result:', result);
+      
+      if (result.success) {
+        navigate(`/${result.role}`, { replace: true });
+      } else {
+        setLocalError(result.message || 'Login failed');
+        setError(result.message || 'Login failed');
+      }
     } catch (err) {
       const errorMsg = err.response?.data.message || 'Login failed';
       setLocalError(errorMsg);
