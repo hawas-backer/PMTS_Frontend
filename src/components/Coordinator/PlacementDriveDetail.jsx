@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import { Navigate, useParams } from 'react-router-dom';
+import { Download } from 'lucide-react';
+import * as XLSX from 'xlsx';
 
 axios.defaults.baseURL = 'http://localhost:8080';
 
@@ -118,6 +120,25 @@ const PlacementDriveDetail = () => {
     }
   };
 
+  const downloadApplicants = () => {
+    if (!drive || drive.applications.length === 0) {
+      setErrors(['No applicants available to download']);
+      return;
+    }
+
+    const excelData = drive.applications.map(app => ({
+      'Student Name': app.student.name,
+      'Email': app.student.email,
+      'Registration Number': app.student.registrationNumber,
+      'Application Status': app.status
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Applicants');
+    XLSX.writeFile(workbook, `${drive.companyName}_${drive.role}_applicants.xlsx`);
+  };
+
   if (loading) return <div className="text-white text-center">Loading...</div>;
 
   return (
@@ -130,7 +151,16 @@ const PlacementDriveDetail = () => {
         <p className="text-gray-400 mb-4">Status: <span className={drive.status === 'Completed' ? 'text-green-400' : 'text-yellow-400'}>{drive.status}</span></p>
 
         <div className="mb-8">
-          <h3 className="text-xl mb-4">Applicants</h3>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-xl">Applicants</h3>
+            <button
+              onClick={downloadApplicants}
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+            >
+              <Download size={16} />
+              Download Applicants
+            </button>
+          </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
