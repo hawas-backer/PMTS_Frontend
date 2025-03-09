@@ -46,6 +46,7 @@ import TakeQuiz from './components/Student/TakeQuiz';
 import QuizResults from './components/Student/QuizResults';
 import ProtectedRouteWrapper from './components/ProtectedRouteWrapper';
 import { AuthProvider } from './context/AuthContext';
+import AdvisorManagement from './components/Coordinator/AdvisorManagement';
 
 const App = () => {
   const router = createBrowserRouter(
@@ -102,6 +103,8 @@ const App = () => {
           <Route path="edit-test/:id" element={<CreateTest />} />
           <Route path="quiz-results/:id" element={<QuizResults />} />
           <Route path="addPlacementDrive" element={<AddPlacementDrive />} />
+          <Route path="advisorManagement" element={< AdvisorManagement/>} />
+          
         </Route>
 
         <Route

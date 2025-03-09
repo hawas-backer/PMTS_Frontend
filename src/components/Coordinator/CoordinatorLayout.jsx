@@ -18,6 +18,7 @@ const CoordinatorLayout = () => {
     { id: 'resources', icon: Users, label: 'resources' },
     { id: 'results', icon: FileText, label: 'placement results' },
     { id: 'addPlacementDrive', icon: FileText, label: 'add placement drive' },
+    { id: 'advisorManagement', icon: FileText, label: 'advisor management' },
   ];
 
   const handleNavClick = (id) => {
