@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import { Navigate, useParams } from 'react-router-dom';
+import { Download } from 'lucide-react';
+import * as XLSX from 'xlsx';
 
 axios.defaults.baseURL = 'http://localhost:8080';
 
@@ -102,20 +104,49 @@ const PlacementDriveDetail = () => {
 
   const handleDownloadTemplate = async () => {
     try {
-      const response = await axios.get('/api/placement-drives/shortlist-template', {
+      // Make sure the URL matches your actual API endpoint
+      const response = await axios.get('http://localhost:8080/api/placement-drives/shortlist-template', {
         withCredentials: true,
         responseType: 'blob'
       });
-      const url = window.URL.createObjectURL(new Blob([response.data]));
+      
+      // Verify we got a valid blob response
+      if (response.data.size === 0) {
+        throw new Error('Received empty file');
+      }
+      
+      const url = window.URL.createObjectURL(response.data);
       const link = document.createElement('a');
       link.href = url;
       link.setAttribute('download', 'shortlist_template.xlsx');
       document.body.appendChild(link);
       link.click();
+      
+      // Clean up
+      window.URL.revokeObjectURL(url);
       link.remove();
     } catch (error) {
-      setErrors(['Error downloading template']);
+      console.error('Download error:', error);
+      setErrors(['Error downloading template: ' + (error.message || 'Unknown error')]);
     }
+  };
+  const downloadApplicants = () => {
+    if (!drive || drive.applications.length === 0) {
+      setErrors(['No applicants available to download']);
+      return;
+    }
+
+    const excelData = drive.applications.map(app => ({
+      'Student Name': app.student.name,
+      'Email': app.student.email,
+      'Registration Number': app.student.registrationNumber,
+      'Application Status': app.status
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Applicants');
+    XLSX.writeFile(workbook, `${drive.companyName}_${drive.role}_applicants.xlsx`);
   };
 
   if (loading) return <div className="text-white text-center">Loading...</div>;
@@ -130,7 +161,16 @@ const PlacementDriveDetail = () => {
         <p className="text-gray-400 mb-4">Status: <span className={drive.status === 'Completed' ? 'text-green-400' : 'text-yellow-400'}>{drive.status}</span></p>
 
         <div className="mb-8">
-          <h3 className="text-xl mb-4">Applicants</h3>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-xl">Applicants</h3>
+            <button
+              onClick={downloadApplicants}
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+            >
+              <Download size={16} />
+              Download Applicants
+            </button>
+          </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>

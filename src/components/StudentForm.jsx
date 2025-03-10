@@ -6,12 +6,15 @@ import { FcGoogle } from 'react-icons/fc';
 const StudentForm = ({ onGoogleLogin }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [localError, setLocalError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     setError('');
     
     try {
@@ -26,6 +29,8 @@ const StudentForm = ({ onGoogleLogin }) => {
       const errorMsg = err.response?.data?.message || 'Login failed';
       setError(errorMsg);
       console.error('[FRONTEND] Login error:', errorMsg);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -46,8 +51,10 @@ const StudentForm = ({ onGoogleLogin }) => {
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          placeholder="Enter your email"
+          className="w-full p-3 rounded-lg border border-gray-300 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition-all duration-200 font-poppins text-gray-600"
           required
-          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+          
           aria-label="Email"
         />
       </div>
@@ -61,8 +68,10 @@ const StudentForm = ({ onGoogleLogin }) => {
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          placeholder="Enter your password"
+          className="w-full p-3 rounded-lg border border-gray-300 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition-all duration-200 font-poppins text-gray-600"
           required
-          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+          
           aria-label="Password"
         />
       </div>
@@ -74,12 +83,36 @@ const StudentForm = ({ onGoogleLogin }) => {
       </div>
       
       <div>
-        <button
-          type="submit"
-          className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700"
-        >
-          Sign In
-        </button>
+      <button
+        type="submit"
+        disabled={isLoading}
+        className="w-full py-3 rounded-lg bg-gradient-to-r from-blue-900 to-blue-400 text-white font-poppins font-medium text-base hover:from-blue-800 hover:to-blue-300 hover:scale-105 transition-all duration-200 flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed"
+      >
+        {isLoading ? (
+          <svg
+            className="animate-spin h-5 w-5 text-white"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            ></circle>
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            ></path>
+          </svg>
+        ) : (
+          'Sign In'
+        )}
+      </button>
       </div>
       
       {onGoogleLogin && (
