@@ -1,21 +1,17 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';  // Change this line
+import { useAuth } from '../context/AuthContext';
 import { FcGoogle } from 'react-icons/fc';
 
 const AdvisorForm = ({ onGoogleLogin, setError }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [localError, setLocalError] = useState('');
-<<<<<<< HEAD
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useContext(AuthContext);
-=======
   
   // Use the hook instead of direct context
-  const { login } = useAuth();  
+  const { login } = useAuth();
   
->>>>>>> 6d2e9307a219b7df480386de496189d07448aadb
   const navigate = useNavigate();
   
   const handleSubmit = async (e) => {
@@ -127,8 +123,7 @@ const AdvisorForm = ({ onGoogleLogin, setError }) => {
       </button>
       <button
         type="button"
-        onClick={onGoogleLogin}
-        disabled={isLoading}
+        onClick={onGoogleLogin}disabled={isLoading}
         className="w-full py-3 rounded-lg border border-gray-300 flex items-center justify-center gap-2 font-poppins text-gray-800 bg-white hover:bg-gray-50 hover:shadow-md hover:shadow-blue-100/50 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed"
         aria-label="Sign in with Google"
       >

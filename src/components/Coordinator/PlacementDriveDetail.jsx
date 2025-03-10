@@ -104,22 +104,32 @@ const PlacementDriveDetail = () => {
 
   const handleDownloadTemplate = async () => {
     try {
-      const response = await axios.get('/api/placement-drives/shortlist-template', {
+      // Make sure the URL matches your actual API endpoint
+      const response = await axios.get('http://localhost:8080/api/placement-drives/shortlist-template', {
         withCredentials: true,
         responseType: 'blob'
       });
-      const url = window.URL.createObjectURL(new Blob([response.data]));
+      
+      // Verify we got a valid blob response
+      if (response.data.size === 0) {
+        throw new Error('Received empty file');
+      }
+      
+      const url = window.URL.createObjectURL(response.data);
       const link = document.createElement('a');
       link.href = url;
       link.setAttribute('download', 'shortlist_template.xlsx');
       document.body.appendChild(link);
       link.click();
+      
+      // Clean up
+      window.URL.revokeObjectURL(url);
       link.remove();
     } catch (error) {
-      setErrors(['Error downloading template']);
+      console.error('Download error:', error);
+      setErrors(['Error downloading template: ' + (error.message || 'Unknown error')]);
     }
   };
-
   const downloadApplicants = () => {
     if (!drive || drive.applications.length === 0) {
       setErrors(['No applicants available to download']);

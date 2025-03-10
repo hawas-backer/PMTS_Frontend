@@ -52,8 +52,9 @@ const Events = () => {
   
   const handleEditEvent = async (updatedEvent) => {
     try {
-      await axios.put(`http://localhost:8080/api/events/${updatedEvent._id}`, updatedEvent);
-      fetchEvents();
+      await axios.put(`http://localhost:8080/api/events/${updatedEvent._id}`, updatedEvent, {
+        withCredentials: true
+      });      fetchEvents();
       setShowEditEvent(false);
     } catch (error) {
       console.error('Error updating event:', error);
@@ -62,8 +63,9 @@ const Events = () => {
 
   const handleDeleteEvent = async (id) => {
     try {
-      await axios.delete(`http://localhost:8080/api/events/${id}`);
-      fetchEvents();
+      await axios.delete(`http://localhost:8080/api/events/${id}`, {
+        withCredentials: true
+      });      fetchEvents();
     } catch (error) {
       console.error('Error deleting event:', error);
     }
