@@ -18,32 +18,44 @@ const TakeQuiz = () => {
 
   useEffect(() => {
     fetchQuiz();
-  }, []);
-
-  useEffect(() => {
+    
+    // Clear timer when component unmounts
     return () => {
-      // Clear timer when component unmounts
       if (timerRef.current) {
         clearInterval(timerRef.current);
       }
     };
   }, []);
 
+  // Separate useEffect for timer management that depends on quiz
+  useEffect(() => {
+    // Only start the timer when quiz data is loaded
+    if (quiz && timeLeft > 0) {
+      startTimer();
+      
+      // Cleanup function to prevent multiple timers
+      return () => {
+        if (timerRef.current) {
+          clearInterval(timerRef.current);
+        }
+      };
+    }
+  }, [quiz]); // Only run when quiz changes
+
   const fetchQuiz = async () => {
     try {
       setLoading(true);
       const response = await axios.get(`/api/aptitude-tests/take/${id}`, { withCredentials: true });
       const quizData = response.data.test; // Response is { test: {...} }
-      
       setQuiz(quizData);
       setAnswers(Array(quizData.questions.length).fill(null));
       setTimeLeft(quizData.duration * 60); // Convert minutes to seconds
-      startTimer();
       setLoading(false);
+      // Don't start timer here - it will be started by the useEffect that depends on quiz
     } catch (error) {
       console.error('Fetch quiz error:', error.response?.data || error.message);
       setError(
-        error.response?.data?.message || 
+        error.response?.data?.message ||
         'Failed to fetch quiz. It may not be available or you have already attempted it.'
       );
       setLoading(false);
@@ -51,23 +63,28 @@ const TakeQuiz = () => {
   };
 
   const startTimer = () => {
+    // Clear any existing timer to avoid multiple timers running
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+    
+    // Create a new timer
     timerRef.current = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev <= 1) {
+      setTimeLeft(prevTime => {
+        if (prevTime <= 1) {
           clearInterval(timerRef.current);
           submitQuiz();
           return 0;
         }
-        return prev - 1;
+        return prevTime - 1;
       });
-    }, 1000);
+    }, 1000); // Exactly 1000ms for accurate timing
   };
 
   const formatTime = (seconds) => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
-    
     return [
       hours > 0 ? hours : null,
       minutes.toString().padStart(2, '0'),
@@ -79,7 +96,6 @@ const TakeQuiz = () => {
     const newAnswers = [...answers];
     newAnswers[questionIndex] = selectedOption;
     setAnswers(newAnswers);
-    
     // Calculate progress (percentage of questions answered)
     const answeredQuestions = newAnswers.filter(answer => answer !== null).length;
     const totalQuestions = quiz.questions.length;
@@ -88,7 +104,6 @@ const TakeQuiz = () => {
 
   const handleSubmitClick = () => {
     const unansweredCount = answers.filter(a => a === null).length;
-    
     if (unansweredCount > 0) {
       setConfirmSubmit(true);
     } else {
@@ -105,12 +120,12 @@ const TakeQuiz = () => {
       setIsSubmitting(true);
       const response = await axios.post(`/api/aptitude-tests/${id}/submit`, { answers }, { withCredentials: true });
       const resultId = response.data.result._id;
-      navigate(`/student/quiz-results/${resultId}`, { 
-        state: { 
+      navigate(`/student/quiz-results/${resultId}`, {
+        state: {
           submissionResult: response.data.result, // Now contains the full QuizResult document
           answers,
-          quiz 
-        } 
+          quiz
+        }
       });
     } catch (error) {
       setError('Failed to submit quiz. Please try again.');
@@ -153,28 +168,25 @@ const TakeQuiz = () => {
         <div className="bg-[#1a1f2c] rounded-lg p-6 mb-6">
           <h1 className="text-2xl font-bold mb-3">{quiz.title}</h1>
           {quiz.description && <p className="text-gray-400 mb-4">{quiz.description}</p>}
-          
           <div className="flex flex-col sm:flex-row sm:items-center justify-between">
             <div className="flex items-center text-yellow-500 mb-4 sm:mb-0">
               <Clock size={20} className="mr-2" />
               <span className="font-semibold">{formatTime(timeLeft)}</span>
               <span className="text-gray-400 ml-2">remaining</span>
             </div>
-            
             <div className="w-full sm:w-60">
               <div className="text-xs text-gray-400 mb-1">
                 Progress: {Math.round(progress)}%
               </div>
               <div className="w-full h-2 bg-gray-700 rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-red-600 transition-all duration-300" 
+                <div
+                  className="h-full bg-red-600 transition-all duration-300"
                   style={{ width: `${progress}%` }}
                 ></div>
               </div>
             </div>
           </div>
         </div>
-        
         {/* Quiz Questions */}
         <div className="space-y-6 mb-8">
           {quiz.questions.map((question, index) => (
@@ -190,10 +202,9 @@ const TakeQuiz = () => {
                   </div>
                 </div>
               </div>
-              
               <div className="space-y-3 pl-10">
                 {question.options.map((option, optionIndex) => (
-                  <label 
+                  <label
                     key={optionIndex}
                     className={`
                       flex items-center p-3 rounded cursor-pointer transition
@@ -209,8 +220,8 @@ const TakeQuiz = () => {
                     />
                     <div className={`
                       w-5 h-5 rounded-full border flex items-center justify-center mr-3
-                      ${answers[index] === optionIndex 
-                        ? 'border-red-500 bg-red-500' 
+                      ${answers[index] === optionIndex
+                        ? 'border-red-500 bg-red-500'
                         : 'border-gray-500'}
                     `}>
                       {answers[index] === optionIndex && (
@@ -224,7 +235,6 @@ const TakeQuiz = () => {
             </div>
           ))}
         </div>
-        
         {/* Submit Section */}
         <div className="flex justify-between items-center bg-[#1a1f2c] rounded-lg p-6">
           <div>
@@ -241,14 +251,13 @@ const TakeQuiz = () => {
             <CheckCircle size={18} className="ml-2" />
           </button>
         </div>
-        
         {/* Confirmation Modal */}
         {confirmSubmit && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-[#1a1f2c] rounded-lg p-6 max-w-md w-full">
               <h2 className="text-xl font-semibold mb-4">Confirm Submission</h2>
               <p className="mb-6">
-                You have {answers.filter(a => a === null).length} unanswered questions. 
+                You have {answers.filter(a => a === null).length} unanswered questions.
                 Are you sure you want to submit the quiz?
               </p>
               <div className="flex justify-end space-x-4">
