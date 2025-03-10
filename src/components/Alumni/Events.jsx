@@ -16,7 +16,7 @@ const Events = () => {
 
   const fetchEvents = async () => {
     try {
-      const res = await await axios.get('http://localhost:8080/api/events', {
+      const res = await axios.get('http://localhost:8080/api/events', {
         withCredentials: true, // Ensure cookies are sent
       });
       const eventsWithSafeData = res.data.map(event => ({
@@ -52,8 +52,9 @@ const Events = () => {
   
   const handleEditEvent = async (updatedEvent) => {
     try {
-      await axios.put(`http://localhost:8080/api/events/${updatedEvent._id}`, updatedEvent);
-      fetchEvents();
+      await axios.put(`http://localhost:8080/api/events/${updatedEvent._id}`, updatedEvent, {
+        withCredentials: true
+      });      fetchEvents();
       setShowEditEvent(false);
     } catch (error) {
       console.error('Error updating event:', error);
@@ -62,8 +63,9 @@ const Events = () => {
 
   const handleDeleteEvent = async (id) => {
     try {
-      await axios.delete(`http://localhost:8080/api/events/${id}`);
-      fetchEvents();
+      await axios.delete(`http://localhost:8080/api/events/${id}`, {
+        withCredentials: true
+      });      fetchEvents();
     } catch (error) {
       console.error('Error deleting event:', error);
     }
@@ -243,7 +245,9 @@ const RegistrationsModal = ({ eventId, eventTitle, onClose }) => {
   const fetchRegistrations = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`http://localhost:8080/api/events/${eventId}/registrations`);
+      const res = await axios.get(`http://localhost:8080/api/events/${eventId}/registrations`, {
+        withCredentials: true, // Ensure cookies are sent for authentication
+      });
       setRegistrations(res.data.students || []);
       setEventDetails(res.data.event || {});
       setLoading(false);
@@ -252,6 +256,8 @@ const RegistrationsModal = ({ eventId, eventTitle, onClose }) => {
       setLoading(false);
     }
   };
+  
+  
 
   const handleUnregister = async (studentId) => {
     try {
