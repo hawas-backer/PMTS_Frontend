@@ -102,13 +102,14 @@ const PlacementDriveDetail = () => {
     }
   };
 
-  const handleDownloadTemplate = async () => {
+  const handleDownloadTemplate =async () => {
     try {
       // Make sure the URL matches your actual API endpoint
-      const response = await axios.get('http://localhost:8080/api/placement-drives/shortlist-template', {
+      const response = await axios.post('http://localhost:8080/api/placement-drives/template', {}, {
         withCredentials: true,
         responseType: 'blob'
       });
+      
       
       // Verify we got a valid blob response
       if (response.data.size === 0) {
