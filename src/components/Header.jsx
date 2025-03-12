@@ -3,25 +3,48 @@ import { Bell, Settings, LogOut, User, Menu, X } from 'lucide-react';
 import gcekLogo from '../assets/gcek-transparent.png';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import axios from 'axios';
 
-const Header = ({ name, userrole, profilePic, unreadCount, batch, newMessageCount, currentRoute }) => {
+const Header = ({ name, userrole,branch, profilePic, batch, currentRoute }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
   const { logout, user } = useAuth();
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
+
+  // Fetch notifications when component mounts
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/notifications', { withCredentials: true });
+        setNotifications(response.data.notifications);
+      } catch (error) {
+        console.error('Error fetching notifications:', error);
+      }
+    };
+    
+    fetchNotifications();
+    
+    // Set up polling to check for new notifications every minute
+    const intervalId = setInterval(fetchNotifications, 60000);
+    
+    return () => clearInterval(intervalId);
+  }, []);
+
+  // Calculate unread notifications count
+  const unreadCount = notifications.filter(notification => !notification.read).length;
 
   const userData = {
     name: name || 'John Doe',
     role: userrole || 'Guest',
     batch: batch || 'N/A',
     email: user?.email || 'N/A',
-    department: 'Computer Science',
-    notifications: unreadCount || 0,
-    messages: newMessageCount || 0,
+    department:branch || 'n/a',
+    notifications: unreadCount,
   };
 
-  const displayRoute = currentRoute && currentRoute !== '' ? currentRoute : '/alumni';
+  const displayRoute = currentRoute && currentRoute !== '' ? currentRoute : `${userrole}`;
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -52,7 +75,7 @@ const Header = ({ name, userrole, profilePic, unreadCount, batch, newMessageCoun
   };
 
   const handleNotificationsClick = () => {
-    navigate('/alumni/Notifications');
+    navigate('notifications');
   };
 
   const toggleProfile = () => {
@@ -86,9 +109,9 @@ const Header = ({ name, userrole, profilePic, unreadCount, batch, newMessageCoun
               aria-label="Notifications"
             >
               <Bell className="w-5 h-5 text-gray-400" />
-              {userData.messages > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-gray-600 rounded-full flex items-center justify-center text-xs font-poppins font-medium text-white">
-                  {userData.messages}
+              {userData.notifications > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-xs font-poppins font-medium text-white">
+                  {userData.notifications}
                 </span>
               )}
             </button>
@@ -164,9 +187,9 @@ const Header = ({ name, userrole, profilePic, unreadCount, batch, newMessageCoun
               aria-label="Notifications"
             >
               <Bell className="w-5 h-5 text-gray-400" />
-              {userData.messages > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-gray-600 rounded-full flex items-center justify-center text-xs font-poppins font-medium text-white">
-                  {userData.messages}
+              {userData.notifications > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-xs font-poppins font-medium text-white">
+                  {userData.notifications}
                 </span>
               )}
             </button>
