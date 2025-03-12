@@ -3,36 +3,14 @@ import { Bell, Settings, LogOut, User, Menu, X } from 'lucide-react';
 import gcekLogo from '../assets/gcek-transparent.png';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import axios from 'axios';
 
-const Header = ({ name, userrole,branch, profilePic, batch, currentRoute }) => {
+const Header = ({ name, userrole, branch, profilePic, batch, currentRoute }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [notifications, setNotifications] = useState([]);
-  const { logout, user } = useAuth();
+  const { logout, user, notifications } = useAuth();
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
 
-  // Fetch notifications when component mounts
-  useEffect(() => {
-    const fetchNotifications = async () => {
-      try {
-        const response = await axios.get('http://localhost:8080/notifications', { withCredentials: true });
-        setNotifications(response.data.notifications);
-      } catch (error) {
-        console.error('Error fetching notifications:', error);
-      }
-    };
-    
-    fetchNotifications();
-    
-    // Set up polling to check for new notifications every minute
-    const intervalId = setInterval(fetchNotifications, 60000);
-    
-    return () => clearInterval(intervalId);
-  }, []);
-
-  // Calculate unread notifications count
   const unreadCount = notifications.filter(notification => !notification.read).length;
 
   const userData = {
@@ -40,7 +18,7 @@ const Header = ({ name, userrole,branch, profilePic, batch, currentRoute }) => {
     role: userrole || 'Guest',
     batch: batch || 'N/A',
     email: user?.email || 'N/A',
-    department:branch || 'n/a',
+    department: branch || 'n/a',
     notifications: unreadCount,
   };
 
@@ -57,11 +35,8 @@ const Header = ({ name, userrole,branch, profilePic, batch, currentRoute }) => {
   }, [isProfileOpen]);
 
   useEffect(() => {
-    if (isMobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'auto';
-    }
+    if (isMobileMenuOpen) document.body.style.overflow = 'hidden';
+    else document.body.style.overflow = 'auto';
     return () => (document.body.style.overflow = 'auto');
   }, [isMobileMenuOpen]);
 

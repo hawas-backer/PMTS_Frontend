@@ -1,25 +1,11 @@
-// frontend/src/components/Notifications.jsx
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
 
 const Notifications = () => {
-  const { user } = useAuth();
-  const [notifications, setNotifications] = useState([]);
+  const { user, notifications, setNotifications } = useAuth();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const fetchNotifications = async () => {
-      try {
-        const response = await axios.get('http://localhost:8080/notifications', { withCredentials: true });
-        setNotifications(response.data.notifications);
-      } catch (error) {
-        console.error('Error fetching notifications:', error);
-      }
-    };
-    fetchNotifications();
-  }, []);
 
   const handleMarkAsRead = async (notificationId) => {
     try {
@@ -28,9 +14,10 @@ const Notifications = () => {
         { notificationId },
         { withCredentials: true }
       );
-      setNotifications(notifications.map(n => 
+      setNotifications(notifications.map(n =>
         n._id === notificationId ? { ...n, read: true } : n
       ));
+      console.log('[NOTIFICATIONS] Marked as read:', notificationId);
     } catch (error) {
       console.error('Error marking notification as read:', error);
     }
@@ -44,6 +31,7 @@ const Notifications = () => {
         { withCredentials: true }
       );
       setNotifications(response.data.notifications);
+      console.log('[NOTIFICATIONS] Cleared:', notificationId);
     } catch (error) {
       console.error('Error clearing notification:', error);
     }
