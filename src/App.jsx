@@ -2,7 +2,7 @@
 import React from 'react';
 import LoginPage from './pages/LoginPage';
 import Register from './pages/Register';
-import ForgotPassword from './components/ForgotPassword';
+
 import { createBrowserRouter, createRoutesFromElements, RouterProvider, Route } from 'react-router-dom';
 import CoordinatorLayout from './components/Coordinator/CoordinatorLayout';
 import CreateStudentAccount from './components/CreateStudentAccount';
@@ -49,6 +49,9 @@ import QuizResults from './components/Student/QuizResults';
 import ProtectedRouteWrapper from './components/ProtectedRouteWrapper';
 import { AuthProvider } from './context/AuthContext';
 import AdvisorManagement from './components/Coordinator/AdvisorManagement';
+import ForgotPassword from './components/ForgotPassword';
+
+import ResetPasswordForm from './components/ResetPasswordForm';
 
 const App = () => {
   const router = createBrowserRouter(
@@ -57,7 +60,8 @@ const App = () => {
         {/* Public Routes */}
         <Route path="/" element={<LoginPage />} />
         <Route path="register" element={<Register />} />
-        <Route path="ForgotPassword" element={<ForgotPassword />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPasswordForm />} />
         <Route path="alumni-register" element={<AlumniRegister />} />
 
         {/* Protected Routes */}
