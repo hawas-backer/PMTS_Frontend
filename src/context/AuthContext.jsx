@@ -39,10 +39,14 @@ export const AuthProvider = ({ children }) => {
           setUser({
             email: res.data.user.email,
             name: res.data.user.name,
-            batch: res.data.user.batch,
+            batch: res.data.user.batch || null, // Ensure batch is included
+            branch: res.data.user.branch || null, // Add branch, fallback to null if not present
           });
           setRole(res.data.user.role);
-          console.log('[AUTH] User authenticated:', res.data.user.email, res.data.user.role);
+          console.log('[AUTH] User authenticated:', res.data.user.email, res.data.user.role, {
+            batch: res.data.user.batch,
+            branch: res.data.user.branch,
+          });
         }
       } catch (error) {
         console.error('[AUTH] No user authenticated:', error.response?.data.message || error.message);
@@ -82,10 +86,14 @@ export const AuthProvider = ({ children }) => {
       setUser({
         email: res.data.user.email,
         name: res.data.user.name,
-        batch: res.data.user.batch,
+        batch: res.data.user.batch || null, // Ensure batch is included
+        branch: res.data.user.branch || null, // Add branch, fallback to null if not present
       });
       setRole(res.data.user.role);
-      console.log('[AUTH] Login successful:', res.data.user.email, res.data.user.role);
+      console.log('[AUTH] Login successful:', res.data.user.email, res.data.user.role, {
+        batch: res.data.user.batch,
+        branch: res.data.user.branch,
+      });
       return { success: true, user: res.data.user, role: res.data.user.role };
     } catch (error) {
       console.error('[AUTH] Login error:', error.response?.data.message || error.message);

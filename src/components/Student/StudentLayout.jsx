@@ -1,7 +1,4 @@
-// frontend/src/components/Layout.jsx
-import { Outlet } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import Header from '../Header';
 import Footer from '../Footer';
 import React, { useState } from 'react';
@@ -13,86 +10,35 @@ import {
   Calendar, 
   Briefcase, 
   BrainCircuit,
-  Bell // Add Bell icon for notifications
+  Bell
 } from 'lucide-react';
 
 const Layout = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('');
   const [tooltipItem, setTooltipItem] = useState(null);
-  const { user, role } = useAuth();
+  const location = useLocation();
 
   const navItems = [
-    {
-      id: '',
-      icon: Home,
-      label: 'Home',
-      color: 'text-emerald-500',
-      labelColor: 'text-emerald-400'
-    },
-    {
-      id: 'placement',
-      icon: GraduationCap,
-      label: 'Placement Drive',
-      color: 'text-blue-500',
-      labelColor: 'text-blue-400'
-    },
-    {
-      id: 'resources',
-      icon: BookOpen,
-      label: 'Resources',
-      color: 'text-purple-500',
-      labelColor: 'text-purple-400'
-    },
-    {
-      id: 'analytics',
-      icon: BarChart3,
-      label: 'Analytics',
-      color: 'text-yellow-500',
-      labelColor: 'text-yellow-400'
-    },
-    {
-      id: 'events',
-      icon: Calendar,
-      label: 'Events',
-      color: 'text-pink-500',
-      labelColor: 'text-pink-400'
-    },
-    {
-      id: 'jobs',
-      icon: Briefcase,
-      label: 'Job Opportunities',
-      color: 'text-orange-500',
-      labelColor: 'text-orange-400'
-    },
-    {
-      id: 'aptitude-tests',
-      icon: BrainCircuit,
-      label: 'Exam Corner',
-      color: 'text-red-500',
-      labelColor: 'text-red-400'
-    },
-    {
-      id: 'notifications', // Add Notifications item
-      icon: Bell,
-      label: 'Notifications',
-      color: 'text-teal-500',
-      labelColor: 'text-teal-400'
-    }
+    { id: '', icon: Home, label: 'Home', color: 'text-emerald-500', labelColor: 'text-emerald-400' },
+    { id: 'placement', icon: GraduationCap, label: 'Placement Drive', color: 'text-blue-500', labelColor: 'text-blue-400' },
+    { id: 'resources', icon: BookOpen, label: 'Resources', color: 'text-purple-500', labelColor: 'text-purple-400' },
+    { id: 'analytics', icon: BarChart3, label: 'Analytics', color: 'text-yellow-500', labelColor: 'text-yellow-400' },
+    { id: 'events', icon: Calendar, label: 'Events', color: 'text-pink-500', labelColor: 'text-pink-400' },
+    { id: 'jobs', icon: Briefcase, label: 'Job Opportunities', color: 'text-orange-500', labelColor: 'text-orange-400' },
+    { id: 'aptitude-tests', icon: BrainCircuit, label: 'Exam Corner', color: 'text-red-500', labelColor: 'text-red-400' },
+    { id: 'notifications', icon: Bell, label: 'Notifications', color: 'text-teal-500', labelColor: 'text-teal-400' },
   ];
+
+  // Construct currentRoute for Header (assuming Student role)
+  const currentRoute = location.pathname === '/' || location.pathname === '/student'
+    ? '/Student/Home'
+    : `/Student/${location.pathname.replace('/student/', '').replace('/student', '') || 'Home'}`;
 
   return (
     <div className="flex flex-col h-screen">
-      <Header
-        name={user?.name || user?.email} // Prefer name, fallback to email
-        userrole={role}
-        profilePic={null}
-        unreadCount={0}
-        email={user?.email || 'N/A'} // Pass email to Header
-        batch={user?.batch || 'N/A'} // Pass batch to Header
-        branch={user?.branch || 'N/A'} // Pass branch to Header
-      />
-  
+      <Header currentRoute={currentRoute} />
+
       {/* Sidebar and content wrapper */}
       <div className="flex flex-1">
         {/* Sidebar */}
@@ -102,7 +48,7 @@ const Layout = () => {
               <button
                 onClick={() => {
                   setActiveTab(item.id);
-                  navigate(item.id);
+                  navigate(`/student/${item.id}`);
                 }}
                 onMouseEnter={() => setTooltipItem(item.id)}
                 onMouseLeave={() => setTooltipItem(null)}
@@ -127,7 +73,7 @@ const Layout = () => {
             </div>
           ))}
         </div>
-   
+
         {/* Main Content */}
         <div className="h-screen w-full bg-[#1a1f2c] overflow-y-auto">
           <Outlet />

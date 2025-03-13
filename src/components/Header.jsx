@@ -4,25 +4,27 @@ import gcekLogo from '../assets/gcek-transparent.png';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-const Header = ({ name, userrole, branch, profilePic, batch, currentRoute }) => {
+const Header = ({ currentRoute }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { logout, user, notifications } = useAuth();
+  const { user, role, logout, notifications } = useAuth();
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
 
   const unreadCount = notifications.filter(notification => !notification.read).length;
 
+  // Use context data directly
+  
   const userData = {
-    name: name || 'John Doe',
-    role: userrole || 'Guest',
-    batch: batch || 'N/A',
+    name: user?.name || user?.email || 'John Doe',
     email: user?.email || 'N/A',
-    department: branch || 'n/a',
+    role: role || 'Guest',
+    batch: user?.batch || 'N/A',
+    department: user?.branch || 'N/A',
     notifications: unreadCount,
   };
 
-  const displayRoute = currentRoute && currentRoute !== '' ? currentRoute : `${userrole}`;
+  const displayRoute = currentRoute && currentRoute !== '' ? currentRoute : `${userData.role}`;
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -50,7 +52,7 @@ const Header = ({ name, userrole, branch, profilePic, batch, currentRoute }) => 
   };
 
   const handleNotificationsClick = () => {
-    navigate('notifications');
+    navigate(`/${userData.role.toLowerCase()}/notifications`);
   };
 
   const toggleProfile = () => {
@@ -68,7 +70,7 @@ const Header = ({ name, userrole, branch, profilePic, batch, currentRoute }) => 
       <div className="mx-auto px-3 sm:px-4 lg:px-6">
         <div className="flex items-center justify-between h-14">
           <div className="flex items-center space-x-3">
-            <Link to="/alumni" className="flex items-center">
+            <Link to={`/${userData.role.toLowerCase()}`} className="flex items-center">
               <img src={gcekLogo} alt="GCEK Logo" className="h-10 w-auto invert brightness-125" />
             </Link>
             <div className="flex flex-col">
@@ -102,18 +104,14 @@ const Header = ({ name, userrole, branch, profilePic, batch, currentRoute }) => 
                   {userData.name}
                 </span>
                 <div className="h-8 w-8 rounded-full bg-gray-700 flex items-center justify-center overflow-hidden">
-                  {profilePic ? (
-                    <img src={profilePic} alt="Profile" className="h-full w-full object-cover" />
-                  ) : (
-                    <span className="text-gray-300 text-sm font-poppins font-medium">
-                      {userData.name.split(' ').map((n) => n[0]).join('').toUpperCase()}
-                    </span>
-                  )}
+                  <span className="text-gray-300 text-sm font-poppins font-medium">
+                    {userData.name.split(' ').map((n) => n[0]).join('').toUpperCase()}
+                  </span>
                 </div>
               </button>
 
               {isProfileOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-gray-950 rounded-lg shadow-md border border-gray-800 overflow-hidden">
+                <div className="absolute right-0 mt-2 w-64 bg-gray-950 rounded-lg shadow-md border border-gray-800 overflow-hidden">
                   <div className="p-3 border-b border-gray-800">
                     <div className="flex items-center gap-2">
                       <div className="h-8 w-8 rounded-full bg-gray-700 flex items-center justify-center">
@@ -127,18 +125,21 @@ const Header = ({ name, userrole, branch, profilePic, batch, currentRoute }) => 
                       </div>
                     </div>
                     <p className="mt-1 text-xs font-poppins font-light text-gray-500">
-                      Batch: {userData.batch} | {userData.department}
+                      Role: {userData.role}
+                    </p>
+                    <p className="mt-1 text-xs font-poppins font-light text-gray-500">
+                      Batch: {userData.batch} | Branch: {userData.department}
                     </p>
                   </div>
                   <div className="py-1">
                     <button
-                      onClick={() => navigate('/alumni/profile')}
+                      onClick={() => navigate(`/${userData.role.toLowerCase()}/profile`)}
                       className="w-full text-left px-3 py-2 text-sm font-poppins text-gray-400 hover:text-gray-200 hover:bg-gray-800 transition-all duration-200"
                     >
                       <User className="w-4 h-4 inline mr-2" /> Profile
                     </button>
                     <button
-                      onClick={() => navigate('/alumni/settings')}
+                      onClick={() => navigate(`/${userData.role.toLowerCase()}/settings`)}
                       className="w-full text-left px-3 py-2 text-sm font-poppins text-gray-400 hover:text-gray-200 hover:bg-gray-800 transition-all duration-200"
                     >
                       <Settings className="w-4 h-4 inline mr-2" /> Settings
@@ -208,11 +209,14 @@ const Header = ({ name, userrole, branch, profilePic, batch, currentRoute }) => 
               </div>
               <div className="flex-1 p-4 space-y-2">
                 <p className="text-xs font-poppins font-light text-gray-500">
-                  Batch: {userData.batch} | {userData.department}
+                  Role: {userData.role}
+                </p>
+                <p className="text-xs font-poppins font-light text-gray-500">
+                  Batch: {userData.batch} | Branch: {userData.department}
                 </p>
                 <button
                   onClick={() => {
-                    navigate('/alumni/profile');
+                    navigate(`/${userData.role.toLowerCase()}/profile`);
                     toggleMobileMenu();
                   }}
                   className="w-full text-left px-3 py-2 text-sm font-poppins text-gray-400 hover:text-gray-200 hover:bg-gray-800 transition-all duration-200"
@@ -221,7 +225,7 @@ const Header = ({ name, userrole, branch, profilePic, batch, currentRoute }) => 
                 </button>
                 <button
                   onClick={() => {
-                    navigate('/alumni/settings');
+                    navigate(`/${userData.role.toLowerCase()}/settings`);
                     toggleMobileMenu();
                   }}
                   className="w-full text-left px-3 py-2 text-sm font-poppins text-gray-400 hover:text-gray-200 hover:bg-gray-800 transition-all duration-200"

@@ -10,7 +10,7 @@ const CoordinatorLayout = () => {
   const [activeTab, setActiveTab] = useState('');
   const navigate = useNavigate();
   const { user, role } = useAuth();
-  
+
   // Extract the current route for display in header
   const currentRoute = location.pathname.replace('/Coordinator/', '');
   const displayRoute = currentRoute === '' ? 'Dashboard' : currentRoute.charAt(0).toUpperCase() + currentRoute.slice(1).replace(/-/g, ' ');
@@ -38,18 +38,10 @@ const CoordinatorLayout = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-950">
-      <Header
-        name={user?.name || user?.email}
-        userrole={role}
-        profilePic={null}
-        unreadCount={0}
-        batch={user?.batch || 'N/A'}
-        newMessageCount={0}
-        currentRoute={`/Coordinator/${displayRoute}`}
-      />
+      <Header currentRoute={`/Coordinator/${displayRoute}`} />
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Side navigation - styled to match header */}
+        {/* Side navigation */}
         <div className="w-16 md:w-20 bg-gray-900 shadow-md py-4 flex flex-col items-center space-y-4 fixed h-full">
           {navItems.map((item) => (
             <div key={item.id} className="w-full flex flex-col items-center">
