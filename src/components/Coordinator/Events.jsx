@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Plus, Trash2, Users, Edit } from 'lucide-react';
-
+import { Plus, Trash2, Users, Edit, X, Calendar, Clock, MapPin, User } from 'lucide-react';
 
 const Events = () => {
   const [events, setEvents] = useState([]);
@@ -54,7 +53,8 @@ const Events = () => {
     try {
       await axios.put(`http://localhost:8080/api/events/${updatedEvent._id}`, updatedEvent, {
         withCredentials: true
-      });      fetchEvents();
+      });      
+      fetchEvents();
       setShowEditEvent(false);
     } catch (error) {
       console.error('Error updating event:', error);
@@ -65,7 +65,8 @@ const Events = () => {
     try {
       await axios.delete(`http://localhost:8080/api/events/${id}`, {
         withCredentials: true
-      });      fetchEvents();
+      });      
+      fetchEvents();
     } catch (error) {
       console.error('Error deleting event:', error);
     }
@@ -113,10 +114,12 @@ const Events = () => {
               <p className="text-sm"><span className="text-gray-400">Time:</span> {event.time}</p>
               <p className="text-sm"><span className="text-gray-400">Date:</span> {new Date(event.date).toLocaleDateString()}</p>
               <p className="text-sm"><span className="text-gray-400">Venue:</span> {event.venue}</p>
+              <p className="text-sm"><span className="text-gray-400">Max Participants:</span> {event.maxParticipants || 'Unlimited'}</p>
             </div>
             <div className="mt-4 flex items-center justify-between">
               <p className="text-sm font-medium">
                 <span className="text-gray-400">Registered:</span> {(event.registeredStudents || []).length}
+                {event.maxParticipants && <span className="text-gray-400"> / {event.maxParticipants}</span>}
               </p>
               <button
                 onClick={() => viewRegistrations(event)}
@@ -168,12 +171,17 @@ const EventFormModal = ({ onClose, onSubmit, title, buttonText, eventData = null
       time: '', 
       date: '', 
       venue: '', 
+      maxParticipants: 100,
       registeredStudents: []
     }
   );
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const value = e.target.name === 'maxParticipants' 
+      ? parseInt(e.target.value) || '' 
+      : e.target.value;
+    
+    setFormData({ ...formData, [e.target.name]: value });
   };
 
   const handleSubmit = () => {
@@ -182,48 +190,135 @@ const EventFormModal = ({ onClose, onSubmit, title, buttonText, eventData = null
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-      <div className="bg-[#1a1f2c] p-6 rounded-lg w-full max-w-md text-gray-200">
-        <h3 className="text-xl font-bold mb-4">{title}</h3>
-        <div className="space-y-4">
-          {[
-            { name: 'title', label: 'Event Title', type: 'text' },
-            { name: 'description', label: 'Description', type: 'textarea' },
-            { name: 'mentor', label: 'Mentor', type: 'text' },
-            { name: 'time', label: 'Time', type: 'time' },
-            { name: 'date', label: 'Date', type: 'date' },
-            { name: 'venue', label: 'Venue', type: 'text' }
-          ].map((field) => (
-            <div key={field.name}>
-              <label className="block mb-2">{field.label}</label>
-              {field.type === 'textarea' ? (
-                <textarea
-                  name={field.name}
-                  className="w-full bg-[#0f1218] p-2 rounded resize-none h-24"
-                  value={formData[field.name]}
-                  onChange={handleChange}
-                />
-              ) : (
-                <input
-                  type={field.type}
-                  name={field.name}
-                  className="w-full bg-[#0f1218] p-2 rounded"
-                  value={formData[field.name]}
-                  onChange={handleChange}
-                />
-              )}
-            </div>
-          ))}
+      <div className="bg-[#1a1f2c] p-6 rounded-lg w-full max-w-lg text-gray-200">
+        <div className="flex justify-between items-center mb-6">
+          <h3 className="text-xl font-bold">{title}</h3>
+          <button 
+            onClick={onClose} 
+            className="text-gray-400 hover:text-white p-1"
+          >
+            <X size={20} />
+          </button>
         </div>
+        
+        <div className="space-y-5">
+          <div>
+            <label className="block mb-2 font-medium">Event Title</label>
+            <input
+              type="text"
+              name="title"
+              className="w-full bg-[#0f1218] p-3 rounded border border-gray-700 focus:border-red-500 focus:outline-none"
+              value={formData.title}
+              onChange={handleChange}
+              placeholder="Enter event title"
+            />
+          </div>
+          
+          <div>
+            <label className="block mb-2 font-medium">Description</label>
+            <textarea
+              name="description"
+              className="w-full bg-[#0f1218] p-3 rounded border border-gray-700 focus:border-red-500 focus:outline-none resize-none h-24"
+              value={formData.description}
+              onChange={handleChange}
+              placeholder="Enter event description"
+            />
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block mb-2 font-medium">Mentor</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <User size={16} className="text-gray-400" />
+                </div>
+                <input
+                  type="text"
+                  name="mentor"
+                  className="w-full bg-[#0f1218] p-3 pl-10 rounded border border-gray-700 focus:border-red-500 focus:outline-none"
+                  value={formData.mentor}
+                  onChange={handleChange}
+                  placeholder="Mentor name"
+                />
+              </div>
+            </div>
+            
+            <div>
+              <label className="block mb-2 font-medium">Max Participants</label>
+              <input
+                type="number"
+                name="maxParticipants"
+                className="w-full bg-[#0f1218] p-3 rounded border border-gray-700 focus:border-red-500 focus:outline-none"
+                value={formData.maxParticipants}
+                onChange={handleChange}
+                placeholder="100"
+                min="1"
+              />
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block mb-2 font-medium">Date</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Calendar size={16} className="text-gray-400" />
+                </div>
+                <input
+                  type="date"
+                  name="date"
+                  className="w-full bg-[#0f1218] p-3 pl-10 rounded border border-gray-700 focus:border-red-500 focus:outline-none"
+                  value={formData.date}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+            
+            <div>
+              <label className="block mb-2 font-medium">Time</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Clock size={16} className="text-gray-400" />
+                </div>
+                <input
+                  type="time"
+                  name="time"
+                  className="w-full bg-[#0f1218] p-3 pl-10 rounded border border-gray-700 focus:border-red-500 focus:outline-none"
+                  value={formData.time}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+          </div>
+          
+          <div>
+            <label className="block mb-2 font-medium">Venue</label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <MapPin size={16} className="text-gray-400" />
+              </div>
+              <input
+                type="text"
+                name="venue"
+                className="w-full bg-[#0f1218] p-3 pl-10 rounded border border-gray-700 focus:border-red-500 focus:outline-none"
+                value={formData.venue}
+                onChange={handleChange}
+                placeholder="Enter venue"
+              />
+            </div>
+          </div>
+        </div>
+        
         <div className="flex justify-end gap-4 mt-6">
           <button 
             onClick={onClose} 
-            className="text-gray-400 hover:text-gray-200 px-4 py-2"
+            className="px-5 py-2 border border-gray-600 rounded-lg hover:bg-gray-700 transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
-            className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+            className="bg-red-600 text-white px-5 py-2 rounded-lg hover:bg-red-700 transition-colors"
           >
             {buttonText}
           </button>
@@ -257,8 +352,6 @@ const RegistrationsModal = ({ eventId, eventTitle, onClose }) => {
     }
   };
   
-  
-
   const handleUnregister = async (studentId) => {
     try {
       await axios.delete(`http://localhost:8080/api/events/${eventId}/registrations/${studentId}`);
@@ -274,7 +367,7 @@ const RegistrationsModal = ({ eventId, eventTitle, onClose }) => {
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-xl font-bold">Registrations: {eventTitle}</h3>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-200">
-            ✕
+            <X size={20} />
           </button>
         </div>
         
@@ -285,6 +378,7 @@ const RegistrationsModal = ({ eventId, eventTitle, onClose }) => {
             <div><span className="text-gray-400">Venue:</span> {eventDetails.venue || 'N/A'}</div>
             <div><span className="text-gray-400">Mentor:</span> {eventDetails.mentor || 'N/A'}</div>
             <div><span className="text-gray-400">Registered:</span> {registrations.length} students</div>
+            <div><span className="text-gray-400">Max Participants:</span> {eventDetails.maxParticipants || 'Unlimited'}</div>
           </div>
         </div>
         
