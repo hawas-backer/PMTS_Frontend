@@ -3,7 +3,7 @@ import { Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import Header from '../Header';
 import Footer from '../Footer';
-import { Home, Calendar, BarChart3, Users, FileText, Briefcase } from 'lucide-react';
+import { Home, Calendar, BarChart3,BarChart, Users, FileText, Briefcase } from 'lucide-react';
 
 const CoordinatorLayout = () => {
   const [activeTab, setActiveTab] = useState('');
@@ -13,8 +13,7 @@ const CoordinatorLayout = () => {
   const navItems = [
     { id: '', icon: Home, label: 'Home' },
     { id: 'events', icon: Calendar, label: 'Events' },
-    
-   
+    { id: 'viewAnalysis', icon: BarChart, label: 'View Analysis' },
     { id: 'results', icon: FileText, label: 'Placement Results' }, 
     { id: 'placement-drives', icon: Briefcase, label: 'Placement Drives' }, // Updated from addPlacementDrive
     { id: 'aptitude-tests', icon: BarChart3, label: 'Aptitude test' },
