@@ -30,10 +30,10 @@ const Layout = () => {
     { id: 'notifications', icon: Bell, label: 'Notifications', color: 'text-teal-500', labelColor: 'text-teal-400' },
   ];
 
-  // Construct currentRoute for Header (assuming Student role)
-  const currentRoute = location.pathname === '/' || location.pathname === '/student'
-    ? '/Student/Home'
-    : `/Student/${location.pathname.replace('/student/', '').replace('/student', '') || 'Home'}`;
+  // Use the full path as currentRoute (assuming Student role)
+  const currentRoute = location.pathname.startsWith('/student')
+    ? location.pathname
+    : '/Student';
 
   return (
     <div className="flex flex-col h-screen">

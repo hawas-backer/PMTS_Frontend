@@ -24,7 +24,16 @@ const Header = ({ currentRoute }) => {
     notifications: unreadCount,
   };
 
-  const displayRoute = currentRoute && currentRoute !== '' ? currentRoute : `${userData.role}`;
+  const displayRoute = currentRoute
+    ? currentRoute
+        .split('/')
+        .filter(Boolean) // Remove empty segments
+        .pop() // Get the last segment (e.g., "Dashboard", "events")
+        .replace(/-/g, ' ') // Replace hyphens with spaces
+        .replace(/\b\w/g, char => char.toUpperCase()) // Capitalize each word
+    : userData.role;
+
+  
 
   useEffect(() => {
     const handleClickOutside = (event) => {
