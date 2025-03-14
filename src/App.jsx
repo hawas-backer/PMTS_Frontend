@@ -1,7 +1,8 @@
+// frontend/src/App.jsx
 import React from 'react';
 import LoginPage from './pages/LoginPage';
 import Register from './pages/Register';
-import ForgotPassword from './components/ForgotPassword';
+
 import { createBrowserRouter, createRoutesFromElements, RouterProvider, Route } from 'react-router-dom';
 import CoordinatorLayout from './components/Coordinator/CoordinatorLayout';
 import CreateStudentAccount from './components/CreateStudentAccount';
@@ -12,7 +13,7 @@ import ShareOpportunities from './components/alumni/ShareOpportunities';
 import ShareResources from './components/alumni/ShareResources';
 import Events from './components/Coordinator/Events';
 import Networking from './components/alumni/Networking';
-import Notifications from './components/alumni/Notifications';
+import Notifications from './components/student/Notifications'; // Ensure this import matches your file structure
 import Feedback from './components/Alumni/Feedback';
 import StudentLayout from './components/Student/StudentLayout';
 import AdvisorLayout from './components/Advisor/AdvisorLayout';
@@ -40,7 +41,7 @@ import StudentList from './components/Advisor/StudentList';
 import EditStudent from './components/Advisor/EditStudent';
 import AlumniRegister from './components/AlumniRegister';
 import PlacementDriveDashboard from './components/Coordinator/PlacementDriveDashboard';
-import PlacementDriveDetail from './components/Coordinator/PlacementDriveDetail'; // New import
+import PlacementDriveDetail from './components/Coordinator/PlacementDriveDetail';
 import AddPlacementDrive from './components/Coordinator/AddPlacementDrive';
 import StudentAptitudeTests from './components/Student/StudentAptitudeTests';
 import TakeQuiz from './components/Student/TakeQuiz';
@@ -48,6 +49,9 @@ import QuizResults from './components/Student/QuizResults';
 import ProtectedRouteWrapper from './components/ProtectedRouteWrapper';
 import { AuthProvider } from './context/AuthContext';
 import AdvisorManagement from './components/Coordinator/AdvisorManagement';
+import ForgotPassword from './components/ForgotPassword';
+
+import ResetPasswordForm from './components/ResetPasswordForm';
 
 const App = () => {
   const router = createBrowserRouter(
@@ -56,14 +60,14 @@ const App = () => {
         {/* Public Routes */}
         <Route path="/" element={<LoginPage />} />
         <Route path="register" element={<Register />} />
-        <Route path="ForgotPassword" element={<ForgotPassword />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPasswordForm />} />
         <Route path="alumni-register" element={<AlumniRegister />} />
 
         {/* Protected Routes */}
         <Route
           path="Alumni"
           element={<ProtectedRouteWrapper allowedRoles={['Alumni']} element={<AlumniLayout />} />}
-          
         >
           <Route path="" element={<HomeLayout />}>
             <Route index element={<HomePage />} />
@@ -78,15 +82,14 @@ const App = () => {
           <Route path="shareResources" element={<ShareResources />} />
           <Route path="events" element={<Events />} />
           <Route path="networking" element={<Networking />} />
-          <Route path="notifications" element={<Notifications />} />
+          <Route path="notifications" element={<Notifications />} /> {/* Updated to match sidebar */}
           <Route path="feedback" element={<Feedback />} />
         </Route>
 
         <Route
-        path="Coordinator"
-        element={<ProtectedRouteWrapper allowedRoles={['Coordinator']} element={<CoordinatorLayout home={'Coordinator'} />} />}
+          path="Coordinator"
+          element={<ProtectedRouteWrapper allowedRoles={['Coordinator']} element={<CoordinatorLayout home={'Coordinator'} />} />}
         >
-        
           <Route path="" element={<HomeLayout />}>
             <Route index element={<HomePage />} />
             <Route path="placementData" element={<PlacementData />} />
@@ -103,19 +106,18 @@ const App = () => {
           <Route path="create-test" element={<CreateTest />} />
           <Route path="viewAnalysis" element={<ViewAnalysis />} />
           <Route path="placement-drives" element={<PlacementDriveDashboard />} />
-          <Route path="placement-drives/:id" element={<PlacementDriveDetail />} /> {/* New route */}
+          <Route path="placement-drives/:id" element={<PlacementDriveDetail />} />
           <Route path="edit-test/:id" element={<CreateTest />} />
           <Route path="quiz-results/:id" element={<QuizResults />} />
           <Route path="addPlacementDrive" element={<AddPlacementDrive />} />
-          <Route path="advisorManagement" element={< AdvisorManagement/>} />
-          
+          <Route path="advisorManagement" element={<AdvisorManagement />} />
+          <Route path="notifications" element={<Notifications />} /> {/* Added Notifications route */}
         </Route>
 
         <Route
-            path="Student"
-            element={<ProtectedRouteWrapper allowedRoles={['Student']} element={<StudentLayout />} />}
-          >
-  
+          path="Student"
+          element={<ProtectedRouteWrapper allowedRoles={['Student']} element={<StudentLayout />} />}
+        >
           <Route path="" element={<HomeLayout />}>
             <Route index element={<HomePage />} />
             <Route path="placementData" element={<PlacementData />} />
@@ -133,7 +135,7 @@ const App = () => {
           <Route path="aptitude-tests" element={<StudentAptitudeTests />} />
           <Route path="take-quiz/:id" element={<TakeQuiz />} />
           <Route path="quiz-results/:id" element={<QuizResults />} />
-
+          <Route path="notifications" element={<Notifications />} /> {/* Added Notifications route */}
         </Route>
 
         <Route
@@ -153,6 +155,7 @@ const App = () => {
           <Route path="add-students" element={<StudentAddForm />} />
           <Route path="student-list" element={<StudentList />} />
           <Route path="edit-student/:id" element={<EditStudent />} />
+          <Route path="notifications" element={<Notifications />} /> {/* Added Notifications route */}
         </Route>
       </>
     )
