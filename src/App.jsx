@@ -30,7 +30,7 @@ import EventAdd from './components/Student/EventAdd';
 import JobOpportunities from './components/Student/JobOpportunities';
 import ExamCorner from './components/Student/StudentAptitudeTests';
 import PendingRequests from './components/Advisor/PendingRequests';
-import ViewAnalysis from './components/Advisor/ViewAnalysis';
+import ViewAnalysis from './components/Coordinator/ViewAnalysis';
 import Contact from './components/Home/Contact';
 import Gallery from './components/Home/Gallery';
 import Procedure from './components/Home/Procedure';
@@ -104,6 +104,7 @@ const App = () => {
           <Route path="results" element={<PlacementResults />} />
           <Route path="aptitude-tests" element={<AptitudeTest />} />
           <Route path="create-test" element={<CreateTest />} />
+          <Route path="viewAnalysis" element={<ViewAnalysis />} />
           <Route path="placement-drives" element={<PlacementDriveDashboard />} />
           <Route path="placement-drives/:id" element={<PlacementDriveDetail />} />
           <Route path="edit-test/:id" element={<CreateTest />} />
@@ -151,7 +152,6 @@ const App = () => {
             <Route path="testimonial" element={<Testimonial />} />
           </Route>
           <Route path="pendingRequests" element={<PendingRequests />} />
-          <Route path="viewAnalysis" element={<ViewAnalysis />} />
           <Route path="add-students" element={<StudentAddForm />} />
           <Route path="student-list" element={<StudentList />} />
           <Route path="edit-student/:id" element={<EditStudent />} />

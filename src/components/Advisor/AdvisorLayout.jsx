@@ -12,7 +12,6 @@ const AdvisorLayout = () => {
   const navItems = [
     { id: '', icon: Home, label: 'Home' },
     { id: 'pendingRequests', icon: ClipboardList, label: 'Pending requests' },
-    { id: 'viewAnalysis', icon: BarChart, label: 'View Analysis' },
     { id: 'add-students', icon: Pen, label: 'Add student details' },
     { id: 'student-list', icon: List, label: 'Student List' },
   ];

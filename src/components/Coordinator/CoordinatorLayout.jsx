@@ -3,7 +3,7 @@ import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import Header from '../Header';
 import Footer from '../Footer';
-import { Home, Calendar, BarChart3, Users, FileText, Briefcase } from 'lucide-react';
+import { Home, Calendar, BarChart3,BarChart, Users, FileText, Briefcase } from 'lucide-react';
 
 const CoordinatorLayout = () => {
   const location = useLocation();
@@ -24,11 +24,12 @@ const CoordinatorLayout = () => {
   const navItems = [
     { id: '', icon: Home, label: 'Dashboard' },
     { id: 'events', icon: Calendar, label: 'Events' },
-    { id: 'results', icon: FileText, label: 'Placement Results' },
-    { id: 'placement-drives', icon: Briefcase, label: 'Placement Drives' },
-    { id: 'aptitude-tests', icon: BarChart3, label: 'Aptitude Tests' },
-    { id: 'resources', icon: Users, label: 'Resources' },
-    { id: 'advisorManagement', icon: FileText, label: 'Advisor Management' },
+    { id: 'viewAnalysis', icon: BarChart, label: 'View Analysis' },
+    { id: 'results', icon: FileText, label: 'Placement Results' }, 
+    { id: 'placement-drives', icon: Briefcase, label: 'Placement Drives' }, // Updated from addPlacementDrive
+    { id: 'aptitude-tests', icon: BarChart3, label: 'Aptitude test' },
+    { id: 'resources', icon: Users, label: 'resources' },
+    { id: 'advisorManagement', icon: FileText, label: 'advisor management' },
   ];
 
   const handleNavClick = (id) => {
