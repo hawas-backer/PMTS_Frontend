@@ -29,8 +29,6 @@ const CoordinatorLayout = () => {
     { id: 'placement-drives', icon: Briefcase, label: 'Placement Drives' }, // Updated from addPlacementDrive
     { id: 'aptitude-tests', icon: BarChart3, label: 'Aptitude test' },
     { id: 'resources', icon: Users, label: 'resources' },
-    
-    
     { id: 'advisorManagement', icon: FileText, label: 'advisor management' },
   ];
 
