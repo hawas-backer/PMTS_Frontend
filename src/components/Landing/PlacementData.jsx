@@ -33,31 +33,31 @@ const PlacementDataPage = () => {
 
   const years = ['2023-24', '2021-22', '2020-21', '2019-20', '2018-19', '2017-18', '2016-17', '2015-16'];
 
-  const fadeIn = {
-    hidden: { opacity: 0, y: 20 },
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 50 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.8 } },
   };
 
   return (
     <motion.section
-      className="py-16 bg-gray-50"
+      className="py-16 bg-[#F5F5F5]"
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true }}
-      variants={fadeIn}
+      variants={fadeInUp}
     >
       <div className="container mx-auto px-4">
-        <h2 className="text-4xl font-bold text-[#111E6C] mb-8 text-center tracking-tight">
+        <h2 className="text-4xl font-bold text-[#003087] text-center mb-8 tracking-wide">
           Placement Data
         </h2>
         <div className="flex flex-wrap justify-center gap-4 mb-8">
           {years.map((year) => (
             <button
               key={year}
-              className={`px-6 py-3 rounded-full text-sm font-medium transition-all duration-300 ${
+              className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
                 activeYear === year
-                  ? 'bg-[#00BFFF] text-white shadow-lg'
-                  : 'bg-white text-gray-600 hover:bg-[#89CFF0] hover:text-white'
+                  ? 'bg-[#F7941D] text-white shadow-md'
+                  : 'bg-white text-gray-700 hover:bg-[#003087] hover:text-white'
               }`}
               onClick={() => setActiveYear(year)}
             >
@@ -66,24 +66,22 @@ const PlacementDataPage = () => {
           ))}
         </div>
         <motion.div
-          className="bg-white bg-opacity-80 backdrop-blur-md rounded-xl shadow-lg overflow-hidden border border-gray-100"
-          initial="hidden"
-          animate="visible"
-          variants={fadeIn}
+          className="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200"
+          variants={fadeInUp}
         >
-          <div className="p-6 font-semibold text-gray-700 text-center">
+          <div className="p-6 text-gray-800 font-semibold text-center">
             List of students of Government College of Engineering Kannur placed in the year {activeYear}
           </div>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+              <thead className="bg-[#003087] text-white">
                 <tr>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sl. No.</th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Candidate Name</th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Highest Qualification</th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Specialisation</th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Package (lakhs/annum)</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Sl. No.</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Candidate Name</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Highest Qualification</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Specialisation</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Company</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Package (lakhs/annum)</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -91,20 +89,20 @@ const PlacementDataPage = () => {
                   placementData[activeYear].map((student) => (
                     <motion.tr
                       key={student.id}
-                      className="hover:bg-gray-50 transition duration-300"
+                      className="hover:bg-gray-100 transition duration-300"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1, transition: { delay: 0.1 * student.id } }}
                     >
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{student.id}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{student.id}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{student.name}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{student.qualification}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{student.specialisation}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{student.company}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{student.package}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{student.qualification}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{student.specialisation}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{student.company}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{student.package}</td>
                     </motion.tr>
                   )) : 
                   <tr>
-                    <td colSpan="6" className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                    <td colSpan="6" className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-center">
                       No placement data available for {activeYear}
                     </td>
                   </tr>

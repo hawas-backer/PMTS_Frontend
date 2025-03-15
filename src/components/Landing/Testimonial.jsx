@@ -9,12 +9,12 @@ const TestimonialCard = ({ name, title, batch, testimonial, imgSrc }) => {
 
   return (
     <motion.div
-      className="bg-white bg-opacity-80 backdrop-blur-md rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100"
+      className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-300 border border-gray-200"
       whileHover={{ scale: 1.03 }}
     >
-      <div className="p-6 flex flex-col md:flex-row gap-4">
+      <div className="flex flex-col md:flex-row gap-6">
         <div className="w-full md:w-1/4 flex justify-center">
-          <div className="h-40 w-40 rounded-full overflow-hidden bg-gray-200 flex-shrink-0 border-4 border-[#00BFFF] shadow-md">
+          <div className="h-32 w-32 rounded-full overflow-hidden bg-gray-200 border-4 border-[#F7941D]">
             <img 
               src={imgSrc || `/api/placeholder/150/150`} 
               alt={`${name}`} 
@@ -23,14 +23,14 @@ const TestimonialCard = ({ name, title, batch, testimonial, imgSrc }) => {
           </div>
         </div>
         <div className="w-full md:w-3/4">
-          <h3 className="text-xl font-bold text-[#111E6C]">{name}</h3>
-          <p className="text-sm font-medium text-[#00BFFF]">{title}</p>
-          {batch && <p className="text-sm text-gray-500 mb-3">{batch}</p>}
+          <h3 className="text-xl font-bold text-[#003087]">{name}</h3>
+          <p className="text-sm font-medium text-[#F7941D]">{title}</p>
+          {batch && <p className="text-sm text-gray-600 mb-3">{batch}</p>}
           <p className="text-gray-700 mb-2">{truncatedText}</p>
           {isLongTestimonial && (
             <button 
               onClick={() => setExpanded(!expanded)} 
-              className="text-[#00BFFF] font-medium hover:text-[#89CFF0] text-sm transition-colors duration-300"
+              className="text-[#F7941D] font-medium hover:text-[#FF9F40] transition-colors duration-300"
             >
               {expanded ? 'Read less' : 'Read more'}
             </button>
@@ -53,21 +53,21 @@ const Testimonial = () => {
     // ... (other testimonials)
   ];
 
-  const fadeIn = {
-    hidden: { opacity: 0, y: 20 },
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 50 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.8 } },
   };
 
   return (
     <motion.section
-      className="py-16 bg-gray-50"
+      className="py-16 bg-[#F5F5F5]"
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true }}
-      variants={fadeIn}
+      variants={fadeInUp}
     >
       <div className="container mx-auto px-4">
-        <h2 className="text-4xl font-bold text-center text-[#111E6C] mb-12 tracking-tight">
+        <h2 className="text-4xl font-bold text-[#003087] text-center mb-12 tracking-wide">
           Alumni Testimonials
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

@@ -2,9 +2,10 @@ import { Link as RouterLink, useLocation } from "react-router-dom";
 import { Link, Element, scroller } from "react-scroll";
 import { useEffect, useState } from "react";
 import { Home, Users, BookOpen, Calendar, Mail } from 'lucide-react';
+import { motion } from "framer-motion";
 import logo from "../../assets/gcek-transparent.png"; // Replace with actual logo path
 import Home1 from "./Home";
-import PlacementDataPage from "./PlacementData"; // Adjusted import name
+import PlacementDataPage from "./PlacementData";
 import Recruiters from "./Recruiters";
 import Gallery from "./Gallery";
 import Procedure from "./Procedure";
@@ -13,6 +14,7 @@ import ContactUs from "./Contact";
 
 const HomeLayout = () => {
   const [activeSection, setActiveSection] = useState("home");
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
 
   const navItems = [
@@ -62,58 +64,135 @@ const HomeLayout = () => {
     };
   }, [navItems]);
 
+  // Animation variants
+  const fadeIn = {
+    hidden: { opacity: 0, y: 10 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+  };
+
+  const slideIn = {
+    hidden: { x: "-100%", opacity: 0 },
+    visible: { x: 0, opacity: 1, transition: { duration: 0.5 } },
+  };
+
+  const logoHover = {
+    rest: { scale: 1 },
+    hover: { scale: 1.05, transition: { duration: 0.3 } },
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 font-sans">
+    <div className="min-h-screen bg-[#F8FAF5] font-sans">
       {/* Header */}
-      <header className="bg-white shadow-md sticky top-0 z-50">
+      <header className="bg-white bg-opacity-80 backdrop-blur-md shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <img src={logo} alt="GCEK Logo" className="h-12 w-12 object-contain" />
-            <div>
-              <h1 className="text-2xl font-bold text-gray-800">Placement Cell</h1>
-              <h2 className="text-sm font-medium text-gray-600">Government College of Engineering Kannur</h2>
+          {/* Logo */}
+          <motion.div
+            className="flex items-center space-x-3"
+            initial="rest"
+            whileHover="hover"
+            animate="rest"
+            variants={logoHover}
+          >
+            <div className="relative">
+              <img
+                src={logo}
+                alt="GCEK Logo"
+                className="h-12 w-12 object-contain rounded-full border-2 border-[#A8BFA0] p-1 bg-white"
+              />
+              <div className="absolute inset-0 rounded-full border-2 border-[#4A7043] opacity-20" />
             </div>
-          </div>
-          <RouterLink to="/">
-            <button className="bg-[#111E6C] text-white px-4 py-2 rounded-full hover:bg-[#00BFFF] transition-all duration-300 shadow-lg hover:shadow-xl">
-              Login
+            <h1 className="text-lg font-medium text-[#2F2F2F] hidden md:block">
+              Placement Cell
+            </h1>
+          </motion.div>
+
+          {/* Navigation and Button */}
+          <div className="flex items-center space-x-4">
+            <button
+              className="md:hidden text-[#4A7043] focus:outline-none z-50"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
+              </svg>
             </button>
-          </RouterLink>
+            <motion.nav
+              className="hidden md:flex space-x-8 items-center"
+              initial="hidden"
+              animate="visible"
+              variants={fadeIn}
+            >
+              {navItems.map((item) => (
+                <motion.div
+                  key={item.label}
+                  className="relative group"
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Link
+                    to={item.href}
+                    spy={true}
+                    smooth={true}
+                    offset={-100}
+                    duration={800}
+                    className="flex items-center text-[#2F2F2F] font-medium hover:text-[#4A7043] transition-colors duration-300"
+                    onSetActive={() => setActiveSection(item.href)}
+                  >
+                    <item.icon className="w-5 h-5 mr-1 text-[#4A7043]" />
+                    {item.label}
+                  </Link>
+                  <motion.div
+                    className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#A8BFA0] group-hover:w-full transition-all duration-300"
+                    initial={false}
+                    animate={activeSection === item.href ? { width: "100%" } : { width: 0 }}
+                  />
+                </motion.div>
+              ))}
+            </motion.nav>
+            <RouterLink to="/">
+              <motion.button
+                className="bg-[#4A7043] text-white px-4 py-2 rounded-full font-medium hover:bg-[#A8BFA0] transition-all duration-300 shadow-sm"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Login
+              </motion.button>
+            </RouterLink>
+          </div>
         </div>
+
+        {/* Mobile Menu */}
+        <motion.div
+          className="md:hidden bg-white bg-opacity-90 backdrop-blur-md shadow-md"
+          initial="hidden"
+          animate={isMenuOpen ? "visible" : "hidden"}
+          variants={slideIn}
+        >
+          <div className="p-4 space-y-3">
+            {navItems.map((item) => (
+              <Link
+                key={item.label}
+                to={item.href}
+                spy={true}
+                smooth={true}
+                offset={-100}
+                duration={800}
+                className="block text-[#2F2F2F] font-medium hover:text-[#4A7043] transition-colors duration-300 py-2"
+                onSetActive={() => {
+                  setActiveSection(item.href);
+                  setIsMenuOpen(false);
+                }}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </div>
+        </motion.div>
       </header>
 
-      {/* Navigation */}
-      <nav className="bg-white bg-opacity-80 backdrop-blur-md border-b border-gray-200 sticky top-[72px] z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-center py-4">
-            <div className="hidden md:flex space-x-8">
-              {navItems.map((item) => (
-                <Link
-                  key={item.label}
-                  to={item.href}
-                  spy={true}
-                  smooth={true}
-                  offset={-120}
-                  duration={800}
-                  className={`flex items-center text-gray-700 px-3 py-2 text-sm font-medium transition-all duration-300 ${
-                    activeSection === item.href
-                      ? "text-[#111E6C] border-b-2 border-[#00BFFF]"
-                      : "hover:text-[#111E6C] hover:border-b-2 hover:border-[#00BFFF]"
-                  }`}
-                  onSetActive={() => setActiveSection(item.href)}
-                >
-                  <item.icon className="w-5 h-5 mr-2" />
-                  {item.label}
-                </Link>
-              ))}
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      {/* Sections */}
+      {/* Main Content */}
       <main>
-        <Element name="home" id="home">
+       		<Element name="home" id="home">
           <Home1 />
         </Element>
         <Element name="placementdata" id="placementdata">
