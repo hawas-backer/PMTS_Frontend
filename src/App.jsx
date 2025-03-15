@@ -53,6 +53,14 @@ import ForgotPassword from './components/ForgotPassword';
 
 import ResetPasswordForm from './components/ResetPasswordForm';
 
+import ContactL from './components/Landing/Contact';
+import PlacementDataPageL from './components/Landing/PlacementData';
+import GalleryL from './components/Landing/Gallery';
+import RecruitersL from './components/Landing/Recruiters';
+import ProcedureL from './components/Landing/Procedure';
+import TestimonialL from './components/Landing/Testimonial';
+import HomeL from './components/Landing/Home';
+import HomeLayoutL from './components/Landing/HomeLayout';
 const App = () => {
   const router = createBrowserRouter(
     createRoutesFromElements(
@@ -64,6 +72,15 @@ const App = () => {
         <Route path="/reset-password" element={<ResetPasswordForm />} />
         <Route path="alumni-register" element={<AlumniRegister />} />
 
+        <Route path="/home" element={<HomeLayoutL />}>
+          <Route index element={<HomeL />} />
+          <Route path="Placementdata" element={<PlacementDataPageL />} />
+          <Route path="Gallery" element={<GalleryL />} />
+          <Route path="Recruiters" element={<RecruitersL />} />
+          <Route path="Procedure" element={<ProcedureL />} />
+          <Route path="Testimonial" element={<TestimonialL />} />
+          <Route path="Contact" element={<ContactL />} />
+        </Route>
         {/* Protected Routes */}
         <Route
           path="Alumni"
