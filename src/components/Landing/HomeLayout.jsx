@@ -82,10 +82,10 @@ const HomeLayout = () => {
 
   return (
     <div className="min-h-screen bg-[#F8FAF5] font-sans">
-      {/* Header */}
-      <header className="bg-white bg-opacity-80 backdrop-blur-md shadow-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-          {/* Logo */}
+      {/* Header (Logo, Title, Login Button) */}
+      <header className="bg-white bg-opacity-80 backdrop-blur-md shadow-sm py-4 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+          {/* Logo and Title */}
           <motion.div
             className="flex items-center space-x-3"
             initial="rest"
@@ -106,59 +106,63 @@ const HomeLayout = () => {
             </h1>
           </motion.div>
 
-          {/* Navigation and Button */}
-          <div className="flex items-center space-x-4">
-            <button
-              className="md:hidden text-[#4A7043] focus:outline-none z-50"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
+          {/* Login Button */}
+          <RouterLink to="/">
+            <motion.button
+              className="bg-[#4A7043] text-white px-4 py-2 rounded-full font-medium hover:bg-[#A8BFA0] transition-all duration-300 shadow-sm"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
-              </svg>
-            </button>
-            <motion.nav
-              className="hidden md:flex space-x-8 items-center"
-              initial="hidden"
-              animate="visible"
-              variants={fadeIn}
-            >
-              {navItems.map((item) => (
-                <motion.div
-                  key={item.label}
-                  className="relative group"
-                  whileHover={{ scale: 1.05 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <Link
-                    to={item.href}
-                    spy={true}
-                    smooth={true}
-                    offset={-100}
-                    duration={800}
-                    className="flex items-center text-[#2F2F2F] font-medium hover:text-[#4A7043] transition-colors duration-300"
-                    onSetActive={() => setActiveSection(item.href)}
-                  >
-                    <item.icon className="w-5 h-5 mr-1 text-[#4A7043]" />
-                    {item.label}
-                  </Link>
-                  <motion.div
-                    className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#A8BFA0] group-hover:w-full transition-all duration-300"
-                    initial={false}
-                    animate={activeSection === item.href ? { width: "100%" } : { width: 0 }}
-                  />
-                </motion.div>
-              ))}
-            </motion.nav>
-            <RouterLink to="/">
-              <motion.button
-                className="bg-[#4A7043] text-white px-4 py-2 rounded-full font-medium hover:bg-[#A8BFA0] transition-all duration-300 shadow-sm"
+              Login
+            </motion.button>
+          </RouterLink>
+        </div>
+      </header>
+
+      {/* Navigation Bar */}
+      <nav className="bg-white bg-opacity-90 backdrop-blur-md shadow-md py-3 sticky top-[72px] z-40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-center">
+          <motion.div
+            className="flex space-x-8"
+            initial="hidden"
+            animate="visible"
+            variants={fadeIn}
+          >
+            {navItems.map((item) => (
+              <motion.div
+                key={item.label}
+                className="relative group"
                 whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                transition={{ duration: 0.3 }}
               >
-                Login
-              </motion.button>
-            </RouterLink>
-          </div>
+                <Link
+                  to={item.href}
+                  spy={true}
+                  smooth={true}
+                  offset={-100}
+                  duration={800}
+                  className="flex items-center text-[#2F2F2F] font-medium hover:text-[#4A7043] transition-colors duration-300"
+                  onSetActive={() => setActiveSection(item.href)}
+                >
+                  <item.icon className="w-5 h-5 mr-1 text-[#4A7043]" />
+                  {item.label}
+                </Link>
+                <motion.div
+                  className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#A8BFA0] group-hover:w-full transition-all duration-300"
+                  initial={false}
+                  animate={activeSection === item.href ? { width: "100%" } : { width: 0 }}
+                />
+              </motion.div>
+            ))}
+          </motion.div>
+          <button
+            className="md:hidden text-[#4A7043] focus:outline-none z-50"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
+            </svg>
+          </button>
         </div>
 
         {/* Mobile Menu */}
@@ -186,13 +190,22 @@ const HomeLayout = () => {
                 {item.label}
               </Link>
             ))}
+            <RouterLink to="/">
+              <motion.button
+                className="w-full bg-[#4A7043] text-white px-4 py-2 rounded-full font-medium hover:bg-[#A8BFA0] transition-all duration-300 shadow-sm mt-4"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Login
+              </motion.button>
+            </RouterLink>
           </div>
         </motion.div>
-      </header>
+      </nav>
 
       {/* Main Content */}
       <main>
-       		<Element name="home" id="home">
+        <Element name="home" id="home">
           <Home1 />
         </Element>
         <Element name="placementdata" id="placementdata">
