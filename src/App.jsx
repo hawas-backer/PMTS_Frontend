@@ -66,13 +66,13 @@ const App = () => {
     createRoutesFromElements(
       <>
         {/* Public Routes */}
-        <Route path="/" element={<LoginPage />} />
+        <Route path="/login" element={<LoginPage />} />
         <Route path="register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPasswordForm />} />
         <Route path="alumni-register" element={<AlumniRegister />} />
 
-        <Route path="/home" element={<HomeLayoutL />}>
+        <Route path="/" element={<HomeLayoutL />}>
           <Route index element={<HomeL />} />
           <Route path="Placementdata" element={<PlacementDataPageL />} />
           <Route path="Gallery" element={<GalleryL />} />

@@ -19,7 +19,7 @@ const HomeLayout = () => {
   const location = useLocation();
 
   const navItems = [
-    { label: "Home", icon: Home, href: "home" },
+    { label: "Home", icon: Home, href: "" },
     { label: "Placement Data", icon: Users, href: "placementdata" },
     { label: "Recruiters", icon: Calendar, href: "recruiters" },
     { label: "Gallery", icon: BookOpen, href: "gallery" },
@@ -110,7 +110,7 @@ const HomeLayout = () => {
               </motion.div>
             ))}
           </nav>
-          <RouterLink to="/">
+          <RouterLink to="/login">
             <motion.button
               className="bg-[var(--primary-accent)] text-white px-4 py-2 rounded-md font-medium hover:bg-[var(--secondary-accent)] transition-all duration-300 shadow-sm"
               whileHover={{ scale: 1.05 }}
