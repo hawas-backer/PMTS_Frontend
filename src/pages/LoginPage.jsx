@@ -31,7 +31,7 @@ const LoginPage = () => {
         style={{ backgroundImage: `url(${bgPattern})`, backgroundSize: 'cover', backgroundColor: '#1E3A8A' }}
       >
         <img
-          className="w-3/4 max-w-xs h-auto mb-6 drop-shadow-md "
+          className="w-3/4 max-w-xs h-auto mb-6 drop-shadow-md invert"
           src={gcek}
           alt="GCEK Logo"
         />
