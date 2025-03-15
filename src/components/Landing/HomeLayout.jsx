@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Home, Users, BookOpen, Calendar, Mail } from 'lucide-react';
 import logo from "../../assets/gcek-transparent.png"; // Replace with actual logo path
 import Home1 from "./Home";
-import PlacementDataPage from "./PlacementData";
+import PlacementDataPage from "./PlacementData"; // Adjusted import name
 import Recruiters from "./Recruiters";
 import Gallery from "./Gallery";
 import Procedure from "./Procedure";
@@ -25,7 +25,6 @@ const HomeLayout = () => {
     { label: "Contact", icon: Mail, href: "contact" },
   ];
 
-  // Handle scroll to section based on URL hash
   useEffect(() => {
     const section = location.hash.replace("#", "");
     if (section) {
@@ -38,7 +37,6 @@ const HomeLayout = () => {
     }
   }, [location]);
 
-  // Intersection Observer to detect active section
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -48,7 +46,7 @@ const HomeLayout = () => {
           }
         });
       },
-      { threshold: 0.5 } // Trigger when 50% of the section is in view
+      { threshold: 0.5 }
     );
 
     navItems.forEach((item) => {
@@ -77,7 +75,7 @@ const HomeLayout = () => {
             </div>
           </div>
           <RouterLink to="/">
-            <button className="bg-[#111E6C] text-white px-4 py-2 rounded-md hover:bg-[#00BFFF] transition duration-300">
+            <button className="bg-[#111E6C] text-white px-4 py-2 rounded-full hover:bg-[#00BFFF] transition-all duration-300 shadow-lg hover:shadow-xl">
               Login
             </button>
           </RouterLink>
@@ -85,7 +83,7 @@ const HomeLayout = () => {
       </header>
 
       {/* Navigation */}
-      <nav className="bg-white border-b border-gray-200 sticky top-[72px] z-40">
+      <nav className="bg-white bg-opacity-80 backdrop-blur-md border-b border-gray-200 sticky top-[72px] z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-center py-4">
             <div className="hidden md:flex space-x-8">
@@ -95,9 +93,9 @@ const HomeLayout = () => {
                   to={item.href}
                   spy={true}
                   smooth={true}
-                  offset={-120} // Adjust for sticky header height
+                  offset={-120}
                   duration={800}
-                  className={`flex items-center text-gray-700 px-3 py-2 text-sm font-medium transition duration-300 ${
+                  className={`flex items-center text-gray-700 px-3 py-2 text-sm font-medium transition-all duration-300 ${
                     activeSection === item.href
                       ? "text-[#111E6C] border-b-2 border-[#00BFFF]"
                       : "hover:text-[#111E6C] hover:border-b-2 hover:border-[#00BFFF]"

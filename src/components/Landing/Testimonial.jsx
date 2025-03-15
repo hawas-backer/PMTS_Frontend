@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from "framer-motion";
 const images = import.meta.glob("/src/assets/testimonials/*.{png,jpg,jpeg}", { eager: true });
 
 const TestimonialCard = ({ name, title, batch, testimonial, imgSrc }) => {
@@ -7,10 +8,13 @@ const TestimonialCard = ({ name, title, batch, testimonial, imgSrc }) => {
   const truncatedText = isLongTestimonial && !expanded ? testimonial.substring(0, 200) + '...' : testimonial;
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl">
+    <motion.div
+      className="bg-white bg-opacity-80 backdrop-blur-md rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100"
+      whileHover={{ scale: 1.03 }}
+    >
       <div className="p-6 flex flex-col md:flex-row gap-4">
         <div className="w-full md:w-1/4 flex justify-center">
-          <div className="h-40 w-40 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+          <div className="h-40 w-40 rounded-full overflow-hidden bg-gray-200 flex-shrink-0 border-4 border-[#00BFFF] shadow-md">
             <img 
               src={imgSrc || `/api/placeholder/150/150`} 
               alt={`${name}`} 
@@ -26,14 +30,14 @@ const TestimonialCard = ({ name, title, batch, testimonial, imgSrc }) => {
           {isLongTestimonial && (
             <button 
               onClick={() => setExpanded(!expanded)} 
-              className="text-[#00BFFF] font-medium hover:text-[#89CFF0] text-sm"
+              className="text-[#00BFFF] font-medium hover:text-[#89CFF0] text-sm transition-colors duration-300"
             >
               {expanded ? 'Read less' : 'Read more'}
             </button>
           )}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
@@ -49,11 +53,24 @@ const Testimonial = () => {
     // ... (other testimonials)
   ];
 
+  const fadeIn = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.8 } },
+  };
+
   return (
-    <section className="py-12">
+    <motion.section
+      className="py-16 bg-gray-50"
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true }}
+      variants={fadeIn}
+    >
       <div className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold text-center text-[#111E6C] mb-8">Alumni Testimonials</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <h2 className="text-4xl font-bold text-center text-[#111E6C] mb-12 tracking-tight">
+          Alumni Testimonials
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {testimonials.map((testimonial, index) => (
             <TestimonialCard 
               key={index}
@@ -66,7 +83,7 @@ const Testimonial = () => {
           ))}
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 };
 
