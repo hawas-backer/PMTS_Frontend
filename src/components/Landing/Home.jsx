@@ -1,264 +1,277 @@
 import React from "react";
 import { Link } from "react-scroll";
-import { ChevronDown, User, Building, Mail } from 'lucide-react';
-import heroImage from "../../assets/bg.avif";
+import { ChevronDown, User, Building, Briefcase, Mail } from "lucide-react";
+import { motion } from "framer-motion";
+import heroImage from "../../assets/campus-dusk-bg1.jpg";
+
+// Sample event data (can be replaced with server-fetched data later)
+const upcomingEvents = [
+  {
+    id: 1,
+    category: "Tech",
+    title: "Microsoft Campus Recruitment",
+    date: "20 Mar",
+    description: "Microsoft will be conducting on-campus placement drives.",
+  },
+  {
+    id: 2,
+    category: "Engineering",
+    title: "TCS CodeVita Challenge",
+    date: "25 Mar",
+    description: "Participate in TCS's annual coding competition.",
+  },
+];
 
 const Home = () => {
-  return (
-    <div className="flex flex-col items-center">
-      {/* Hero Section */}
-      <section className="relative w-full h-screen bg-cover bg-center" style={{ backgroundImage: `url(${heroImage})` }}>
-        <div className="absolute inset-0 bg-gradient-to-b from-[#111E6C]/80 to-[#111E6C]/60 flex items-center justify-center">
-          <div className="text-center text-white max-w-3xl px-4">
-            <div className="animate-fadeIn">
-              <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
-                <span className="text-[#00BFFF]">Shape</span> Your Future with GCEK Placements
-              </h1>
-              <p className="text-lg md:text-xl mb-8 font-light max-w-2xl mx-auto">
-                Connecting talented students with industry leaders for exceptional career opportunities at Government College of Engineering Kannur
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link
-                  to="placementdata"
-                  spy={true}
-                  smooth={true}
-                  offset={-120}
-                  duration={800}
-                  className="bg-[#00BFFF] text-white px-6 py-3 rounded-md hover:bg-[#89CFF0] transition duration-300 cursor-pointer flex items-center justify-center shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-                >
-                  <span>Explore Placements</span>
-                </Link>
-                <Link
-                  to="contact"
-                  spy={true}
-                  smooth={true}
-                  offset={-120}
-                  duration={800}
-                  className="bg-transparent text-white border-2 border-white px-6 py-3 rounded-md hover:bg-white hover:text-[#111E6C] transition duration-300 cursor-pointer flex items-center justify-center shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-                >
-                  <span>Contact Us</span>
-                </Link>
-              </div>
-            </div>
+  // Animation Variants
+  const fadeIn = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
+  };
+
+  const StatsCard = ({ icon: Icon, title, value, subValue, description }) => (
+    <motion.div
+      className="bg-white rounded-xl shadow-md p-6 border border-gray-100 hover:shadow-lg transition-all duration-300"
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true }}
+      variants={fadeIn}
+      whileHover={{ y: -5 }}
+    >
+      <div className="flex items-start">
+        <div className="bg-[#4A90E2]/10 p-3 rounded-lg">
+          <Icon size={24} className="text-[#4A90E2]" />
+        </div>
+        <div className="ml-4">
+          <h3 className="text-sm uppercase text-gray-500 font-medium tracking-wide">{title}</h3>
+          <div className="flex items-end">
+            <p className="text-3xl font-bold text-[#1E3A8A]">{value}</p>
+            {subValue && <p className="ml-2 text-sm text-[#F4D03F]">{subValue}</p>}
+          </div>
+          <p className="text-sm text-gray-600 mt-1">{description}</p>
+        </div>
+      </div>
+    </motion.div>
+  );
+
+  const QuickLinkCard = ({ to, icon: Icon, title, description }) => (
+    <Link
+      to={to}
+      spy={true}
+      smooth={true}
+      offset={-120}
+      duration={800}
+      className="group bg-white rounded-xl shadow-md border border-gray-100 hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden"
+    >
+      <motion.div
+        className="bg-[#4A90E2] h-2 w-full group-hover:h-4 transition-all duration-300"
+        initial={{ height: 8 }}
+        whileHover={{ height: 16 }}
+      />
+      <div className="p-6">
+        <div className="w-12 h-12 bg-[#4A90E2]/10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-[#4A90E2]/20 transition duration-300">
+          <Icon size={24} className="text-[#4A90E2]" />
+        </div>
+        <h3 className="text-lg font-semibold text-[#1E3A8A] group-hover:text-[#4A90E2] transition duration-300 text-center">
+          {title}
+        </h3>
+        <p className="text-gray-600 mt-2 text-center">{description}</p>
+      </div>
+    </Link>
+  );
+
+  const EventCard = ({ category, title, date, description }) => (
+    <motion.div
+      className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300"
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true }}
+      variants={fadeIn}
+    >
+      <div className="p-1 bg-gradient-to-r from-[#4A90E2] to-[#1E3A8A]"></div>
+      <div className="p-6">
+        <div className="flex justify-between items-start">
+          <div>
+            <span className="inline-block px-3 py-1 text-xs font-medium bg-[#4A90E2]/10 text-[#4A90E2] rounded-full mb-2">
+              {category}
+            </span>
+            <h3 className="text-lg font-semibold text-[#1E3A8A]">{title}</h3>
+          </div>
+          <div className="bg-[#4A90E2]/10 px-3 py-2 rounded-lg text-center">
+            <span className="block text-lg font-bold text-[#1E3A8A]">{date.split(" ")[0]}</span>
+            <span className="text-xs text-gray-600">{date.split(" ")[1]}</span>
           </div>
         </div>
-        
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-0 right-0 flex justify-center animate-bounce">
-          <Link
-            to="quicklinks"
-            spy={true}
-            smooth={true}
-            offset={-120}
-            duration={800}
-            className="text-white cursor-pointer"
-          >
-            <ChevronDown size={36} />
+        <p className="text-gray-600 mt-3">{description}</p>
+        <button className="mt-4 w-full bg-[#4A90E2] text-white py-2 rounded-md hover:bg-[#1E3A8A] transition duration-300">
+          Register Now
+        </button>
+      </div>
+    </motion.div>
+  );
+
+  return (
+    <div className="flex flex-col items-center font-[Poppins,sans-serif]">
+      {/* Hero Section */}
+      <motion.section
+        className="relative w-full h-screen bg-cover bg-center"
+        style={{ backgroundImage: `url(${heroImage})` }}
+        initial="hidden"
+        animate="visible"
+        variants={fadeIn}
+      >
+        <div className="absolute inset-0 bg-gradient-to-b from-[#1E3A8A]/70 to-[#4A90E2]/40 flex items-center justify-center">
+          <div className="text-center text-white max-w-3xl px-4">
+            <motion.h1
+              className="text-4xl md:text-6xl font-bold mb-6 leading-tight drop-shadow-md"
+              variants={fadeIn}
+            >
+              <span className="text-[#4A90E2]">Shape</span> Your Future with GCEK Placements
+            </motion.h1>
+            <motion.p
+              className="text-lg md:text-xl mb-8 font-light drop-shadow-md max-w-2xl mx-auto"
+              variants={fadeIn}
+            >
+              Connecting talented students with industry leaders for exceptional career opportunities at Government College of Engineering Kannur
+            </motion.p>
+            <motion.div className="flex flex-col sm:flex-row gap-4 justify-center" variants={fadeIn}>
+              <Link
+                to="placementdata"
+                spy={true}
+                smooth={true}
+                offset={-120}
+                duration={800}
+                className="bg-[#4A90E2] text-white px-6 py-3 rounded-md hover:bg-[#1E3A8A] transition duration-300 cursor-pointer shadow-md hover:shadow-lg"
+              >
+                Explore Placements
+              </Link>
+              <Link
+                to="contact"
+                spy={true}
+                smooth={true}
+                offset={-120}
+                duration={800}
+                className="bg-transparent text-white border-2 border-[#4A90E2] px-6 py-3 rounded-md hover:bg-[#4A90E2] transition duration-300 cursor-pointer shadow-md hover:shadow-lg"
+              >
+                Contact Us
+              </Link>
+            </motion.div>
+          </div>
+        </div>
+        <motion.div
+          className="absolute bottom-8 left-0 right-0 flex justify-center"
+          animate={{ y: [0, 10, 0] }}
+          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <Link to="quicklinks" spy={true} smooth={true} offset={-120} duration={800} className="text-white cursor-pointer">
+            <ChevronDown size={36} className="drop-shadow-md" />
           </Link>
+        </motion.div>
+      </motion.section>
+
+      {/* Stats Section */}
+      <section className="relative z-10 w-full max-w-6xl mx-auto px-4 -mt-16 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <StatsCard
+            icon={User}
+            title="Placements"
+            value="95%"
+            subValue="↑ 5%"
+            description="Placement rate for 2023-24"
+          />
+          <StatsCard
+            icon={Building}
+            title="Recruiters"
+            value="50+"
+            subValue="↑ 15%"
+            description="Top companies visiting our campus"
+          />
+          <StatsCard
+            icon={Briefcase}
+            title="Highest Package"
+            value="13.2"
+            subValue="LPA"
+            description="Sobha Developers, Dubai (2023-24)"
+          />
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="relative z-10 w-full max-w-6xl mx-auto px-4 -mt-16">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white rounded-lg shadow-xl p-6 transform transition duration-300 hover:scale-105">
-            <div className="flex items-start">
-              <div className="bg-[#111E6C]/10 p-3 rounded-full">
-                <User size={24} className="text-[#111E6C]" />
-              </div>
-              <div className="ml-4">
-                <h3 className="text-sm uppercase text-gray-500 font-medium">Placements</h3>
-                <div className="flex items-end">
-                  <p className="text-3xl font-bold text-[#111E6C]">95%</p>
-                  <p className="ml-2 text-sm text-green-500">↑ 5%</p>
-                </div>
-                <p className="text-sm text-gray-600 mt-1">Placement rate for 2023-24</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white rounded-lg shadow-xl p-6 transform transition duration-300 hover:scale-105">
-            <div className="flex items-start">
-              <div className="bg-[#111E6C]/10 p-3 rounded-full">
-                <Building size={24} className="text-[#111E6C]" />
-              </div>
-              <div className="ml-4">
-                <h3 className="text-sm uppercase text-gray-500 font-medium">Recruiters</h3>
-                <div className="flex items-end">
-                  <p className="text-3xl font-bold text-[#111E6C]">50+</p>
-                  <p className="ml-2 text-sm text-green-500">↑ 15%</p>
-                </div>
-                <p className="text-sm text-gray-600 mt-1">Top companies visiting our campus</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white rounded-lg shadow-xl p-6 transform transition duration-300 hover:scale-105">
-            <div className="flex items-start">
-              <div className="bg-[#111E6C]/10 p-3 rounded-full">
-                <Mail size={24} className="text-[#111E6C]" />
-              </div>
-              <div className="ml-4">
-                <h3 className="text-sm uppercase text-gray-500 font-medium">Highest Package</h3>
-                <div className="flex items-end">
-                  <p className="text-3xl font-bold text-[#111E6C]">13.2</p>
-                  <p className="ml-2 text-xs text-gray-600">LPA</p>
-                </div>
-                <p className="text-sm text-gray-600 mt-1">Sobha Developers, Dubai (2023-24)</p>
-              </div>
-            </div>
+      {/* Upcoming Placement Events Section */}
+      <section className="py-16 bg-[#F7FAFC] w-full">
+        <div className="max-w-5xl mx-auto px-4">
+          <motion.h2
+            className="text-3xl font-bold text-[#1E3A8A] text-center mb-2"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeIn}
+          >
+            Upcoming Placement Events
+          </motion.h2>
+          <motion.div
+            className="w-24 h-1 bg-[#4A90E2] mx-auto mb-8"
+            initial={{ scaleX: 0 }}
+            whileInView={{ scaleX: 1 }}
+            transition={{ duration: 0.5 }}
+            viewport={{ once: true }}
+          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {upcomingEvents.map((event) => (
+              <EventCard
+                key={event.id}
+                category={event.category}
+                title={event.title}
+                date={event.date}
+                description={event.description}
+              />
+            ))}
+            {/* Placeholder for no events */}
+            {upcomingEvents.length === 0 && (
+              <p className="text-center text-gray-600 col-span-full">
+                No upcoming events scheduled. Check back later!
+              </p>
+            )}
           </div>
         </div>
       </section>
 
       {/* Quick Links Section */}
-      <section id="quicklinks" className="py-20 text-center w-full">
-        <h2 className="text-3xl font-bold text-[#111E6C] mb-2">Discover More</h2>
-        <div className="w-24 h-1 bg-[#00BFFF] mx-auto mb-8"></div>
-        <p className="text-gray-600 max-w-2xl mx-auto mb-12">Explore the various resources and information available to help you navigate your career journey with GCEK's Career Guidance and Placement Unit.</p>
-        
+      <section id="quicklinks" className="py-20 text-center w-full bg-white">
+        <motion.h2
+          className="text-3xl font-bold text-[#1E3A8A] mb-2"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={fadeIn}
+        >
+          Discover More
+        </motion.h2>
+        <motion.div
+          className="w-24 h-1 bg-[#4A90E2] mx-auto mb-8"
+          initial={{ scaleX: 0 }}
+          whileInView={{ scaleX: 1 }}
+          transition={{ duration: 0.5 }}
+          viewport={{ once: true }}
+        />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto px-4">
-          <Link
+          <QuickLinkCard
             to="recruiters"
-            spy={true}
-            smooth={true}
-            offset={-120}
-            duration={800}
-            className="group bg-white rounded-lg shadow-md hover:shadow-xl transition duration-300 overflow-hidden cursor-pointer"
-          >
-            <div className="bg-[#111E6C] h-3 w-full group-hover:h-6 transition-all duration-300"></div>
-            <div className="p-8">
-              <div className="w-16 h-16 bg-[#111E6C]/10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-[#111E6C]/20 transition duration-300">
-                <Building size={32} className="text-[#111E6C]" />
-              </div>
-              <h3 className="text-xl font-semibold text-[#111E6C] group-hover:text-[#00BFFF] transition duration-300">Our Recruiters</h3>
-              <p className="text-gray-600 mt-3">Meet the industry leaders that trust GCEK talent and regularly hire from our campus</p>
-              <div className="mt-4 text-[#00BFFF] font-medium flex items-center justify-center">
-                <span>Learn More</span>
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2 group-hover:translate-x-1 transition duration-300" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                </svg>
-              </div>
-            </div>
-          </Link>
-          
-          <Link
-            to="testimonial"
-            spy={true}
-            smooth={true}
-            offset={-120}
-            duration={800}
-            className="group bg-white rounded-lg shadow-md hover:shadow-xl transition duration-300 overflow-hidden cursor-pointer"
-          >
-            <div className="bg-[#111E6C] h-3 w-full group-hover:h-6 transition-all duration-300"></div>
-            <div className="p-8">
-              <div className="w-16 h-16 bg-[#111E6C]/10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-[#111E6C]/20 transition duration-300">
-                <User size={32} className="text-[#111E6C]" />
-              </div>
-              <h3 className="text-xl font-semibold text-[#111E6C] group-hover:text-[#00BFFF] transition duration-300">Testimonials</h3>
-              <p className="text-gray-600 mt-3">Hear success stories from our alumni who have excelled in their careers</p>
-              <div className="mt-4 text-[#00BFFF] font-medium flex items-center justify-center">
-                <span>Read Stories</span>
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2 group-hover:translate-x-1 transition duration-300" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                </svg>
-              </div>
-            </div>
-          </Link>
-          
-          <Link
+            icon={Building}
+            title="Our Recruiters"
+            description="Meet the industry leaders that trust GCEK talent."
+          />
+          <QuickLinkCard
+            to="placementdata"
+            icon={Briefcase}
+            title="Placement Data"
+            description="Explore detailed placement statistics and success stories."
+          />
+          <QuickLinkCard
             to="contact"
-            spy={true}
-            smooth={true}
-            offset={-120}
-            duration={800}
-            className="group bg-white rounded-lg shadow-md hover:shadow-xl transition duration-300 overflow-hidden cursor-pointer"
-          >
-            <div className="bg-[#111E6C] h-3 w-full group-hover:h-6 transition-all duration-300"></div>
-            <div className="p-8">
-              <div className="w-16 h-16 bg-[#111E6C]/10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-[#111E6C]/20 transition duration-300">
-                <Mail size={32} className="text-[#111E6C]" />
-              </div>
-              <h3 className="text-xl font-semibold text-[#111E6C] group-hover:text-[#00BFFF] transition duration-300">Contact Us</h3>
-              <p className="text-gray-600 mt-3">Get in touch with our placement team for queries and opportunities</p>
-              <div className="mt-4 text-[#00BFFF] font-medium flex items-center justify-center">
-                <span>Reach Out</span>
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2 group-hover:translate-x-1 transition duration-300" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                </svg>
-              </div>
-            </div>
-          </Link>
-        </div>
-      </section>
-
-      {/* Upcoming Events Section */}
-      <section className="py-16 bg-gray-50 w-full">
-        <div className="max-w-5xl mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center text-[#111E6C] mb-2">Upcoming Placement Events</h2>
-          <div className="w-24 h-1 bg-[#00BFFF] mx-auto mb-8"></div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-            <div className="bg-white rounded-lg shadow-md overflow-hidden">
-              <div className="p-1 bg-gradient-to-r from-[#111E6C] to-[#00BFFF]"></div>
-              <div className="p-6">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <span className="inline-block px-3 py-1 text-xs font-medium bg-blue-100 text-[#111E6C] rounded-full mb-2">Tech</span>
-                    <h3 className="text-xl font-semibold text-gray-800">Microsoft Campus Recruitment</h3>
-                  </div>
-                  <div className="bg-[#111E6C]/10 px-3 py-2 rounded-lg text-center">
-                    <span className="block text-xl font-bold text-[#111E6C]">20</span>
-                    <span className="text-xs text-gray-600">Mar</span>
-                  </div>
-                </div>
-                <p className="text-gray-600 mt-4">Microsoft will be conducting on-campus placement drives for various roles including Software Development Engineer.</p>
-                <div className="mt-4 flex items-center text-gray-500 text-sm">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span>9:30 AM - 4:30 PM</span>
-                </div>
-                <div className="mt-2 flex items-center text-gray-500 text-sm">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                  <span>Seminar Hall, Main Building</span>
-                </div>
-                <button className="mt-5 w-full bg-[#111E6C] text-white py-2 rounded-md hover:bg-[#00BFFF] transition duration-300">Register Now</button>
-              </div>
-            </div>
-            
-            <div className="bg-white rounded-lg shadow-md overflow-hidden">
-              <div className="p-1 bg-gradient-to-r from-[#111E6C] to-[#00BFFF]"></div>
-              <div className="p-6">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <span className="inline-block px-3 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-full mb-2">Workshop</span>
-                    <h3 className="text-xl font-semibold text-gray-800">Resume Building Workshop</h3>
-                  </div>
-                  <div className="bg-[#111E6C]/10 px-3 py-2 rounded-lg text-center">
-                    <span className="block text-xl font-bold text-[#111E6C]">25</span>
-                    <span className="text-xs text-gray-600">Mar</span>
-                  </div>
-                </div>
-                <p className="text-gray-600 mt-4">Learn how to create an impactful resume that stands out to recruiters. Bring your laptops for hands-on practice.</p>
-                <div className="mt-4 flex items-center text-gray-500 text-sm">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span>2:00 PM - 5:00 PM</span>
-                </div>
-                <div className="mt-2 flex items-center text-gray-500 text-sm">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                  <span>Computer Lab, CSE Department</span>
-                </div>
-                <button className="mt-5 w-full bg-[#111E6C] text-white py-2 rounded-md hover:bg-[#00BFFF] transition duration-300">Register Now</button>
-              </div>
-            </div>
-          </div>
+            icon={Mail}
+            title="Contact Us"
+            description="Reach out to our placement cell for inquiries."
+          />
         </div>
       </section>
     </div>

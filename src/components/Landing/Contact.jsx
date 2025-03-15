@@ -2,45 +2,66 @@ import React from "react";
 import { motion } from "framer-motion";
 
 const ContactUs = () => {
-  const fadeInUp = {
-    hidden: { opacity: 0, y: 50 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.8 } },
-  };
-
   return (
-    <motion.section
-      className="py-16 bg-[#F5F5F5]"
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true }}
-      variants={fadeInUp}
-    >
-      <div className="container mx-auto px-4 max-w-lg text-center">
-        <h2 className="text-4xl font-bold text-[#003087] mb-12 tracking-wide">
-          Contact Us
-        </h2>
-        <motion.div
-          className="bg-white rounded-lg shadow-md p-8 hover:shadow-lg transition-all duration-300 border border-gray-200"
-          variants={fadeInUp}
+    <section className="py-20 bg-[var(--primary-bg)]">
+      <div className="max-w-lg mx-auto px-4">
+        <motion.h2
+          className="text-3xl font-bold text-[var(--primary-text)] text-center mb-8"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7 }}
+          viewport={{ once: true }}
         >
-          <h3 className="text-xl font-bold text-[#003087] mb-2">Coordinator</h3>
-          <p className="text-lg font-medium text-gray-800 mb-4">Dr. Nidheesh N</p>
-          <div className="text-gray-600 space-y-2">
-            <p><strong>Phone:</strong> +91 9400102589</p>
-            <p><strong>Email:</strong> <a href="mailto:placements@gcek.ac.in" className="text-[#F7941D] hover:text-[#FF9F40] transition-colors duration-300">placements@gcek.ac.in</a> | <a href="mailto:nidheesh.n@gcek.ac.in" className="text-[#F7941D] hover:text-[#FF9F40] transition-colors duration-300">nidheesh.n@gcek.ac.in</a></p>
+          Contact Us
+        </motion.h2>
+        <motion.div
+          className="bg-[var(--secondary-bg)] p-6 rounded-xl shadow-md shadow-blue-100 border border-blue-200"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.2 }}
+          viewport={{ once: true }}
+        >
+          <h3 className="text-xl font-semibold text-[var(--primary-text)] mb-2">Coordinator</h3>
+          <p className="text-lg font-medium text-[var(--secondary-text)]">Dr. Nidheesh N</p>
+          <div className="mt-4 text-[var(--muted-text)]">
+            <p>
+              <strong>Phone:</strong>{" "}
+              <motion.a
+                href="tel:+919400102589"
+                className="text-[var(--link-text)] hover:text-[var(--secondary-accent)] transition-colors duration-300"
+                whileHover={{ scale: 1.05 }}
+              >
+                +91 9400102589
+              </motion.a>
+            </p>
+            <p>
+              <strong>Email:</strong>
+            </p>
+            <motion.a
+              href="mailto:placements@gcek.ac.in"
+              className="text-[var(--link-text)] hover:text-[var(--secondary-accent)] transition-colors duration-300 block"
+              whileHover={{ scale: 1.05 }}
+            >
+              placements@gcek.ac.in
+            </motion.a>
+            <motion.a
+              href="mailto:nidheesh.n@gcek.ac.in"
+              className="text-[var(--link-text)] hover:text-[var(--secondary-accent)] transition-colors duration-300 block"
+              whileHover={{ scale: 1.05 }}
+            >
+              nidheesh.n@gcek.ac.in
+            </motion.a>
+          </div>
+          <div className="mt-6 text-[var(--secondary-text)]">
+            <p className="font-semibold">Dr. Nidheesh N</p>
+            <p>Coordinator, Career Guidance and Placement Unit (CGPU)</p>
+            <p>Govt. College of Engineering Kannur</p>
+            <p>Dharmasala 670563</p>
+            <p>Kannur, Kerala</p>
           </div>
         </motion.div>
-        <motion.div
-          className="mt-8 text-gray-600 space-y-1"
-          variants={fadeInUp}
-        >
-          <p className="font-semibold">Dr. Nidheesh N</p>
-          <p>Career Guidance and Placement Unit (CGPU)</p>
-          <p>Govt. College of Engineering Kannur</p>
-          <p>Dharmasala, Kannur, Kerala 670563</p>
-        </motion.div>
       </div>
-    </motion.section>
+    </section>
   );
 };
 
