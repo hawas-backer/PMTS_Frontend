@@ -2,17 +2,18 @@ import React, { useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import Header from '../Header';
 import Footer from '../Footer';
-import { Home, ClipboardList, BarChart, Pen, List } from 'lucide-react';
+import { Home, ClipboardList, Pen, List, Menu } from 'lucide-react';
 
 const AdvisorLayout = () => {
   const [activeTab, setActiveTab] = useState('');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
   const navItems = [
     { id: '', icon: Home, label: 'Home' },
-    { id: 'pendingRequests', icon: ClipboardList, label: 'Pending requests' },
-    { id: 'add-students', icon: Pen, label: 'Add student details' },
+    { id: 'pendingRequests', icon: ClipboardList, label: 'Pending Requests' },
+    { id: 'add-students', icon: Pen, label: 'Add Student Details' },
     { id: 'student-list', icon: List, label: 'Student List' },
   ];
 
@@ -23,39 +24,63 @@ const AdvisorLayout = () => {
       return;
     }
     navigate(`/Advisor/${id}`);
+    setIsSidebarOpen(false);
   };
 
-  // Construct currentRoute for Header
   const currentRoute = location.pathname.replace('/Advisor/', '');
   const displayRoute = currentRoute === '' ? 'Home' : currentRoute.charAt(0).toUpperCase() + currentRoute.slice(1).replace(/-/g, ' ');
 
   return (
-    <div className="flex flex-col h-screen w-screen bg-[#0f1218]">
+    <div className="flex flex-col min-h-screen bg-primary-bg">
+      {/* Header */}
       <Header currentRoute={`/Advisor/${displayRoute}`} />
 
-      <div className="flex flex-1 bg-[#0f1218]">
-        <div className="w-16 bg-[#1a1f2c] py-4 flex flex-col items-center space-y-4">
-          {navItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => handleNavClick(item.id)}
-              className={`p-3 rounded-lg transition-colors duration-200 ${
-                activeTab === item.id
-                  ? 'bg-red-600 text-gray-200'
-                  : 'text-gray-400 hover:bg-gray-700'
-              }`}
-              title={item.label}
-            >
-              <item.icon size={24} />
-            </button>
-          ))}
+      <div className="flex flex-1 pt-16">
+        {/* Mobile Hamburger Menu */}
+        <button
+          className="md:hidden fixed top-4 left-4 z-50 p-2 text-text-primary focus:outline-none focus:ring-2 focus:ring-highlight"
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          aria-label="Toggle Sidebar"
+        >
+          <Menu size={24} />
+        </button>
+
+        {/* Sidebar - Fixed, Starting Below Header */}
+        <div
+          className={`fixed top-16 left-0 z-40 w-64 bg-secondary-bg h-[calc(100vh-4rem)] transform ${
+            isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          } md:translate-x-0 transition-transform duration-300 ease-in-out`}
+        >
+          <div className="flex flex-col py-4 h-full">
+            <div className="flex-1 space-y-2 px-4">
+              {navItems.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => handleNavClick(item.id)}
+                  className={`w-full p-3 rounded-lg flex items-center gap-3 transition-all duration-200 ${
+                    activeTab === item.id
+                      ? 'bg-accent text-text-primary'
+                      : 'text-text-secondary hover:bg-gray-700'
+                  }`}
+                  aria-label={item.label}
+                >
+                  <item.icon size={24} />
+                  <span className="text-sm font-medium">{item.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
-        <main className="container h-screen w-full overflow-y-auto">
-          <Outlet />
+
+        {/* Main Content - Starting Below Header */}
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 md:ml-64">
+          <div className="max-w-full">
+            <Outlet />
+          </div>
         </main>
       </div>
 
-      <Footer className="mt-auto bg-gray-900/90 backdrop-blur-md py-4 border-t border-gray-700 text-center text-sm" />
+      <Footer className="mt-auto bg-secondary-bg py-4 border-t border-gray-700 text-center text-sm text-text-secondary" />
     </div>
   );
 };

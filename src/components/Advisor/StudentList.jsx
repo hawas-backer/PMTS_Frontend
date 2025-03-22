@@ -18,9 +18,7 @@ const StudentList = () => {
 
   const fetchStudents = async () => {
     try {
-      const response = await axios.get('/api/students/list', {
-        withCredentials: true
-      });
+      const response = await axios.get('/api/students/list', { withCredentials: true });
       setStudents(response.data);
       setLoading(false);
     } catch (err) {
@@ -29,188 +27,156 @@ const StudentList = () => {
     }
   };
 
-  const handleEditStudent = (studentId) => {
-    navigate(`/Advisor/edit-student/${studentId}`);
-  };
+  const handleEditStudent = (studentId) => navigate(`/Advisor/edit-student/${studentId}`);
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
-    if (selectedFile) {
-      if (!selectedFile.name.endsWith('.xlsx') && !selectedFile.name.endsWith('.xls')) {
-        setUploadStatus({
-          message: 'Please select a valid Excel file (.xlsx or .xls)',
-          isError: true
-        });
-        return;
-      }
-      setFile(selectedFile);
-      setUploadStatus({ message: '', isError: false });
+    if (selectedFile && !selectedFile.name.match(/\.(xlsx|xls)$/)) {
+      setUploadStatus({ message: 'Please select a valid Excel file', isError: true });
+      return;
     }
+    setFile(selectedFile);
+    setUploadStatus({ message: '', isError: false });
   };
 
   const handleUpload = async () => {
     if (!file) {
-      setUploadStatus({
-        message: 'Please select a file first',
-        isError: true
-      });
+      setUploadStatus({ message: 'Please select a file', isError: true });
       return;
     }
-
     const formData = new FormData();
     formData.append('studentFile', file);
     setUploading(true);
-
     try {
       const response = await axios.post('/api/students/bulk-edit', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        },
-        withCredentials: true
+        headers: { 'Content-Type': 'multipart/form-data' },
+        withCredentials: true,
       });
-
       setUploadStatus({
-        message: `Successfully added ${response.data.successfulStudents.length} students. ${response.data.errors.length > 0 ? `${response.data.errors.length} errors occurred.` : ''}`,
-        isError: false
+        message: `Successfully updated ${response.data.successfulStudents.length} students. ${
+          response.data.errors.length > 0 ? `${response.data.errors.length} errors.` : ''
+        }`,
+        isError: false,
       });
-      
-      // Refresh the student list
       fetchStudents();
     } catch (err) {
-      let errorMessage = 'Failed to upload students';
-      
-      if (err.response && err.response.data) {
-        errorMessage = err.response.data.message || errorMessage;
-      }
-      
-      setUploadStatus({
-        message: errorMessage,
-        isError: true
-      });
+      setUploadStatus({ message: err.response?.data?.message || 'Upload failed', isError: true });
     } finally {
       setUploading(false);
       setFile(null);
-      // Reset the file input
       document.getElementById('fileUpload').value = '';
     }
   };
 
   const downloadTemplate = async () => {
     try {
-      const response = await axios.get('/api/students/edit-template', {
-        responseType: 'blob',
-        withCredentials: true
-      });
-      
+      const response = await axios.get('/api/students/edit-template', { responseType: 'blob', withCredentials: true });
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', 'student_upload_template.xlsx');
+      link.setAttribute('download', 'student_edit_template.xlsx');
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
     } catch (err) {
-      setUploadStatus({
-        message: 'Failed to download template',
-        isError: true
-      });
+      setUploadStatus({ message: 'Failed to download template', isError: true });
     }
   };
 
-  if (loading) return <div className="text-white">Loading...</div>;
-  if (error) return <div className="text-red-500">{error}</div>;
+  if (loading) return <div className="text-text-primary text-center py-12">Loading...</div>;
+  if (error) return <div className="text-error text-center py-12">{error}</div>;
 
   return (
-    <div className="min-h-screen bg-[#0f1218] p-6">
-      <div className="bg-[#1a2233] rounded-lg p-6">
-        <h2 className="text-2xl text-white mb-4">Student List</h2>
-        
-        {/* Excel Upload Section */}
+    <div className="min-h-screen bg-primary-bg p-4 sm:p-6 lg:p-8">
+      <div className="bg-secondary-bg rounded-xl shadow-glass p-6">
+        <h2 className="text-2xl md:text-3xl text-text-primary mb-6">Student List</h2>
+
+        {/* Bulk Upload Section */}
         <div className="mb-6 p-4 bg-[#232d3f] rounded-lg">
-          <h3 className="text-xl text-white mb-3">Bulk Upload Students</h3>
-          
-          <div className="flex flex-col md:flex-row gap-4 items-start mb-3">
-            <button 
-              onClick={downloadTemplate} 
-              className="flex items-center gap-2 bg-[#2c3e50] text-white py-2 px-4 rounded hover:bg-[#34495e]"
+          <h3 className="text-xl text-text-primary mb-3">Bulk Update Students</h3>
+          <div className="flex flex-col sm:flex-row gap-4 items-start">
+            <button
+              onClick={downloadTemplate}
+              className="bg-accent hover:bg-green-600 text-text-primary py-2 px-4 rounded-lg flex items-center gap-2 transition-all duration-200 hover:shadow-lg focus:ring-2 focus:ring-highlight"
+              aria-label="Download Template"
             >
-              <Download size={18} />
-              Download Template
+              <Download size={18} /> Download Template
             </button>
-            
             <div className="flex-1">
               <input
                 id="fileUpload"
                 type="file"
                 onChange={handleFileChange}
                 accept=".xlsx, .xls"
-                className="block w-full text-white file:mr-4 file:py-2 file:px-4 file:rounded
-                        file:border-0 file:text-sm file:font-semibold
-                        file:bg-[#2c3e50] file:text-white
-                        hover:file:bg-[#34495e]"
+                className="block w-full text-text-primary file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-accent file:text-text-primary hover:file:bg-green-600 transition-all duration-200"
+                aria-label="Upload student file"
               />
-              <p className="text-gray-400 text-sm mt-1">
-                Upload Excel file with student details (name, registration number, CGPA, backlogs, semesters completed)
-              </p>
+              <p className="text-text-secondary text-sm mt-1">Upload Excel file with student details</p>
             </div>
-            
             <button
               onClick={handleUpload}
               disabled={uploading || !file}
-              className={`flex items-center gap-2 py-2 px-4 rounded ${
+              className={`flex items-center gap-2 py-2 px-4 rounded-lg transition-all duration-200 ${
                 uploading || !file
-                  ? 'bg-gray-600 text-gray-300 cursor-not-allowed'
-                  : 'bg-blue-600 text-white hover:bg-blue-700'
+                  ? 'bg-gray-600 text-text-secondary cursor-not-allowed'
+                  : 'bg-highlight hover:bg-blue-500 text-text-primary hover:shadow-lg focus:ring-2 focus:ring-accent'
               }`}
+              aria-label="Upload File"
             >
-              <Upload size={18} />
-              {uploading ? 'Uploading...' : 'Upload'}
+              <Upload size={18} /> {uploading ? 'Uploading...' : 'Upload'}
             </button>
           </div>
-          
           {uploadStatus.message && (
-            <div className={`p-3 rounded ${uploadStatus.isError ? 'bg-red-900/50 text-red-200' : 'bg-green-900/50 text-green-200'}`}>
+            <div
+              className={`p-3 rounded-lg mt-3 ${
+                uploadStatus.isError ? 'bg-error bg-opacity-20 text-error' : 'bg-accent bg-opacity-20 text-accent'
+              }`}
+            >
               {uploadStatus.message}
             </div>
           )}
         </div>
-        
-        {/* Student Table */}
-        <table className="w-full text-white">
-          <thead>
-            <tr className="bg-[#2c3e50]">
-              <th className="p-3 text-left">Name</th>
-              <th className="p-3 text-left">Registration Number</th>
-              <th className="p-3 text-left">Branch</th>
-              <th className="p-3 text-center">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {students.length === 0 ? (
+
+        {/* Student List */}
+        <div className="overflow-x-auto">
+          <table className="w-full text-text-primary">
+            <thead className="bg-[#2c3e50]">
               <tr>
-                <td colSpan="4" className="p-3 text-center text-gray-400">
-                  No students found. Use the upload feature to add students.
-                </td>
+                {['Name', 'Registration Number', 'Branch', 'Actions'].map((header) => (
+                  <th key={header} className="p-3 text-left">
+                    {header}
+                  </th>
+                ))}
               </tr>
-            ) : (
-              students.map((student) => (
-                <tr key={student._id} className="border-b border-gray-700">
-                  <td className="p-3">{student.name}</td>
-                  <td className="p-3">{student.registrationNumber}</td>
-                  <td className="p-3">{student.branch}</td>
-                  <td className="p-3 text-center">
-                    <button
-                      onClick={() => handleEditStudent(student._id)}
-                      className="text-blue-500 hover:text-blue-400"
-                    >
-                      <Edit size={20} />
-                    </button>
+            </thead>
+            <tbody>
+              {students.length === 0 ? (
+                <tr>
+                  <td colSpan="4" className="p-3 text-center text-text-secondary">
+                    No students found.
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                students.map((student) => (
+                  <tr key={student._id} className="border-b border-gray-700 hover:bg-gray-700 transition-all duration-200">
+                    <td className="p-3">{student.name}</td>
+                    <td className="p-3">{student.registrationNumber}</td>
+                    <td className="p-3">{student.branch}</td>
+                    <td className="p-3 text-center">
+                      <button
+                        onClick={() => handleEditStudent(student._id)}
+                        className="text-highlight hover:text-blue-400 transition-all duration-200 focus:ring-2 focus:ring-accent"
+                        aria-label={`Edit ${student.name}`}
+                      >
+                        <Edit size={20} />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

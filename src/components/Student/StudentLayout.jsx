@@ -1,7 +1,6 @@
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import Header from '../Header';
-import Footer from '../Footer';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Home, 
   GraduationCap, 
@@ -10,77 +9,103 @@ import {
   Calendar, 
   Briefcase, 
   BrainCircuit,
-  Bell
+  Bell,
+  Menu
 } from 'lucide-react';
 
 const Layout = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('');
-  const [tooltipItem, setTooltipItem] = useState(null);
   const location = useLocation();
+  const [activeTab, setActiveTab] = useState('');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const navItems = [
-    { id: '', icon: Home, label: 'Home', color: 'text-emerald-500', labelColor: 'text-emerald-400' },
-    { id: 'placement', icon: GraduationCap, label: 'Placement Drive', color: 'text-blue-500', labelColor: 'text-blue-400' },
-    { id: 'resources', icon: BookOpen, label: 'Resources', color: 'text-purple-500', labelColor: 'text-purple-400' },
-    { id: 'analytics', icon: BarChart3, label: 'Analytics', color: 'text-yellow-500', labelColor: 'text-yellow-400' },
-    { id: 'events', icon: Calendar, label: 'Events', color: 'text-pink-500', labelColor: 'text-pink-400' },
-    { id: 'jobs', icon: Briefcase, label: 'Job Opportunities', color: 'text-orange-500', labelColor: 'text-orange-400' },
-    { id: 'aptitude-tests', icon: BrainCircuit, label: 'Exam Corner', color: 'text-red-500', labelColor: 'text-red-400' },
-    { id: 'notifications', icon: Bell, label: 'Notifications', color: 'text-teal-500', labelColor: 'text-teal-400' },
+    { id: '', icon: Home, label: 'Home', color: 'text-accent', hoverColor: 'hover:text-accent' },
+    { id: 'placement', icon: GraduationCap, label: 'Placement Drive', color: 'text-highlight', hoverColor: 'hover:text-highlight' },
+    { id: 'resources', icon: BookOpen, label: 'Resources', color: 'text-purple-400', hoverColor: 'hover:text-purple-400' },
+    { id: 'analytics', icon: BarChart3, label: 'Analytics', color: 'text-yellow-400', hoverColor: 'hover:text-yellow-400' },
+    { id: 'events', icon: Calendar, label: 'Events', color: 'text-pink-400', hoverColor: 'hover:text-pink-400' },
+    { id: 'jobs', icon: Briefcase, label: 'Job Opportunities', color: 'text-orange-400', hoverColor: 'hover:text-orange-400' },
+    { id: 'aptitude-tests', icon: BrainCircuit, label: 'Exam Corner', color: 'text-red-400', hoverColor: 'hover:text-red-400' },
+    { id: 'notifications', icon: Bell, label: 'Notifications', color: 'text-teal-400', hoverColor: 'hover:text-teal-400' },
   ];
 
-  // Use the full path as currentRoute (assuming Student role)
-  const currentRoute = location.pathname.startsWith('/student')
-    ? location.pathname
-    : '/Student';
+  const currentPath = location.pathname.split('/').pop() || '';
+
+  useEffect(() => {
+    const path = location.pathname.split('/').pop() || '';
+    setActiveTab(path);
+  }, [location]);
+
+  const handleNavigation = (path) => {
+    try {
+      setActiveTab(path);
+      navigate(`/student/${path}`);
+      setIsSidebarOpen(false);
+    } catch (error) {
+      console.error('Navigation error:', error);
+    }
+  };
 
   return (
-    <div className="flex flex-col h-screen">
-      <Header currentRoute={currentRoute} />
+    <div className="flex flex-col min-h-screen bg-primary-bg font-sans">
+      <Header currentRoute={`/student/${currentPath}`} />
 
-      {/* Sidebar and content wrapper */}
       <div className="flex flex-1">
-        {/* Sidebar */}
-        <div className="w-16 bg-[#1a1f2c] h-screen py-4 flex flex-col items-center space-y-4">
-          {navItems.map((item) => (
-            <div key={item.id} className="relative group">
-              <button
-                onClick={() => {
-                  setActiveTab(item.id);
-                  navigate(`/student/${item.id}`);
-                }}
-                onMouseEnter={() => setTooltipItem(item.id)}
-                onMouseLeave={() => setTooltipItem(null)}
-                className={`p-3 rounded-lg transition-all duration-200 relative ${
-                  activeTab === item.id ? 'bg-gray-700 scale-110' : 'hover:bg-gray-700/50 hover:scale-105'
-                }`}
-              >
-                <item.icon
-                  size={24}
-                  className={`${item.color} transition-all duration-200 ${
-                    activeTab === item.id ? 'stroke-2' : 'stroke-1'
+        <button
+          className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-secondary-bg rounded-lg text-text-primary"
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+        >
+          <Menu size={24} />
+        </button>
+
+        <aside
+          className={`fixed inset-y-0 left-0 z-40 w-64 bg-secondary-bg transform ${
+            isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          } lg:translate-x-0 lg:top-[4rem] lg:h-[calc(100vh-4rem)] lg:overflow-y-auto transition-all duration-300 ease-in-out flex flex-col shadow-glass`}
+        >
+          <nav className="p-4 flex flex-col min-h-[calc(100vh-4rem)]">
+            <div className="space-y-2">
+              {navItems.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => handleNavigation(item.id)}
+                  className={`w-full flex items-center gap-3 p-3 rounded-lg text-sm font-medium transition-all duration-300 ${
+                    currentPath === item.id
+                      ? 'bg-accent/20 text-white border-l-4 border-accent'
+                      : 'text-gray-300 hover:bg-highlight/10 hover:scale-105 hover:text-white'
                   }`}
-                />
-              </button>
-              {tooltipItem === item.id && (
-                <div
-                  className={`absolute top-1/2 -translate-y-1/2 left-full ml-4 px-3 py-1.5 bg-gray-800 rounded-md whitespace-nowrap z-50 font-medium ${item.labelColor}`}
                 >
-                  {item.label}
-                </div>
-              )}
+                  <item.icon
+                    size={20}
+                    className={`${currentPath === item.id ? 'text-accent' : item.color} transition-all duration-200 ${
+                      currentPath === item.id ? 'stroke-2' : 'stroke-1'
+                    }`}
+                  />
+                  <span className="text-ellipsis overflow-hidden whitespace-nowrap">
+                    {item.label}
+                  </span>
+                </button>
+              ))}
             </div>
-          ))}
-        </div>
+          </nav>
+        </aside>
 
-        {/* Main Content */}
-        <div className="h-screen w-full bg-[#1a1f2c] overflow-y-auto">
-          <Outlet />
-        </div>
+        {isSidebarOpen && (
+          <div
+            className="fixed inset-0 bg-black/50 lg:hidden z-30"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+        )}
+
+        <main
+          className="flex-1 p-4 sm:p-4 lg:p-6 lg:pl-0 lg:ml-64 h-screen overflow-y-auto bg-primary-bg transition-all duration-300"
+        >
+          <div className="max-w-full mx-auto">
+            <Outlet />
+          </div>
+        </main>
       </div>
-
-      <Footer />
     </div>
   );
 };

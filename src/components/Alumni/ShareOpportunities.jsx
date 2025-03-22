@@ -1,237 +1,133 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { 
-  Plus, Edit, Trash2, Briefcase, AlertCircle,
-  Calendar, X, ExternalLink
-} from 'lucide-react';
+import { Plus, Edit, Trash2, Briefcase, AlertCircle, Calendar, X, ExternalLink } from 'lucide-react';
 
 const JobOpportunityModal = ({ onClose, onJobAdded, jobToEdit }) => {
   const [jobData, setJobData] = useState(
-    jobToEdit 
+    jobToEdit
       ? {
           title: jobToEdit.title,
           company: jobToEdit.company,
           description: jobToEdit.description,
           applyUrl: jobToEdit.applyUrl,
-          applicationDeadline: jobToEdit.applicationDeadline 
-            ? new Date(jobToEdit.applicationDeadline).toISOString().split('T')[0] 
-            : ''
+          applicationDeadline: jobToEdit.applicationDeadline
+            ? new Date(jobToEdit.applicationDeadline).toISOString().split('T')[0]
+            : '',
         }
-      : {
-          title: '',
-          company: '',
-          description: '',
-          applyUrl: '',
-          applicationDeadline: ''
-        }
+      : { title: '', company: '', description: '', applyUrl: '', applicationDeadline: '' }
   );
-  
   const [errors, setErrors] = useState({});
+  const [status, setStatus] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Validate URL format
-  const isValidUrl = (url) => {
-    try {
-      new URL(url);
-      return true;
-    } catch (e) {
-      return false;
-    }
-  };
+  const isValidUrl = (url) => /^https?:\/\/.+/.test(url);
 
-  // Validate form fields
   const validateForm = () => {
     const newErrors = {};
-    
-    if (!jobData.title.trim()) {
-      newErrors.title = "Job title is required";
+    if (!jobData.title.trim()) newErrors.title = 'Job title is required';
+    if (!jobData.company.trim()) newErrors.company = 'Company name is required';
+    if (!jobData.description.trim()) newErrors.description = 'Description is required';
+    if (!jobData.applyUrl.trim()) newErrors.applyUrl = 'Application URL is required';
+    else if (!isValidUrl(jobData.applyUrl)) newErrors.applyUrl = 'Enter a valid URL';
+    if (jobData.applicationDeadline && new Date(jobData.applicationDeadline) < new Date()) {
+      newErrors.applicationDeadline = 'Deadline cannot be in the past';
     }
-    
-    if (!jobData.company.trim()) {
-      newErrors.company = "Company name is required";
-    }
-    
-    if (!jobData.description.trim()) {
-      newErrors.description = "Job description is required";
-    }
-    
-    if (!jobData.applyUrl.trim()) {
-      newErrors.applyUrl = "Application URL is required";
-    } else if (!isValidUrl(jobData.applyUrl)) {
-      newErrors.applyUrl = "Please enter a valid URL";
-    }
-    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
-    
+    if (!validateForm()) return;
     setIsSubmitting(true);
-    
     try {
-      let response;
       const submitData = {
         ...jobData,
-        applicationDeadline: jobData.applicationDeadline 
-          ? new Date(jobData.applicationDeadline).toISOString() 
-          : undefined
+        applicationDeadline: jobData.applicationDeadline ? new Date(jobData.applicationDeadline).toISOString() : undefined,
       };
-
-      if (jobToEdit) {
-        response = await axios.put(
-          `http://localhost:8080/api/jobs/${jobToEdit._id}`, 
-          submitData,
-          {
-            withCredentials: true
-          }
-        );
-        onJobAdded(response.data);
-      } else {
-        response = await axios.post(
-          'http://localhost:8080/api/jobs', 
-          submitData,
-          {
-            withCredentials: true
-          }
-        );
-        onJobAdded(response.data.job);
-      }
-      
-      onClose();
+      const response = jobToEdit
+        ? await axios.put(`http://localhost:8080/api/jobs/${jobToEdit._id}`, submitData, { withCredentials: true })
+        : await axios.post('http://localhost:8080/api/jobs', submitData, { withCredentials: true });
+      onJobAdded(response.data);
+      setStatus('Job saved successfully!');
+      setTimeout(() => {
+        setStatus('');
+        onClose();
+      }, 1500);
     } catch (error) {
       console.error('Error saving job:', error);
-      setErrors({
-        submit: "Failed to save job opportunity. Please try again."
-      });
+      setErrors({ submit: 'Failed to save job opportunity. Please try again.' });
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <form 
-        onSubmit={handleSubmit} 
-        className="bg-[#1a1f2c] rounded-lg p-6 w-full max-w-md"
-      >
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-bold text-gray-200">
-            {jobToEdit ? 'Edit Job Opportunity' : 'Add Job Opportunity'}
-          </h3>
-          <button 
-            type="button"
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-200"
-          >
-            <X size={24} />
+    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[1000]"> {/* Increased z-index to 1000 */}
+      <form onSubmit={handleSubmit} className="bg-secondary-bg rounded-xl shadow-glass w-full max-w-md text-text-primary">
+        <div className="flex justify-between items-center p-4 border-b border-gray-700">
+          <h3 className="text-lg font-bold">{jobToEdit ? 'Edit Job Opportunity' : 'Add Job Opportunity'}</h3>
+          <button type="button" onClick={onClose} className="text-text-secondary hover:text-error">
+            <X size={20} />
           </button>
         </div>
-        
-        {errors.submit && (
-          <div className="bg-red-900 text-red-200 p-3 rounded mb-4 flex items-center">
-            <AlertCircle size={20} className="mr-2" />
-            {errors.submit}
-          </div>
-        )}
-        
-        <div className="space-y-4">
-          <div>
-            <label className="block text-gray-300 mb-2">Job Title</label>
-            <input
-              type="text"
-              value={jobData.title}
-              onChange={(e) => {
-                setJobData({ ...jobData, title: e.target.value });
-                if (errors.title) {
-                  setErrors({ ...errors, title: null });
-                }
-              }}
-              className={`w-full bg-[#2c3341] text-gray-200 p-2 rounded ${errors.title ? 'border border-red-500' : ''}`}
-              placeholder="Enter job title"
-            />
-            {errors.title && (
-              <p className="text-red-500 text-sm mt-1">{errors.title}</p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-gray-300 mb-2">Company</label>
-            <input
-              type="text"
-              value={jobData.company}
-              onChange={(e) => {
-                setJobData({ ...jobData, company: e.target.value });
-                if (errors.company) {
-                  setErrors({ ...errors, company: null });
-                }
-              }}
-              className={`w-full bg-[#2c3341] text-gray-200 p-2 rounded ${errors.company ? 'border border-red-500' : ''}`}
-              placeholder="Enter company name"
-            />
-            {errors.company && (
-              <p className="text-red-500 text-sm mt-1">{errors.company}</p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-gray-300 mb-2">Description</label>
-            <textarea
-              value={jobData.description}
-              onChange={(e) => {
-                setJobData({ ...jobData, description: e.target.value });
-                if (errors.description) {
-                  setErrors({ ...errors, description: null });
-                }
-              }}
-              className={`w-full bg-[#2c3341] text-gray-200 p-2 rounded ${errors.description ? 'border border-red-500' : ''}`}
-              placeholder="Enter job description"
-              rows="4"
-            />
-            {errors.description && (
-              <p className="text-red-500 text-sm mt-1">{errors.description}</p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-gray-300 mb-2">Application URL</label>
-            <input
-              type="text"
-              value={jobData.applyUrl}
-              onChange={(e) => {
-                setJobData({ ...jobData, applyUrl: e.target.value });
-                if (errors.applyUrl) {
-                  setErrors({ ...errors, applyUrl: null });
-                }
-              }}
-              className={`w-full bg-[#2c3341] text-gray-200 p-2 rounded ${errors.applyUrl ? 'border border-red-500' : ''}`}
-              placeholder="Enter application URL (e.g., https://example.com/apply)"
-            />
-            {errors.applyUrl && (
-              <p className="text-red-500 text-sm mt-1">{errors.applyUrl}</p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-gray-300 mb-2">Application Deadline</label>
-            <input
-              type="date"
-              value={jobData.applicationDeadline}
-              onChange={(e) => setJobData({ ...jobData, applicationDeadline: e.target.value })}
-              className="w-full bg-[#2c3341] text-gray-200 p-2 rounded"
-            />
-          </div>
-
-          <button 
+        <div className="p-4 space-y-4">
+          {status && (
+            <div className="bg-accent bg-opacity-20 text-accent p-2 rounded-lg flex items-center">
+              <span>{status}</span>
+            </div>
+          )}
+          {errors.submit && (
+            <div className="bg-error bg-opacity-20 text-error p-2 rounded-lg flex items-center">
+              <AlertCircle size={18} className="mr-2" /> {errors.submit}
+            </div>
+          )}
+          {[
+            { name: 'title', label: 'Job Title', placeholder: 'Enter job title' },
+            { name: 'company', label: 'Company', placeholder: 'Enter company name' },
+            { name: 'description', label: 'Description', placeholder: 'Enter job description', textarea: true },
+            { name: 'applyUrl', label: 'Application URL', placeholder: 'https://example.com/apply' },
+            { name: 'applicationDeadline', label: 'Application Deadline', type: 'date' },
+          ].map((field) => (
+            <div key={field.name}>
+              <label className="block text-text-primary mb-1 text-sm font-medium">{field.label}</label>
+              {field.textarea ? (
+                <textarea
+                  value={jobData[field.name]}
+                  onChange={(e) => {
+                    setJobData({ ...jobData, [field.name]: e.target.value });
+                    setErrors({ ...errors, [field.name]: null });
+                  }}
+                  className={`w-full bg-[#2c3e50] text-text-primary p-2 rounded-lg border ${
+                    errors[field.name] ? 'border-error' : 'border-gray-700'
+                  } focus:outline-none focus:ring-2 focus:ring-highlight transition-all duration-200`}
+                  placeholder={field.placeholder}
+                  rows="3"
+                  required
+                />
+              ) : (
+                <input
+                  type={field.type || 'text'}
+                  value={jobData[field.name]}
+                  onChange={(e) => {
+                    setJobData({ ...jobData, [field.name]: e.target.value });
+                    setErrors({ ...errors, [field.name]: null });
+                  }}
+                  className={`w-full bg-[#2c3e50] text-text-primary p-2 rounded-lg border ${
+                    errors[field.name] ? 'border-error' : 'border-gray-700'
+                  } focus:outline-none focus:ring-2 focus:ring-highlight transition-all duration-200`}
+                  placeholder={field.placeholder}
+                  required={field.name !== 'applicationDeadline'}
+                />
+              )}
+              {errors[field.name] && <p className="text-error text-xs mt-1">{errors[field.name]}</p>}
+            </div>
+          ))}
+          <button
             type="submit"
             disabled={isSubmitting}
-            className={`w-full text-white p-2 rounded transition ${
-              isSubmitting ? 'bg-blue-800 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
+            className={`w-full p-2 rounded-lg text-text-primary transition-all duration-200 ${
+              isSubmitting ? 'bg-gray-600 cursor-not-allowed' : 'bg-highlight hover:bg-blue-500 hover:shadow-lg'
             }`}
           >
             {isSubmitting ? 'Saving...' : jobToEdit ? 'Update Job' : 'Add Job'}
@@ -243,111 +139,75 @@ const JobOpportunityModal = ({ onClose, onJobAdded, jobToEdit }) => {
 };
 
 export const ShareOpportunities = () => {
-  const [jobs, setJobs] = useState([]); 
+  const [jobs, setJobs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showAddJob, setShowAddJob] = useState(false);
   const [editingJob, setEditingJob] = useState(null);
   const [deletedExpiredCount, setDeletedExpiredCount] = useState(0);
 
-  // Function to check and delete expired jobs
   const checkAndDeleteExpiredJobs = async (jobsToCheck) => {
     const currentDate = new Date();
-    const expiredJobs = jobsToCheck.filter(job => 
-      job.applicationDeadline && new Date(job.applicationDeadline) < currentDate
-    );
-    
+    const expiredJobs = jobsToCheck.filter((job) => job.applicationDeadline && new Date(job.applicationDeadline) < currentDate);
     if (expiredJobs.length > 0) {
-      // Delete expired jobs from the database
-      const deletePromises = expiredJobs.map(job => 
-        axios.delete(`http://localhost:8080/api/jobs/${job._id}`, {
-          withCredentials: true
+      const deletePromises = expiredJobs.map((job) =>
+        axios.delete(`http://localhost:8080/api/jobs/${job._id}`, { withCredentials: true }).catch((err) => {
+          console.error(`Error deleting job ${job._id}:`, err);
+          return null;
         })
-          .catch(err => {
-            console.error(`Error deleting job ${job._id}:`, err);
-            return null; // Return null for failed deletions
-          })
       );
-      
       try {
         const results = await Promise.all(deletePromises);
-        const successfulDeletes = results.filter(result => result !== null).length;
-        
-        // Remove expired jobs from the state
-        setJobs(prevJobs => 
-          prevJobs.filter(job => 
-            !job.applicationDeadline || new Date(job.applicationDeadline) >= currentDate
-          )
+        const successfulDeletes = results.filter((result) => result !== null).length;
+        setJobs((prevJobs) =>
+          prevJobs.filter((job) => !job.applicationDeadline || new Date(job.applicationDeadline) >= currentDate)
         );
-        setDeletedExpiredCount(prev => prev + successfulDeletes);
+        setDeletedExpiredCount((prev) => prev + successfulDeletes);
       } catch (error) {
         console.error('Error processing job deletions:', error);
       }
     }
-    
-    return jobsToCheck.filter(job => 
-      !job.applicationDeadline || new Date(job.applicationDeadline) >= currentDate
-    );
+    return jobsToCheck.filter((job) => !job.applicationDeadline || new Date(job.applicationDeadline) >= currentDate);
   };
 
   useEffect(() => {
     const fetchJobs = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get('http://localhost:8080/api/jobs', {
-          withCredentials: true
-        });
-        
-        const jobData = Array.isArray(response.data) 
-          ? response.data 
-          : response.data.jobs || [];
-        
-        // Filter out expired jobs and delete them
+        const response = await axios.get('http://localhost:8080/api/jobs', { withCredentials: true });
+        const jobData = Array.isArray(response.data) ? response.data : response.data.jobs || [];
         const filteredJobs = await checkAndDeleteExpiredJobs(jobData);
-        
         setJobs(filteredJobs);
         setError(null);
       } catch (err) {
         console.error('Error fetching jobs:', err);
         setError('Failed to fetch job opportunities. Please refresh the page.');
-        setJobs([]); 
+        setJobs([]);
       } finally {
         setIsLoading(false);
       }
     };
-
     fetchJobs();
-
-    // Set up periodic check for expired jobs (every hour)
     const intervalId = setInterval(() => {
-      if (jobs.length > 0) {
-        checkAndDeleteExpiredJobs(jobs);
-      }
-    }, 3600000); // 1 hour in milliseconds
-    
+      if (jobs.length > 0) checkAndDeleteExpiredJobs(jobs);
+    }, 3600000);
     return () => clearInterval(intervalId);
   }, []);
 
   const handleDeleteJob = async (jobId) => {
     try {
-      await axios.delete(`http://localhost:8080/api/jobs/${jobId}`, {
-        withCredentials: true
-      });
-      setJobs(jobs.filter(j => j._id !== jobId));
+      await axios.delete(`http://localhost:8080/api/jobs/${jobId}`, { withCredentials: true });
+      setJobs(jobs.filter((j) => j._id !== jobId));
     } catch (error) {
       console.error('Error deleting job:', error);
-      // Using inline notification instead of alert
       setError('Failed to delete job opportunity. Please try again.');
-      // Auto-dismiss error after 5 seconds
       setTimeout(() => setError(null), 5000);
     }
   };
 
   const handleJobAdded = (updatedOrNewJob) => {
     if (editingJob) {
-      setJobs(jobs.map(j => 
-        j._id === updatedOrNewJob._id ? updatedOrNewJob : j
-      ));
+      setJobs(jobs.map((j) => (j._id === updatedOrNewJob._id ? updatedOrNewJob : j)));
     } else {
       setJobs([...jobs, updatedOrNewJob]);
     }
@@ -355,96 +215,79 @@ export const ShareOpportunities = () => {
 
   if (isLoading) {
     return (
-      <div className="p-6 bg-[#0f1218] h-screen flex items-center justify-center">
-        <div className="text-white">Loading job opportunities...</div>
+      <div className="p-4 bg-primary-bg min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent"></div>
       </div>
     );
   }
 
   return (
-    <div className="p-6 bg-[#0f1218] min-h-screen w-full">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-200">Job Opportunities</h2>
-        <button 
+    <div className="p-4 bg-primary-bg min-h-screen text-text-primary">
+      <div className="flex flex-col sm:flex-row justify-between items-center mb-4">
+        <h2 className="text-xl md:text-2xl font-bold">Job Opportunities</h2>
+        <button
           onClick={() => setShowAddJob(true)}
-          className="bg-blue-600 text-white p-2 rounded flex items-center hover:bg-blue-700"
+          className="mt-2 sm:mt-0 bg-accent hover:bg-green-600 text-text-primary px-3 py-2 rounded-lg flex items-center gap-2 transition-all duration-200"
         >
-          <Plus size={20} className="mr-2" /> Add Job
+          <Plus size={18} /> Add Job
         </button>
       </div>
-      
       {error && (
-        <div className="bg-red-900 text-red-200 p-3 rounded mb-4 flex items-center">
-          <AlertCircle size={20} className="mr-2" />
-          {error}
+        <div className="bg-error bg-opacity-20 text-error p-2 mb-4 rounded-lg flex items-center">
+          <AlertCircle size={18} className="mr-2" /> {error}
         </div>
       )}
-      
       {deletedExpiredCount > 0 && (
-        <div className="bg-blue-900 text-blue-200 p-3 rounded mb-4 flex items-center">
-          <Calendar size={20} className="mr-2" />
-          {deletedExpiredCount} expired job {deletedExpiredCount === 1 ? 'opportunity' : 'opportunities'} automatically removed
+        <div className="bg-accent bg-opacity-20 text-accent p-2 mb-4 rounded-lg flex items-center">
+          <Calendar size={18} className="mr-2" />
+          {deletedExpiredCount} expired job {deletedExpiredCount === 1 ? 'opportunity' : 'opportunities'} removed
         </div>
       )}
-
       {jobs.length === 0 ? (
-        <div className="text-gray-400 text-center">
-          No job opportunities found. Add a new job to get started.
-        </div>
+        <div className="text-text-secondary text-center">No job opportunities found. Add a new job to get started.</div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {jobs.map((job) => (
-            <div 
-              key={job._id}
-              className="bg-[#1a1f2c] p-4 rounded-lg shadow-md flex flex-col"
-            >
+            <div key={job._id} className="bg-secondary-bg p-4 rounded-xl shadow-glass flex flex-col transition-all duration-200 hover:bg-gray-700">
               <div className="flex justify-between items-start mb-2">
-                <Briefcase size={24} className="text-blue-400" />
+                <Briefcase size={20} className="text-accent" />
                 <div className="flex space-x-2">
-                  <button 
+                  <button
                     onClick={() => {
                       setEditingJob(job);
                       setShowAddJob(true);
                     }}
-                    className="text-gray-400 hover:text-blue-400"
+                    className="text-highlight hover:text-blue-400"
                   >
-                    <Edit size={20} />
+                    <Edit size={18} />
                   </button>
-                  <button 
-                    onClick={() => handleDeleteJob(job._id)}
-                    className="text-gray-400 hover:text-red-400"
-                  >
-                    <Trash2 size={20} />
+                  <button onClick={() => handleDeleteJob(job._id)} className="text-error hover:text-red-400">
+                    <Trash2 size={18} />
                   </button>
                 </div>
               </div>
-              <h3 className="text-lg font-semibold text-gray-200 mb-1">
-                {job.title}
-              </h3>
-              <p className="text-gray-400 text-sm mb-2">
-                {job.company}
-              </p>
-              <p className="text-gray-400 text-sm mb-2 flex-grow line-clamp-3">
-                {job.description}
-              </p>
-              <div className="flex justify-between items-center mt-2">
+              <h3 className="text-md font-semibold text-text-primary mb-1">{job.title}</h3>
+              <p className="text-text-secondary text-sm mb-1">{job.company}</p>
+              <p className="text-text-secondary text-sm mb-2 flex-grow line-clamp-3">{job.description}</p>
+              <div className="flex justify-between items-center">
                 {job.applicationDeadline && (
-                  <div className={`flex items-center text-sm ${
-                    new Date(job.applicationDeadline) < new Date(new Date().setDate(new Date().getDate() + 7)) 
-                      ? 'text-amber-400' 
-                      : 'text-gray-300'
-                  }`}>
-                    <Calendar size={16} className="mr-2" />
+                  <div
+                    className={`flex items-center text-sm ${
+                      new Date(job.applicationDeadline) < new Date(new Date().setDate(new Date().getDate() + 7))
+                        ? 'text-amber-400'
+                        : 'text-text-secondary'
+                    }`}
+                  >
+                    <Calendar size={16} className="mr-1" />
                     {new Date(job.applicationDeadline).toLocaleDateString()}
-                    {new Date(job.applicationDeadline) < new Date(new Date().setDate(new Date().getDate() + 7)) && 
-                      ' (Closing soon)'}
+                    {new Date(job.applicationDeadline) < new Date(new Date().setDate(new Date().getDate() + 7)) && ' (Closing soon)'}
                   </div>
                 )}
                 <a
                   href={job.applyUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-400 hover:underline text-sm flex items-center gap-2"
+                  className="text-highlight hover:text-blue-400 text-sm flex items-center gap-1 transition-all duration-200"
                 >
                   <ExternalLink size={16} /> Apply
                 </a>
@@ -453,9 +296,8 @@ export const ShareOpportunities = () => {
           ))}
         </div>
       )}
-
       {showAddJob && (
-        <JobOpportunityModal 
+        <JobOpportunityModal
           onClose={() => {
             setShowAddJob(false);
             setEditingJob(null);

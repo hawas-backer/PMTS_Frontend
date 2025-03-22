@@ -17,10 +17,7 @@ const StudentAptitudeTests = () => {
 
   useEffect(() => {
     if (dateFilter) {
-      const filtered = tests.filter(test => {
-        const testDate = new Date(test.createdAt).toISOString().split('T')[0];
-        return testDate === dateFilter;
-      });
+      const filtered = tests.filter(test => new Date(test.createdAt).toISOString().split('T')[0] === dateFilter);
       setFilteredTests(filtered);
     } else {
       setFilteredTests(tests);
@@ -31,8 +28,8 @@ const StudentAptitudeTests = () => {
     try {
       setLoading(true);
       const response = await axios.get('/api/aptitude-tests/available', { withCredentials: true });
-      setTests(response.data.tests); // Access the tests property
-      setFilteredTests(response.data.tests); // Access the tests property
+      setTests(response.data.tests);
+      setFilteredTests(response.data.tests);
       setLoading(false);
     } catch (error) {
       setError('Failed to fetch available tests');
@@ -40,87 +37,63 @@ const StudentAptitudeTests = () => {
     }
   };
 
-  const handleAttemptQuiz = (id) => {
-    navigate(`/student/take-quiz/${id}`);
-  };
+  const handleAttemptQuiz = (id) => navigate(`/student/take-quiz/${id}`);
+  const formatDate = (dateString) => new Date(dateString).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
 
-  const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'short', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString(undefined, options);
-  };
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen bg-[#0f1218]">
-        <div className="text-gray-200">Loading available tests...</div>
-      </div>
-    );
-  }
+  if (loading) return (
+    <div className="flex justify-center items-center min-h-screen bg-primary-bg font-sans">
+      <div className="text-text-secondary animate-pulse">Loading available tests...</div>
+    </div>
+  );
 
   return (
-    <div className="min-h-screen bg-[#0f1218] text-gray-200 p-6">
+    <div className="min-h-screen bg-primary-bg text-text-primary p-4 sm:p-6 font-sans">
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-2xl font-bold mb-6">Available Aptitude Tests</h1>
-        
+        <h1 className="text-2xl sm:text-3xl font-bold mb-6 animate-fade-in">Available Aptitude Tests</h1>
         {error && (
-          <div className="bg-red-900 text-red-200 p-3 rounded mb-4">
-            {error}
-          </div>
+          <div className="bg-error/20 text-error p-3 rounded-xl mb-4 animate-fade-in">{error}</div>
         )}
-        
-        <div className="mb-6">
-          <label className="block text-gray-400 mb-2">Filter by Date</label>
-          <input
-            type="date"
-            value={dateFilter}
-            onChange={(e) => setDateFilter(e.target.value)}
-            className="bg-[#0f1218] text-gray-200 p-2 rounded border border-gray-700"
-          />
-          {dateFilter && (
-            <button
-              onClick={() => setDateFilter('')}
-              className="ml-2 text-gray-400 hover:text-gray-200"
-            >
-              Clear
-            </button>
-          )}
+        <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <label className="text-text-secondary">Filter by Date</label>
+          <div className="flex items-center gap-2">
+            <input
+              type="date"
+              value={dateFilter}
+              onChange={(e) => setDateFilter(e.target.value)}
+              className="bg-primary-bg text-text-primary p-2 rounded-lg border border-white/10 focus:outline-none focus:ring-2 focus:ring-highlight"
+            />
+            {dateFilter && (
+              <button
+                onClick={() => setDateFilter('')}
+                className="text-text-secondary hover:text-text-primary transition-all duration-300"
+              >
+                Clear
+              </button>
+            )}
+          </div>
         </div>
-        
         {filteredTests.length === 0 ? (
-          <div className="bg-[#1a1f2c] rounded-lg p-6 text-center">
-            <p className="text-gray-400">
-              {dateFilter 
-                ? 'No tests available for the selected date' 
-                : 'No tests available to attempt'}
+          <div className="bg-secondary-bg rounded-xl p-6 text-center shadow-glass">
+            <p className="text-text-secondary">
+              {dateFilter ? 'No tests available for the selected date' : 'No tests available to attempt'}
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredTests.map((test) => (
-              <div key={test._id} className="bg-[#1a1f2c] rounded-lg p-6 hover:shadow-lg transition">
+              <div key={test._id} className="bg-secondary-bg rounded-xl p-6 shadow-glass hover:-translate-y-1 transition-all duration-300">
                 <h2 className="text-xl font-semibold mb-3">{test.title}</h2>
                 {test.description && (
-                  <p className="text-gray-400 mb-4 line-clamp-2">{test.description}</p>
+                  <p className="text-text-secondary mb-4 line-clamp-2">{test.description}</p>
                 )}
-                
-                <div className="space-y-2 mb-4">
-                  <div className="flex items-center text-gray-400">
-                    <Calendar size={16} className="mr-2" />
-                    <span>Created: {formatDate(test.createdAt)}</span>
-                  </div>
-                  <div className="flex items-center text-gray-400">
-                    <Clock size={16} className="mr-2" />
-                    <span>Duration: {test.duration} minutes</span>
-                  </div>
-                  <div className="flex items-center text-gray-400">
-                    <FileText size={16} className="mr-2" />
-                    <span>Questions: {test.questions.length}</span>
-                  </div>
+                <div className="space-y-2 mb-4 text-text-secondary">
+                  <div className="flex items-center"><Calendar size={16} className="mr-2" /> Created: {formatDate(test.createdAt)}</div>
+                  <div className="flex items-center"><Clock size={16} className="mr-2" /> Duration: {test.duration} minutes</div>
+                  <div className="flex items-center"><FileText size={16} className="mr-2" /> Questions: {test.questions.length}</div>
                 </div>
-                
                 <button
                   onClick={() => handleAttemptQuiz(test._id)}
-                  className="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded transition flex items-center justify-center"
+                  className="w-full bg-gradient-to-r from-highlight to-accent hover:from-accent hover:to-highlight text-text-primary px-4 py-2 rounded-lg transition-all duration-300 hover:scale-105"
                 >
                   Attempt Quiz
                 </button>
