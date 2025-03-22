@@ -1,86 +1,73 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import Header from '../Header';
 import Footer from '../Footer';
-import { Home, Calendar, BarChart3,BarChart, Users, FileText, Briefcase } from 'lucide-react';
+import { Home, Calendar, BarChart3, BarChart, Users, FileText, Briefcase } from 'lucide-react';
 
 const CoordinatorLayout = () => {
-  const location = useLocation();
-  const [activeTab, setActiveTab] = useState('');
-  const navigate = useNavigate();
   const { user, role } = useAuth();
-
-  // Extract the current route for display in header
-  const currentRoute = location.pathname.replace('/Coordinator/', '');
-  const displayRoute = currentRoute === '' ? 'Dashboard' : currentRoute.charAt(0).toUpperCase() + currentRoute.slice(1).replace(/-/g, ' ');
-
-  useEffect(() => {
-    // Set active tab based on current path
-    const path = location.pathname.split('/').pop();
-    setActiveTab(path || '');
-  }, [location]);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const navItems = [
     { id: '', icon: Home, label: 'Dashboard' },
     { id: 'events', icon: Calendar, label: 'Events' },
-    { id: 'viewAnalysis', icon: BarChart, label: 'View Analysis' },
-    { id: 'results', icon: FileText, label: 'Placement Results' }, 
-    { id: 'placement-drives', icon: Briefcase, label: 'Placement Drives' }, // Updated from addPlacementDrive
-    { id: 'aptitude-tests', icon: BarChart3, label: 'Aptitude test' },
-    { id: 'resources', icon: Users, label: 'resources' },
-    { id: 'advisorManagement', icon: FileText, label: 'advisor management' },
+    { id: 'viewAnalysis', icon: BarChart, label: 'Analysis' },
+    { id: 'results', icon: FileText, label: 'Results' },
+    { id: 'placement-drives', icon: Briefcase, label: 'Drives' },
+    { id: 'aptitude-tests', icon: BarChart3, label: 'Tests' },
+    { id: 'resources', icon: Users, label: 'Resources' },
+    { id: 'advisorManagement', icon: FileText, label: 'Advisors' },
   ];
 
-  const handleNavClick = (id) => {
-    setActiveTab(id);
-    navigate(`/Coordinator/${id}`);
-  };
+  const currentPath = location.pathname.split('/').pop() || '';
+  const displayRoute = currentPath === '' ? 'Dashboard' : currentPath.charAt(0).toUpperCase() + currentPath.slice(1).replace(/-/g, ' ');
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-950">
-      <Header currentRoute={`/Coordinator/${displayRoute}`} />
+    <div className="min-h-screen bg-primary-bg text-text-primary flex flex-col">
+      {/* Header */}
+      <Header />
 
-      <div className="flex flex-1 overflow-hidden">
-        {/* Side navigation */}
-        <div className="w-16 md:w-20 bg-gray-900 shadow-md py-4 flex flex-col items-center space-y-4 fixed h-full">
-          {navItems.map((item) => (
-            <div key={item.id} className="w-full flex flex-col items-center">
-              <button
-                onClick={() => handleNavClick(item.id)}
-                className={`p-3 rounded-lg transition-all duration-200 flex flex-col items-center ${
-                  activeTab === item.id
-                    ? 'bg-gray-800 text-gray-100'
-                    : 'text-gray-400 hover:bg-gray-800 hover:text-gray-300'
-                }`}
-                title={item.label}
-              >
-                <item.icon className="w-5 h-5" />
-                <span className="text-xs font-poppins font-light mt-1 hidden md:block text-center">
-                  {item.label.split(' ')[0]}
-                </span>
-              </button>
+      {/* Main Layout */}
+      <div className="flex-1 flex flex-col lg:flex-row">
+        {/* Sidebar - Fixed on lg screens, scrollable on smaller screens */}
+        <aside className="w-full lg:w-64 lg:fixed lg:top-[4rem] lg:left-0 lg:h-[calc(100vh-4rem)] bg-secondary-bg shadow-lg z-40 lg:overflow-y-auto">
+          <nav className="p-4 flex flex-col min-h-[calc(100vh-4rem)]">
+            <div className="space-y-2">
+              {navItems.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => navigate(`/Coordinator/${item.id}`)}
+                  className={`w-full flex items-center gap-3 p-3 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    currentPath === item.id
+                      ? 'bg-accent/20 text-accent border-l-4 border-accent'
+                      : 'text-text-secondary hover:bg-gray-700 hover:text-highlight'
+                  }`}
+                  aria-label={item.label}
+                >
+                  <item.icon
+                    size={20}
+                    className={currentPath === item.id ? 'text-accent' : 'text-text-secondary'}
+                  />
+                  <span>{item.label}</span>
+                </button>
+              ))}
             </div>
-          ))}
-        </div>
+          </nav>
+        </aside>
 
-        {/* Main content area */}
-        <main className="flex-1 overflow-y-auto bg-gray-950 p-4 ml-16 md:ml-20">
-          <div className="mx-auto max-w-7xl">
-            <div className="mb-4">
-              <h2 className="text-xl font-poppins font-bold text-gray-200">{displayRoute}</h2>
-              <p className="text-xs font-poppins font-light text-gray-500">
-                Coordinator Portal / {displayRoute}
-              </p>
-            </div>
-            <div className="bg-gray-900 rounded-lg shadow-md border border-gray-800 p-4">
-              <Outlet />
-            </div>
+        {/* Main Content */}
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 lg:ml-64">
+          <div className="max-w-7xl mx-auto">
+           
+            <Outlet />
           </div>
         </main>
       </div>
 
-      <Footer className="bg-gray-950 text-gray-500 py-3 px-6 border-t border-gray-800 text-center text-xs font-poppins" />
+      {/* Footer */}
+      
     </div>
   );
 };

@@ -4,14 +4,14 @@ import { Briefcase } from 'lucide-react';
 
 const Dashboard = ({ title, value, icon: Icon = Briefcase }) => {
   return (
-    <div className="bg-gradient-to-br from-[#00D4FF] to-[#FF00E0] text-[#1A2238] rounded-xl shadow-[0_8px_20px_rgba(0,212,255,0.5)] p-6 transition-all duration-300 hover:shadow-[0_12px_30px_rgba(255,0,224,0.7)] hover:scale-105 perspective-500">
+    <div className="bg-secondary-bg text-text-primary rounded-xl shadow-glass p-4 transition-all duration-300 hover:bg-gray-700 hover:shadow-lg hover:scale-105">
       <div className="flex items-center gap-4">
-        <div className="p-3 bg-[#0A0F1A]/50 rounded-full transform hover:rotate-45 transition-transform duration-300">
-          <Icon className="w-8 h-8 text-[#E0E7FF]" />
+        <div className="p-2 bg-accent rounded-full transform hover:rotate-12 transition-transform duration-300">
+          <Icon className="w-6 h-6 text-text-primary" />
         </div>
         <div>
-          <h3 className="text-lg font-orbitron font-semibold">{title}</h3>
-          <p className="text-3xl font-bold">{value}</p>
+          <h3 className="text-md font-semibold text-text-primary">{title}</h3>
+          <p className="text-2xl font-bold text-highlight">{value}</p>
         </div>
       </div>
     </div>

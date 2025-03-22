@@ -40,229 +40,124 @@ const Analytics = () => {
   useEffect(() => {
     const fetchResults = async () => {
       try {
-        // Don't look for userId in localStorage
-        // Instead, rely on the session cookie that's automatically sent
-        const response = await axios.get('/api/aptitude-tests/result/current', {
-          withCredentials: true // This ensures cookies are sent
-        });
-        
+        const response = await axios.get('/api/aptitude-tests/result/current', { withCredentials: true });
         setResults(response.data.results);
         setAnalytics(response.data.analytics);
         setLoading(false);
       } catch (err) {
-        if (err.response && err.response.status === 401) {
-          // Redirect to login if unauthorized
-          navigate('/login');
-        } else {
+        if (err.response?.status === 401) navigate('/login');
+        else {
           console.error('Error fetching analytics data:', err);
-          setError(err.message || 'Failed to load analytics data. Please try again later.');
+          setError(err.message || 'Failed to load analytics data.');
           setLoading(false);
         }
       }
     };
-  
     fetchResults();
   }, []);
 
   const prepareLineChartData = () => {
-    const sortedResults = [...results].sort((a, b) => 
-      new Date(a.submittedAt) - new Date(b.submittedAt)
-    );
-
+    const sortedResults = [...results].sort((a, b) => new Date(a.submittedAt) - new Date(b.submittedAt));
     return {
-      labels: sortedResults.map(result => 
-        new Date(result.submittedAt).toLocaleDateString()
-      ),
-      datasets: [
-        {
-          label: 'Score Percentage',
-          data: sortedResults.map(result => 
-            ((result.score / result.totalMarks) * 100).toFixed(2)
-          ),
-          borderColor: 'rgb(255, 99, 132)',
-          backgroundColor: 'rgba(255, 99, 132, 0.5)',
-          tension: 0.2
-        }
-      ]
+      labels: sortedResults.map(result => new Date(result.submittedAt).toLocaleDateString()),
+      datasets: [{
+        label: 'Score Percentage',
+        data: sortedResults.map(result => ((result.score / result.totalMarks) * 100).toFixed(2)),
+        borderColor: '#10B981',
+        backgroundColor: 'rgba(16, 185, 129, 0.5)',
+        tension: 0.2
+      }]
     };
   };
 
   const prepareBarChartData = () => {
     return {
       labels: results.map(result => result.test.title),
-      datasets: [
-        {
-          label: 'Score Percentage',
-          data: results.map(result => 
-            ((result.score / result.totalMarks) * 100).toFixed(2)
-          ),
-          backgroundColor: 'rgba(53, 162, 235, 0.5)',
-          borderColor: 'rgb(53, 162, 235)',
-          borderWidth: 1
-        }
-      ]
+      datasets: [{
+        label: 'Score Percentage',
+        data: results.map(result => ((result.score / result.totalMarks) * 100).toFixed(2)),
+        backgroundColor: 'rgba(96, 165, 250, 0.5)',
+        borderColor: '#60A5FA',
+        borderWidth: 1
+      }]
     };
   };
 
-  const lineChartOptions = {
+  const chartOptions = {
     responsive: true,
     plugins: {
-      legend: {
-        position: 'top',
-        labels: {
-          color: '#e2e8f0'
-        }
-      },
-      title: {
-        display: true,
-        text: 'Performance Over Time',
-        color: '#e2e8f0'
-      }
+      legend: { position: 'top', labels: { color: '#F1F5F9' } },
+      title: { display: true, color: '#F1F5F9' }
     },
     scales: {
-      y: {
-        min: 0,
-        max: 100,
-        ticks: {
-          color: '#e2e8f0'
-        },
-        grid: {
-          color: 'rgba(255, 255, 255, 0.1)'
-        }
-      },
-      x: {
-        ticks: {
-          color: '#e2e8f0'
-        },
-        grid: {
-          color: 'rgba(255, 255, 255, 0.1)'
-        }
-      }
+      y: { min: 0, max: 100, ticks: { color: '#94A3B8' }, grid: { color: 'rgba(255, 255, 255, 0.1)' } },
+      x: { ticks: { color: '#94A3B8' }, grid: { color: 'rgba(255, 255, 255, 0.1)' } }
     }
   };
 
-  const barChartOptions = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'top',
-        labels: {
-          color: '#e2e8f0'
-        }
-      },
-      title: {
-        display: true,
-        text: 'Performance by Test',
-        color: '#e2e8f0'
-      }
-    },
-    scales: {
-      y: {
-        min: 0,
-        max: 100,
-        ticks: {
-          color: '#e2e8f0'
-        },
-        grid: {
-          color: 'rgba(255, 255, 255, 0.1)'
-        }
-      },
-      x: {
-        ticks: {
-          color: '#e2e8f0'
-        },
-        grid: {
-          color: 'rgba(255, 255, 255, 0.1)'
-        }
-      }
-    }
-  };
+  const lineChartOptions = { ...chartOptions, plugins: { ...chartOptions.plugins, title: { ...chartOptions.plugins.title, text: 'Performance Over Time' } } };
+  const barChartOptions = { ...chartOptions, plugins: { ...chartOptions.plugins, title: { ...chartOptions.plugins.title, text: 'Performance by Test' } } };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#0f1218] p-6 flex justify-center items-center">
-        <div className="text-gray-200">Loading analytics data...</div>
+  if (loading) return <div className="min-h-screen bg-primary-bg flex justify-center items-center text-text-secondary animate-pulse">Loading analytics data...</div>;
+
+  if (error) return (
+    <div className="min-h-screen bg-primary-bg p-4 sm:p-6 flex flex-col items-center font-sans">
+      <div className="w-full max-w-4xl bg-secondary-bg rounded-xl p-6 shadow-glass text-text-primary">
+        <h2 className="text-xl font-semibold text-error mb-4">Error</h2>
+        <p className="text-text-secondary mb-6">{error}</p>
+        <button onClick={() => navigate('/student/aptitude-tests')} className="bg-gradient-to-r from-highlight to-accent hover:from-accent hover:to-highlight text-text-primary px-4 py-2 rounded-lg flex items-center transition-all duration-300 hover:scale-105">
+          <ArrowLeft className="mr-2" size={18} /> Back to Tests
+        </button>
       </div>
-    );
-  }
+    </div>
+  );
 
-  if (error) {
-    return (
-      <div className="min-h-screen bg-[#0f1218] p-6 flex flex-col items-center">
-        <div className="w-full max-w-4xl bg-[#1a1f2c] rounded-lg p-6 text-gray-200">
-          <h2 className="text-xl font-semibold text-red-500 mb-4">Error</h2>
-          <p>{error}</p>
-          <button 
-            onClick={() => navigate('/student/aptitude-tests')}
-            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded mt-4 flex items-center"
-          >
-            <ArrowLeft className="mr-2" size={18} />
-            Back to Tests
+  if (results.length === 0) return (
+    <div className="min-h-screen bg-primary-bg p-4 sm:p-6 flex flex-col items-center font-sans">
+      <div className="w-full max-w-4xl bg-secondary-bg rounded-xl p-6 shadow-glass text-text-primary">
+        <h2 className="text-2xl font-semibold mb-6">Analytics Dashboard</h2>
+        <div className="bg-primary-bg rounded-lg p-6 flex flex-col items-center justify-center h-60">
+          <p className="text-text-secondary mb-4 text-center">You haven't attempted any quizzes yet.</p>
+          <button onClick={() => navigate('/student/aptitude-tests')} className="bg-gradient-to-r from-highlight to-accent hover:from-accent hover:to-highlight text-text-primary px-4 py-2 rounded-lg flex items-center transition-all duration-300 hover:scale-105">
+            Take a Quiz
           </button>
         </div>
       </div>
-    );
-  }
-
-  if (results.length === 0) {
-    return (
-      <div className="min-h-screen bg-[#0f1218] p-6 flex flex-col items-center">
-        <div className="w-full max-w-4xl bg-[#1a1f2c] rounded-lg p-6 text-gray-200">
-          <h2 className="text-2xl font-semibold mb-6">Analytics Dashboard</h2>
-          <div className="bg-[#0f1218] rounded-lg p-6 flex flex-col items-center justify-center h-60">
-            <p className="text-gray-400 mb-4 text-center">You haven't attempted any quizzes yet.</p>
-            <button 
-              onClick={() => navigate('/student/aptitude-tests')}
-              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded flex items-center"
-            >
-              Take a Quiz
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+    </div>
+  );
 
   return (
-    <div className="min-h-screen bg-[#0f1218] p-6 flex flex-col items-center">
+    <div className="min-h-screen bg-primary-bg p-4 sm:p-6 flex flex-col items-center font-sans">
       <div className="w-full max-w-6xl">
-        <div className="bg-[#1a1f2c] rounded-lg p-6 text-gray-200 mb-6">
-          <h2 className="text-2xl font-semibold mb-6">Performance Analytics</h2>
+        <div className="bg-secondary-bg rounded-xl p-6 shadow-glass text-text-primary mb-6 animate-fade-in">
+          <h2 className="text-2xl sm:text-3xl font-semibold mb-6">Performance Analytics</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <div className="bg-[#0f1218] rounded-lg p-4 flex items-center">
-              <Layers className="text-blue-400 mr-4" size={32} />
-              <div>
-                <p className="text-gray-400 text-sm">Total Quizzes</p>
-                <p className="text-2xl font-semibold">{analytics.totalAttempts}</p>
+            {[
+              { Icon: Layers, label: 'Total Quizzes', value: analytics.totalAttempts, color: 'text-highlight' },
+              { Icon: Award, label: 'Highest Score', value: `${analytics.highestScore}%`, color: 'text-accent' },
+              { Icon: TrendingUp, label: 'Average Score', value: `${analytics.averageScore.toFixed(2)}%`, color: 'text-yellow-400' }
+            ].map(({ Icon, label, value, color }, idx) => (
+              <div key={idx} className="bg-primary-bg rounded-lg p-4 flex items-center shadow-glass">
+                <Icon className={`${color} mr-4`} size={32} />
+                <div>
+                  <p className="text-text-secondary text-sm">{label}</p>
+                  <p className="text-2xl font-semibold">{value}</p>
+                </div>
               </div>
-            </div>
-            <div className="bg-[#0f1218] rounded-lg p-4 flex items-center">
-              <Award className="text-yellow-400 mr-4" size={32} />
-              <div>
-                <p className="text-gray-400 text-sm">Highest Score</p>
-                <p className="text-2xl font-semibold">{analytics.highestScore}%</p>
-              </div>
-            </div>
-            <div className="bg-[#0f1218] rounded-lg p-4 flex items-center">
-              <TrendingUp className="text-green-400 mr-4" size={32} />
-              <div>
-                <p className="text-gray-400 text-sm">Average Score</p>
-                <p className="text-2xl font-semibold">{analytics.averageScore.toFixed(2)}%</p>
-              </div>
-            </div>
+            ))}
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-            <div className="bg-[#0f1218] p-4 rounded-lg">
+            <div className="bg-primary-bg p-4 rounded-lg shadow-glass">
               {results.length > 1 ? (
                 <Line data={prepareLineChartData()} options={lineChartOptions} />
               ) : (
-                <div className="flex flex-col h-60 justify-center items-center text-gray-400">
+                <div className="flex flex-col h-60 justify-center items-center text-text-secondary">
                   <Calendar size={32} className="mb-2" />
                   <p>Need more quiz attempts to display trend data</p>
                 </div>
               )}
             </div>
-            <div className="bg-[#0f1218] p-4 rounded-lg">
+            <div className="bg-primary-bg p-4 rounded-lg shadow-glass">
               <Bar data={prepareBarChartData()} options={barChartOptions} />
             </div>
           </div>
@@ -271,25 +166,21 @@ const Analytics = () => {
             <div className="overflow-x-auto">
               <table className="w-full border-collapse">
                 <thead>
-                  <tr className="bg-[#0f1218]">
-                    <th className="p-2 text-left">Quiz</th>
-                    <th className="p-2 text-left">Date</th>
-                    <th className="p-2 text-right">Score</th>
-                    <th className="p-2 text-right">Percentage</th>
+                  <tr className="bg-primary-bg">
+                    <th className="p-2 text-left text-text-secondary">Quiz</th>
+                    <th className="p-2 text-left text-text-secondary">Date</th>
+                    <th className="p-2 text-right text-text-secondary">Score</th>
+                    <th className="p-2 text-right text-text-secondary">Percentage</th>
                   </tr>
                 </thead>
                 <tbody>
                   {results.slice(0, 5).map((result, index) => (
-                    <tr key={index} className="border-t border-gray-700">
+                    <tr key={index} className="border-t border-white/10 hover:bg-highlight/10 transition-all duration-300">
                       <td className="p-2 text-left">{result.test.title}</td>
                       <td className="p-2 text-left">{new Date(result.submittedAt).toLocaleDateString()}</td>
                       <td className="p-2 text-right">{result.score} / {result.totalMarks}</td>
                       <td className="p-2 text-right">
-                        <span className={
-                          (result.score / result.totalMarks) * 100 >= 60 
-                            ? 'text-green-400' 
-                            : 'text-red-400'
-                        }>
+                        <span className={(result.score / result.totalMarks) * 100 >= 60 ? 'text-accent' : 'text-error'}>
                           {((result.score / result.totalMarks) * 100).toFixed(2)}%
                         </span>
                       </td>
@@ -301,10 +192,9 @@ const Analytics = () => {
           </div>
           <button 
             onClick={() => navigate('/student/aptitude-tests')}
-            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded flex items-center"
+            className="bg-gradient-to-r from-highlight to-accent hover:from-accent hover:to-highlight text-text-primary px-4 py-2 rounded-lg flex items-center transition-all duration-300 hover:scale-105"
           >
-            <ArrowLeft className="mr-2" size={18} />
-            Back to Tests
+            <ArrowLeft className="mr-2" size={18} /> Back to Tests
           </button>
         </div>
       </div>

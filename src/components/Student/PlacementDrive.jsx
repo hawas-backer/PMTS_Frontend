@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Building, DollarSign, GraduationCap, Briefcase, Clock, MapPin, X, Calendar, Book, Users } from 'lucide-react';
-import RegistrationPlacement from './RegisterPlacement';
+import RegistrationPlacement from './RegistrationPlacement';
+
 const PlacementDrive = () => {
   const [selectedDrive, setSelectedDrive] = useState(null);
 
@@ -8,7 +9,7 @@ const PlacementDrive = () => {
     {
       title: 'Microsoft Corporation',
       description: 'Seeking final year B.Tech students from CS/IT branches',
-      icon: <Building className="w-6 h-6 text-blue-600" />,
+      icon: <Building className="w-6 h-6 text-highlight" />,
       type: 'Core Tech',
       date: '15th March 2025',
       time: '9:00 AM - 5:00 PM',
@@ -21,7 +22,7 @@ const PlacementDrive = () => {
     {
       title: 'Goldman Sachs',
       description: 'Open for all engineering branches with strong programming skills',
-      icon: <Briefcase className="w-6 h-6 text-green-600" />,
+      icon: <Briefcase className="w-6 h-6 text-accent" />,
       type: 'Tech + Finance',
       date: '18th March 2025',
       time: '10:00 AM - 4:00 PM',
@@ -34,7 +35,7 @@ const PlacementDrive = () => {
     {
       title: 'Amazon Web Services',
       description: 'Hiring from Computer Science and allied branches',
-      icon: <GraduationCap className="w-6 h-6 text-orange-500" />,
+      icon: <GraduationCap className="w-6 h-6 text-orange-400" />,
       type: 'Product',
       date: '20th March 2025',
       time: '9:30 AM - 6:00 PM',
@@ -46,64 +47,39 @@ const PlacementDrive = () => {
     }
   ];
 
-
-
-
-
   return (
-    <div>
-      <div className="min-h-screen bg-[#0B0F1A] p-6">
-        <div className="max-w-6xl">
-          <h1 className="text-2xl font-bold text-white mb-6">Placemnt Drive</h1>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {drives.map((drive, index) => (
-              <div key={index} className="bg-gray-800 rounded-xl p-6 transition-all transform hover:-translate-y-1 hover:shadow-xl flex flex-col">
-                <div className="flex items-center gap-3 mb-4">
-                  {drive.icon}
-                  <div>
-                    <h3 className="text-lg font-semibold text-white">
-                      {drive.title}
-                    </h3>
-                    <span className="text-xs text-blue-400">{drive.type}</span>
-                  </div>
+    <div className="min-h-screen bg-primary-bg p-4 sm:p-6 font-sans">
+      <div className="max-w-6xl mx-auto">
+        <h1 className="text-2xl sm:text-3xl font-bold text-text-primary mb-6 animate-fade-in">Placement Drives</h1>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {drives.map((drive, index) => (
+            <div key={index} className="bg-secondary-bg rounded-xl p-6 shadow-glass transition-all duration-300 hover:-translate-y-1 flex flex-col">
+              <div className="flex items-center gap-3 mb-4">
+                {drive.icon}
+                <div>
+                  <h3 className="text-lg font-semibold text-text-primary">{drive.title}</h3>
+                  <span className="text-xs text-highlight">{drive.type}</span>
                 </div>
-                <p className="text-gray-300 text-sm mb-4 flex-grow">
-                  {drive.description}
-                </p>
-                <div className="space-y-2 text-sm text-gray-400 mb-4">
-                  <div className="flex items-center gap-2">
-                    <Briefcase className="w-4 h-4" />
-                    <span>{drive.positions}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4" />
-                    <span>{drive.date}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <DollarSign className="w-4 h-4" />
-                    <span>{drive.package}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Book className="w-4 h-4" />
-                    <span>{drive.eligibility}</span>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setSelectedDrive(drive)}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 mt-auto"
-                >
-                  Register Now
-                </button>
               </div>
-            ))}
-          </div>
+              <p className="text-text-secondary text-sm mb-4 flex-grow line-clamp-2">{drive.description}</p>
+              <div className="space-y-2 text-sm text-text-secondary mb-4">
+                <div className="flex items-center gap-2"><Briefcase className="w-4 h-4" /> {drive.positions}</div>
+                <div className="flex items-center gap-2"><Calendar className="w-4 h-4" /> {drive.date}</div>
+                <div className="flex items-center gap-2"><DollarSign className="w-4 h-4" /> {drive.package}</div>
+                <div className="flex items-center gap-2"><Book className="w-4 h-4" /> {drive.eligibility}</div>
+              </div>
+              <button
+                onClick={() => setSelectedDrive(drive)}
+                className="w-full bg-gradient-to-r from-highlight to-accent hover:from-accent hover:to-highlight text-text-primary py-3 rounded-lg text-sm font-medium transition-all duration-300 hover:scale-105 mt-auto"
+              >
+                Register Now
+              </button>
+            </div>
+          ))}
         </div>
       </div>
       {selectedDrive && (
-        <RegistrationPlacement 
-          drive={selectedDrive} 
-          onClose={() => setSelectedDrive(null)} 
-        />
+        <RegistrationPlacement drive={selectedDrive} onClose={() => setSelectedDrive(null)} />
       )}
     </div>
   );

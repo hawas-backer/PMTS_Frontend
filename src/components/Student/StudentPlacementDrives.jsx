@@ -12,7 +12,6 @@ const StudentPlacementDrives = () => {
   const [errors, setErrors] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Redirect if user is not a student
   if (role !== 'Student') {
     return <Navigate to="/" replace />;
   }
@@ -26,11 +25,9 @@ const StudentPlacementDrives = () => {
     try {
       const response = await axios.get('/api/students/placements/me', { withCredentials: true });
       const studentDrives = response.data.eligibleDrives || [];
-
-      // Sort drives by createdAt (most recent first)
       const sortedDrives = studentDrives.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
       setDrives(sortedDrives);
-      setErrors([]); // Clear errors on success
+      setErrors([]);
     } catch (error) {
       console.error('Fetch error:', error.response?.data);
       setErrors([error.response?.data?.message || 'Error fetching placement drives']);
@@ -43,60 +40,55 @@ const StudentPlacementDrives = () => {
     try {
       const response = await axios.post(`/api/placement-drives/apply/${driveId}`, {}, { withCredentials: true });
       setMessage(response.data.message);
-      setErrors([]); // Clear errors on success
-      fetchDrives(); // Refresh drives to update status
+      setErrors([]);
+      fetchDrives();
     } catch (error) {
       console.error('Apply error:', error.response?.data);
       setErrors([error.response?.data?.message || 'Error applying to placement drive']);
     }
   };
 
-  // Status styling helper
   const getStatusStyle = (status) => {
     switch (status) {
-      case 'Pending':
-        return 'text-yellow-400';
-      case 'Accepted':
-        return 'text-green-400';
-      case 'Rejected':
-        return 'text-red-400';
-      case 'Not Applied':
-        return 'text-gray-400';
-      default:
-        return 'text-white';
+      case 'Pending': return 'text-yellow-400';
+      case 'Accepted': return 'text-accent'; // #10B981
+      case 'Rejected': return 'text-error'; // #F87171
+      case 'Not Applied': return 'text-text-secondary'; // #94A3B8
+      default: return 'text-text-primary'; // #F1F5F9
     }
   };
 
   return (
-    <div className="bg-[#0f1218] min-h-screen p-8 text-white">
-      <div className="max-w-6xl mx-auto">
-        <h2 className="text-2xl font-bold mb-6 text-center">Eligible Placement Drives</h2>
+    <div className="min-h-screen bg-primary-bg text-text-primary p-4 sm:p-6 md:p-8 font-sans">
+      <div className="max-w-7xl mx-auto">
+        <h2 className="text-2xl sm:text-3xl font-semibold mb-6 text-center animate-fade-in">
+          Eligible Placement Drives
+        </h2>
 
         {loading ? (
-          <p className="text-gray-400 text-center">Loading placement drives...</p>
+          <p className="text-text-secondary text-center animate-pulse">Loading placement drives...</p>
         ) : drives.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {drives.map((drive) => (
               <div
                 key={drive._id}
-                className="bg-[#1a2233] p-6 rounded-lg shadow-lg border border-[#2c3e50] hover:shadow-xl transition-shadow"
+                className="bg-secondary-bg p-6 rounded-xl shadow-glass border border-white/10 hover:-translate-y-1 transition-all duration-300"
               >
-                <h3 className="text-xl font-bold mb-2">{drive.companyName}</h3>
-                <p className="text-gray-400 mb-1">{drive.role}</p>
-                <p className="text-gray-400 mb-1">
-                Date: {drive.date ? new Date(drive.date).toLocaleDateString('en-GB') : 'N/A'}
+                <h3 className="text-xl font-semibold mb-2">{drive.companyName}</h3>
+                <p className="text-text-secondary mb-1 line-clamp-2">{drive.role}</p>
+                <p className="text-text-secondary mb-1">
+                  Date: {drive.date ? new Date(drive.date).toLocaleDateString('en-GB') : 'N/A'}
                 </p>
-                <p className="text-gray-400 mb-1">
-                  Min CGPA: {drive.minCGPA}, Max Backlogs: {drive.maxBacklogs}
+                <p className="text-text-secondary mb-4">
+                  Min CGPA: {drive.minCGPA} | Max Backlogs: {drive.maxBacklogs}
                 </p>
                 <p className="mb-4">
-                  Status:{' '}
-                  <span className={getStatusStyle(drive.status)}>{drive.status}</span>
+                  Status: <span className={getStatusStyle(drive.status)}>{drive.status}</span>
                 </p>
                 {drive.status === 'Not Applied' && (
                   <button
                     onClick={() => applyToDrive(drive._id)}
-                    className="w-full bg-blue-600 hover:bg-blue-700 py-2 px-4 rounded text-sm font-medium transition-colors"
+                    className="w-full bg-gradient-to-r from-highlight to-accent hover:from-accent hover:to-highlight text-text-primary py-2.5 px-4 rounded-lg text-sm font-medium transition-all duration-300 hover:scale-105"
                   >
                     Apply Now
                   </button>
@@ -105,20 +97,20 @@ const StudentPlacementDrives = () => {
             ))}
           </div>
         ) : (
-          <p className="text-gray-400 text-center">No eligible placement drives available.</p>
+          <p className="text-text-secondary text-center py-12">No eligible placement drives available.</p>
         )}
 
         {errors.length > 0 && (
-          <div className="mt-6 bg-red-600 bg-opacity-20 p-4 rounded">
+          <div className="mt-6 bg-error/20 p-4 rounded-xl animate-fade-in">
             {errors.map((error, index) => (
-              <p key={index} className="text-red-400">{error}</p>
+              <p key={index} className="text-error">{error}</p>
             ))}
           </div>
         )}
 
         {message && (
-          <div className="mt-6 bg-green-600 bg-opacity-20 p-4 rounded">
-            <p className="text-green-400">{message}</p>
+          <div className="mt-6 bg-accent/20 p-4 rounded-xl animate-fade-in">
+            <p className="text-accent">{message}</p>
           </div>
         )}
       </div>

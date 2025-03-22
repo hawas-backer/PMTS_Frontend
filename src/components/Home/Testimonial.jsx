@@ -1,46 +1,73 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 const images = import.meta.glob("/src/assets/testimonials/*.{png,jpg,jpeg}", { eager: true });
 
 const TestimonialCard = ({ name, title, batch, testimonial, imgSrc }) => {
   const [expanded, setExpanded] = useState(false);
-  
-  // Truncate the testimonial if it's too long
   const isLongTestimonial = testimonial.length > 200;
-  const truncatedText = isLongTestimonial && !expanded 
-    ? testimonial.substring(0, 200) + '...' 
-    : testimonial;
-  
+  const truncatedText = isLongTestimonial && !expanded ? testimonial.substring(0, 200) + "..." : testimonial;
+
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl">
-      <div className="p-6 flex flex-col md:flex-row gap-4">
+    <motion.div
+      className="relative bg-[var(--secondary-bg)] rounded-xl p-6 border border-blue-200"
+      whileHover={{ scale: 1.03 }}
+      transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+    >
+      <div className="absolute inset-0 opacity-10">
+        <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+          <path
+            d="M0,0 C30,50 70,50 100,0 V100 H0 Z"
+            fill="url(#gradient)"
+          />
+          <defs>
+            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#1E40AF" />
+              <stop offset="100%" stopColor="#3B82F6" />
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+
+      <div className="relative flex flex-col md:flex-row gap-6">
         <div className="w-full md:w-1/4 flex justify-center">
-          <div className="h-40 w-40 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
-            <img 
-              src={imgSrc || `/api/placeholder/150/150`} 
-              alt={`${name}`} 
+          <div className="h-32 w-32 rounded-full overflow-hidden bg-blue-50 border-2 border-[var(--primary-accent)]">
+            <img
+              src={imgSrc || `/api/placeholder/150/150`}
+              alt={`${name}`}
               className="h-full w-full object-cover"
+              loading="lazy"
             />
           </div>
         </div>
-        
         <div className="w-full md:w-3/4">
-          <h3 className="text-xl font-bold text-gray-800">{name}</h3>
-          <p className="text-sm font-medium text-blue-600">{title}</p>
-          {batch && <p className="text-sm text-gray-500 mb-3">{batch}</p>}
-          
-          <p className="text-gray-700 mb-2">{truncatedText}</p>
-          
-          {isLongTestimonial && (
-            <button 
-              onClick={() => setExpanded(!expanded)} 
-              className="text-blue-500 font-medium hover:text-blue-700 text-sm"
+          <h3 className="text-xl font-bold text-[var(--primary-text)]">{name}</h3>
+          <p className="text-sm font-medium text-[var(--secondary-accent)]">{title}</p>
+          {batch && <p className="text-sm text-[var(--muted-text)] mb-3">{batch}</p>}
+          <AnimatePresence initial={false}>
+            <motion.p
+              key={expanded ? "expanded" : "truncated"}
+              className="text-[var(--secondary-text)] mb-2"
+              initial={{ height: "auto", opacity: 1 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
             >
-              {expanded ? 'Read less' : 'Read more'}
-            </button>
+              {truncatedText}
+            </motion.p>
+          </AnimatePresence>
+          {isLongTestimonial && (
+            <motion.button
+              onClick={() => setExpanded(!expanded)}
+              className="text-[var(--link-text)] font-medium hover:text-[var(--highlight-color)] transition-colors duration-300"
+              whileHover={{ scale: 1.05 }}
+              aria-label={expanded ? "Read less" : "Read more"}
+            >
+              {expanded ? "Read less" : "Read more"}
+            </motion.button>
           )}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
@@ -105,23 +132,37 @@ const Testimonial = () => {
   ];
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h2 className="text-3xl font-bold text-center mb-8 text-black">Alumni Testimonials</h2>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {testimonials.map((testimonial, index) => (
-          <TestimonialCard 
-            key={index}
-            name={testimonial.name}
-            title={testimonial.title}
-            batch={testimonial.batch}
-            testimonial={testimonial.testimonial}
-            imgSrc={testimonial.imgSrc}
-          />
-        ))}
+    <motion.section
+      className="py-16 bg-[var(--primary-bg)] font-[Inter,Poppins,sans-serif]"
+      initial={{ opacity: 0, y: 50 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
+    >
+      <div className="container mx-auto px-4">
+        <motion.h2
+          className="text-4xl font-bold text-[var(--primary-text)] text-center mb-12 tracking-wide"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7 }}
+        >
+          Alumni Testimonials
+        </motion.h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {testimonials.map((testimonial, index) => (
+            <TestimonialCard
+              key={index}
+              name={testimonial.name}
+              title={testimonial.title}
+              batch={testimonial.batch}
+              testimonial={testimonial.testimonial}
+              imgSrc={testimonial.imgSrc}
+            />
+          ))}
+        </div>
       </div>
-    </div>
+    </motion.section>
   );
 };
 
-export default Testimonial;
+export default React.memo(Testimonial);

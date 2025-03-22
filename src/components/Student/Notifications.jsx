@@ -9,14 +9,8 @@ const Notifications = () => {
 
   const handleMarkAsRead = async (notificationId) => {
     try {
-      await axios.post(
-        'http://localhost:8080/notifications/mark-read',
-        { notificationId },
-        { withCredentials: true }
-      );
-      setNotifications(notifications.map(n =>
-        n._id === notificationId ? { ...n, read: true } : n
-      ));
+      await axios.post('http://localhost:8080/notifications/mark-read', { notificationId }, { withCredentials: true });
+      setNotifications(notifications.map(n => n._id === notificationId ? { ...n, read: true } : n));
       console.log('[NOTIFICATIONS] Marked as read:', notificationId);
     } catch (error) {
       console.error('Error marking notification as read:', error);
@@ -25,11 +19,7 @@ const Notifications = () => {
 
   const handleClear = async (notificationId) => {
     try {
-      const response = await axios.post(
-        'http://localhost:8080/notifications/clear',
-        { notificationId },
-        { withCredentials: true }
-      );
+      const response = await axios.post('http://localhost:8080/notifications/clear', { notificationId }, { withCredentials: true });
       setNotifications(response.data.notifications);
       console.log('[NOTIFICATIONS] Cleared:', notificationId);
     } catch (error) {
@@ -43,24 +33,24 @@ const Notifications = () => {
   };
 
   return (
-    <div className="p-6 bg-[#1a1f2c] text-gray-100 min-h-screen">
-      <h1 className="text-2xl font-bold mb-4">Notifications</h1>
+    <div className="p-4 sm:p-6 bg-primary-bg text-text-primary min-h-screen font-sans">
+      <h1 className="text-2xl sm:text-3xl font-bold mb-6 animate-fade-in">Notifications</h1>
       {notifications.length === 0 ? (
-        <p>No notifications available.</p>
+        <p className="text-text-secondary text-center py-12">No notifications available.</p>
       ) : (
         <ul className="space-y-4">
           {notifications.map((notification) => (
             <li
               key={notification._id}
-              className={`p-4 rounded-lg cursor-pointer ${
-                notification.read ? 'bg-gray-700' : 'bg-gray-600'
+              className={`p-4 rounded-xl cursor-pointer shadow-glass transition-all duration-300 ${
+                notification.read ? 'bg-secondary-bg' : 'bg-highlight/20 hover:bg-highlight/30'
               }`}
               onClick={() => handleClick(notification)}
             >
-              <div className="flex justify-between items-center">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                   <p className="text-sm">{notification.message}</p>
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-text-secondary mt-1">
                     {new Date(notification.createdAt).toLocaleString()}
                   </p>
                 </div>
@@ -69,7 +59,7 @@ const Notifications = () => {
                     e.stopPropagation();
                     handleClear(notification._id);
                   }}
-                  className="text-red-400 hover:text-red-300"
+                  className="text-error hover:text-error/80 transition-all duration-300"
                 >
                   Clear
                 </button>

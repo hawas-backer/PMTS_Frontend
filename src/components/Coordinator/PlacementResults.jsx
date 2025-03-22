@@ -19,13 +19,24 @@ const PlacementResults = () => {
   const [sortBy, setSortBy] = useState('companyName');
   const [sortDirection, setSortDirection] = useState('asc');
 
-  if (role !== 'Coordinator') {
-    return <Navigate to="/" replace />;
-  }
+  if (role !== 'Coordinator') return <Navigate to="/" replace />;
 
   useEffect(() => {
-    fetchCompletedDrives();
+    fetchAllYears();
+    fetchCompletedDrives(selectedYear);
   }, []);
+
+  const fetchAllYears = async () => {
+    try {
+      const response = await axios.get('/api/placement-drives/all', { withCredentials: true });
+      const completedDrives = response.data.filter(drive => drive.status === 'Completed');
+      const years = [...new Set(completedDrives.map(drive => new Date(drive.date).getFullYear()))].sort((a, b) => a - b);
+      console.log('All available years:', years);
+      setAvailableYears(years);
+    } catch (err) {
+      console.error('Error fetching all years:', err);
+    }
+  };
 
   const fetchCompletedDrives = async (year = null) => {
     try {
@@ -33,32 +44,43 @@ const PlacementResults = () => {
       const url = year ? `/api/placement-drives/all?year=${year}` : '/api/placement-drives/all';
       const response = await axios.get(url, { withCredentials: true });
       const completedDrives = response.data.filter(drive => drive.status === 'Completed');
-      
-      // Extract unique years from all drives (only on initial fetch)
-      if (!year) {
-        const years = [...new Set(response.data.map(drive => new Date(drive.date).getFullYear()))].sort((a, b) => b - a);
-        setAvailableYears(years);
-      }
 
-      // Transform data into the required format
+      console.log('Total drives fetched:', response.data.length);
+      console.log('Completed drives:', completedDrives.length);
+      const yearsWithCounts = completedDrives.reduce((acc, drive) => {
+        const year = new Date(drive.date).getFullYear();
+        acc[year] = (acc[year] || 0) + 1;
+        return acc;
+      }, {});
+      console.log('Years with completed drives:', yearsWithCounts);
+
+      console.log('Completed drives details:', completedDrives.map(d => ({
+        company: d.companyName,
+        role: d.role,
+        phases: d.phases,
+        hasFinalSelection: !!d.phases.find(p => p.name === 'Final Selection'),
+        shortlistedCount: d.phases.find(p => p.name === 'Final Selection')?.shortlistedStudents?.length || 0
+      })));
+
       const placementData = completedDrives.reduce((acc, drive) => {
+        const companyKey = `${drive.companyName} (${drive.role})`;
         const finalPhase = drive.phases.find(phase => phase.name === 'Final Selection');
-        if (finalPhase && finalPhase.shortlistedStudents.length > 0) {
-          const companyKey = `${drive.companyName} (${drive.role})`;
-          acc[companyKey] = {
-            date: drive.date,
-            students: finalPhase.shortlistedStudents.map((student, index) => ({
-              id: student._id,
-              name: student.name,
-              email: student.email,
-              registrationNumber: student.registrationNumber,
-              package: drive.package || 'N/A' // Use drive package if available
-            }))
-          };
-        }
+        acc[companyKey] = {
+          date: drive.date,
+          students: finalPhase && finalPhase.shortlistedStudents && finalPhase.shortlistedStudents.length > 0
+            ? finalPhase.shortlistedStudents.map(student => ({
+                id: student._id,
+                name: student.name,
+                email: student.email,
+                registrationNumber: student.registrationNumber,
+                package: drive.package || 'N/A'
+              }))
+            : []
+        };
         return acc;
       }, {});
 
+      console.log('Placement data set:', placementData);
       setPlacements(placementData);
       setLoading(false);
     } catch (err) {
@@ -80,7 +102,6 @@ const PlacementResults = () => {
       'Registration Number': student.registrationNumber,
       'Package': student.package
     }));
-
     const worksheet = XLSX.utils.json_to_sheet(excelData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Results');
@@ -124,46 +145,31 @@ const PlacementResults = () => {
 
   const sortedPlacements = () => {
     const entries = Object.entries(placements);
-    
     if (sortBy === 'companyName') {
-      return entries.sort((a, b) => {
-        return sortDirection === 'asc' 
-          ? a[0].localeCompare(b[0]) 
-          : b[0].localeCompare(a[0]);
-      });
+      return entries.sort((a, b) => sortDirection === 'asc' ? a[0].localeCompare(b[0]) : b[0].localeCompare(a[0]));
     } else if (sortBy === 'studentCount') {
-      return entries.sort((a, b) => {
-        return sortDirection === 'asc' 
-          ? a[1].students.length - b[1].students.length 
-          : b[1].students.length - a[1].students.length;
-      });
+      return entries.sort((a, b) => sortDirection === 'asc' ? a[1].students.length - b[1].students.length : b[1].students.length - a[1].students.length);
     } else if (sortBy === 'date') {
       return entries.sort((a, b) => {
         const dateA = new Date(a[1].date);
         const dateB = new Date(b[1].date);
-        return sortDirection === 'asc' 
-          ? dateA - dateB 
-          : dateB - dateA;
+        return sortDirection === 'asc' ? dateA - dateB : dateB - dateA;
       });
     }
-    
     return entries;
   };
 
   const filteredPlacements = () => {
     if (!searchTerm.trim()) return sortedPlacements();
-    
-    return sortedPlacements().filter(([company]) => 
-      company.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    return sortedPlacements().filter(([company]) => company.toLowerCase().includes(searchTerm.toLowerCase()));
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#0f1218]">
-        <div className="flex flex-col items-center">
-          <div className="w-16 h-16 border-t-4 border-blue-500 border-solid rounded-full animate-spin"></div>
-          <p className="mt-4 text-xl text-gray-200">Loading placement results...</p>
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center">
+        <div className="flex flex-col items-center text-white">
+          <div className="w-12 h-12 border-t-4 border-teal-500 border-solid rounded-full animate-spin"></div>
+          <p className="mt-4 text-lg">Loading placement results...</p>
         </div>
       </div>
     );
@@ -171,14 +177,11 @@ const PlacementResults = () => {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#0f1218]">
-        <div className="bg-red-500 bg-opacity-20 border border-red-500 p-6 rounded-lg max-w-lg">
-          <h3 className="text-xl font-bold text-red-400 mb-2">Error</h3>
-          <p className="text-gray-200">{error}</p>
-          <button 
-            onClick={() => fetchCompletedDrives()}
-            className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-          >
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center">
+        <div className="bg-gray-800/90 backdrop-blur-md p-4 rounded-lg shadow-lg border border-red-500/50 max-w-md">
+          <h3 className="text-lg font-bold text-red-400 mb-2">Error</h3>
+          <p className="text-gray-300">{error}</p>
+          <button onClick={() => fetchCompletedDrives()} className="mt-4 px-4 py-1.5 bg-teal-500 hover:bg-teal-600 text-white rounded-lg shadow-md transition-all duration-300">
             Retry
           </button>
         </div>
@@ -187,150 +190,125 @@ const PlacementResults = () => {
   }
 
   return (
-    <div className="p-6 bg-[#0f1218] min-h-screen w-full">
-      {/* Header with Stats */}
-      <div className="bg-[#1a1f2c] rounded-lg p-6 mb-6">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 p-4">
+      <div className="bg-gray-800/90 backdrop-blur-md shadow-xl rounded-lg border border-gray-700 p-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start gap-2 mb-4">
           <div>
-            <h2 className="text-2xl font-bold text-gray-200">Placement Results</h2>
-            <p className="text-gray-400 mt-1">
-              {Object.keys(placements).length} companies | {
-                Object.values(placements).reduce((total, company) => total + company.students.length, 0)
-              } students placed
+            <h2 className="text-2xl font-extrabold text-white bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text text-transparent">
+              Placement Results
+            </h2>
+            <p className="text-gray-400 text-sm mt-1">
+              {Object.keys(placements).length} companies | {Object.values(placements).reduce((total, company) => total + company.students.length, 0)} students placed
             </p>
           </div>
           
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mt-4 md:mt-0">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mt-2 sm:mt-0">
             <select
               value={selectedYear}
               onChange={(e) => handleYearChange(e.target.value)}
-              className="bg-[#0f1218] text-gray-200 p-2 rounded border border-gray-700 focus:border-blue-500 focus:outline-none"
+              className="bg-gray-800/80 border border-gray-700 rounded-lg px-2 py-1 text-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
               {availableYears.map(year => (
-                <option key={year} value={year}>{year}</option>
+                <option key={year} value={year} className="bg-gray-900 text-gray-200">{year}</option>
               ))}
             </select>
             <button
               onClick={downloadYearExcel}
-              className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition duration-200"
+              className="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white px-3 py-1.5 rounded-lg shadow-md transform hover:scale-105 transition-all duration-300 flex items-center text-sm"
             >
-              <Download size={18} />
-              Download {selectedYear} Results
+              <Download size={16} className="mr-1" /> Download {selectedYear} Results
             </button>
           </div>
         </div>
         
-        {/* Search and filters */}
-        <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex flex-col sm:flex-row gap-3 mb-4">
           <div className="relative flex-grow">
-            <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
+            <Search className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
             <input
               type="text"
               placeholder="Search companies..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-[#0f1218] text-gray-200 pl-10 pr-4 py-2 rounded border border-gray-700 focus:border-blue-500 focus:outline-none"
+              className="w-full pl-8 pr-3 py-1.5 bg-gray-800/80 border border-gray-700 rounded-lg text-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-300"
             />
           </div>
           
           <div className="flex gap-2">
-            <button 
-              onClick={() => toggleSort('companyName')}
-              className={`flex items-center gap-1 px-3 py-2 rounded border ${sortBy === 'companyName' ? 'border-blue-500 text-blue-400' : 'border-gray-700 text-gray-400'} hover:border-blue-500 hover:text-blue-400`}
-            >
-              Company
-              {sortBy === 'companyName' && (
-                sortDirection === 'asc' ? <ChevronUp size={16} /> : <ChevronDown size={16} />
-              )}
-            </button>
-            <button 
-              onClick={() => toggleSort('studentCount')}
-              className={`flex items-center gap-1 px-3 py-2 rounded border ${sortBy === 'studentCount' ? 'border-blue-500 text-blue-400' : 'border-gray-700 text-gray-400'} hover:border-blue-500 hover:text-blue-400`}
-            >
-              Students
-              {sortBy === 'studentCount' && (
-                sortDirection === 'asc' ? <ChevronUp size={16} /> : <ChevronDown size={16} />
-              )}
-            </button>
-            <button 
-              onClick={() => toggleSort('date')}
-              className={`flex items-center gap-1 px-3 py-2 rounded border ${sortBy === 'date' ? 'border-blue-500 text-blue-400' : 'border-gray-700 text-gray-400'} hover:border-blue-500 hover:text-blue-400`}
-            >
-              Date
-              {sortBy === 'date' && (
-                sortDirection === 'asc' ? <ChevronUp size={16} /> : <ChevronDown size={16} />
-              )}
-            </button>
+            {['companyName', 'studentCount', 'date'].map(key => (
+              <button
+                key={key}
+                onClick={() => toggleSort(key)}
+                className={`flex items-center gap-1 px-3 py-1.5 rounded-lg border text-sm ${sortBy === key ? 'border-teal-500 text-teal-400 bg-teal-500/10' : 'border-gray-700 text-gray-400 hover:border-teal-500 hover:text-teal-400'} transition-all duration-200`}
+              >
+                {key === 'companyName' ? 'Company' : key === 'studentCount' ? 'Students' : 'Date'}
+                {sortBy === key && (sortDirection === 'asc' ? <ChevronUp size={14} /> : <ChevronDown size={14} />)}
+              </button>
+            ))}
           </div>
         </div>
-      </div>
 
-      {/* Placement Cards */}
-      {filteredPlacements().length === 0 ? (
-        <div className="bg-[#1a1f2c] rounded-lg p-10 text-center">
-          <Filter size={40} className="mx-auto text-gray-500 mb-4" />
-          <p className="text-xl text-gray-300 mb-2">No placement results found</p>
-          <p className="text-gray-400 mb-4">
-            {searchTerm ? `No companies match "${searchTerm}"` : `No placement data available for ${selectedYear}`}
-          </p>
-          {searchTerm && (
-            <button 
-              onClick={() => setSearchTerm('')}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            >
-              Clear Search
-            </button>
-          )}
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredPlacements().map(([company, data]) => (
-            <div key={company} className="bg-[#1a1f2c] rounded-lg p-6 hover:shadow-lg hover:shadow-blue-900/10 transition duration-200 border border-transparent hover:border-blue-900/30">
-              <div className="flex items-start gap-4">
-                <div className="bg-blue-500 bg-opacity-20 p-3 rounded-lg">
-                  <Building2 className="text-blue-400" size={24} />
-                </div>
-                <div className="flex-grow">
-                  <h3 className="text-xl font-bold text-gray-200">{company}</h3>
-                  <div className="flex flex-wrap gap-3 mt-2">
-                    <div className="flex items-center gap-1.5 text-gray-400 bg-[#0f1218] px-2 py-1 rounded-full">
-                      <Users size={14} />
-                      <span className="text-sm">{data.students.length} students</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-gray-400 bg-[#0f1218] px-2 py-1 rounded-full">
-                      <Badge size={14} />
-                      <span className="text-sm">{new Date(data.date).toLocaleDateString()}</span>
+        {filteredPlacements().length === 0 ? (
+          <div className="bg-gray-800/80 backdrop-blur-md p-4 rounded-lg border border-gray-700 text-center">
+            <Filter size={32} className="mx-auto text-gray-400 mb-2" />
+            <p className="text-lg text-gray-300 mb-1">No placement results found</p>
+            <p className="text-gray-500 text-sm">
+              {searchTerm ? `No companies match "${searchTerm}"` : `No placement data available for ${selectedYear}`}
+            </p>
+            {searchTerm && (
+              <button
+                onClick={() => setSearchTerm('')}
+                className="mt-3 px-3 py-1 bg-teal-500 hover:bg-teal-600 text-white rounded-lg shadow-md transition-all duration-300 text-sm"
+              >
+                Clear Search
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredPlacements().map(([company, data]) => (
+              <div
+                key={company}
+                className="bg-gray-800/80 backdrop-blur-md p-4 rounded-lg border border-gray-700 hover:shadow-lg transition-shadow duration-300"
+              >
+                <div className="flex items-start gap-3">
+                  <div className="bg-teal-500/20 p-2 rounded-lg">
+                    <Building2 className="text-teal-400" size={20} />
+                  </div>
+                  <div className="flex-grow">
+                    <h3 className="text-lg font-bold text-white line-clamp-2">{company}</h3>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      <div className="flex items-center gap-1 text-gray-400 bg-gray-700/50 px-2 py-0.5 rounded-full text-xs">
+                        <Users size={12} /> {data.students.length} students
+                      </div>
+                      <div className="flex items-center gap-1 text-gray-400 bg-gray-700/50 px-2 py-0.5 rounded-full text-xs">
+                        <Badge size={12} /> {new Date(data.date).toLocaleDateString()}
+                      </div>
                     </div>
                   </div>
                 </div>
+                
+                <div className="flex gap-2 mt-4">
+                  <button
+                    onClick={() => setShowDetails(company)}
+                    className="flex-1 px-3 py-1 bg-gray-700 text-gray-300 rounded-lg shadow-md hover:bg-gray-600 transform hover:scale-105 transition-all duration-300 text-sm"
+                  >
+                    View Details
+                  </button>
+                  <button
+                    onClick={() => downloadCompanyExcel(company, data.students)}
+                    className="px-3 py-1 bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white rounded-lg shadow-md transform hover:scale-105 transition-all duration-300 flex items-center text-sm"
+                  >
+                    <Download size={14} className="mr-1" />
+                  </button>
+                </div>
               </div>
-              
-              <div className="flex gap-2 mt-6">
-                <button
-                  onClick={() => setShowDetails(company)}
-                  className="flex-1 bg-[#0f1218] text-gray-200 py-2.5 rounded hover:bg-[#161b22] transition duration-200"
-                >
-                  View Details
-                </button>
-                <button
-                  onClick={() => downloadCompanyExcel(company, data.students)}
-                  className="flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded hover:bg-blue-700 transition duration-200"
-                >
-                  <Download size={16} />
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+      </div>
 
-      {/* Detail Modal */}
       {showDetails && (
-        <DetailView
-          company={showDetails}
-          students={placements[showDetails].students}
-          onClose={() => setShowDetails(null)}
-        />
+        <DetailView company={showDetails} students={placements[showDetails].students} onClose={() => setShowDetails(null)} />
       )}
     </div>
   );
@@ -346,74 +324,68 @@ const DetailView = ({ company, students, onClose }) => {
   );
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-[#1a1f2c] rounded-lg w-full max-w-4xl max-h-[90vh] flex flex-col">
-        <div className="flex justify-between items-center p-6 border-b border-gray-700">
+    <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+      <div className="bg-gray-900/95 backdrop-blur-md rounded-xl p-3 w-full max-w-3xl shadow-2xl border border-gray-800 max-h-[80vh] overflow-y-auto">
+        <div className="flex justify-between items-center mb-2">
           <div>
-            <h3 className="text-2xl font-bold text-gray-200">{company}</h3>
-            <p className="text-gray-400 mt-1">{students.length} students placed</p>
+            <h3 className="text-lg font-extrabold text-white bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text text-transparent">
+              {company}
+            </h3>
+            <p className="text-gray-400 text-xs">{students.length} students placed</p>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-200 bg-[#0f1218] p-2 rounded-full"
+            className="text-gray-400 hover:text-white p-0.5 rounded-full hover:bg-gray-700 transition-colors duration-200"
           >
-            <X size={20} />
+            <X size={16} />
           </button>
         </div>
         
-        <div className="p-6 border-b border-gray-700">
-          <div className="relative">
-            <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
-            <input
-              type="text"
-              placeholder="Search students by name, email, or registration number..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-[#0f1218] text-gray-200 pl-10 pr-4 py-2 rounded border border-gray-700 focus:border-blue-500 focus:outline-none"
-            />
-          </div>
+        <div className="relative mb-2">
+          <Search className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+          <input
+            type="text"
+            placeholder="Search students..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-8 pr-3 py-1 bg-gray-800/80 border border-gray-700 rounded-lg text-gray-200 placeholder-gray-500 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-300"
+          />
         </div>
         
-        <div className="overflow-auto p-6 flex-grow">
+        <div className="space-y-2 max-h-[50vh] overflow-y-auto">
           {filteredStudents.length === 0 ? (
-            <div className="text-center py-10">
-              <p className="text-gray-400">No students match your search criteria</p>
+            <div className="text-center py-4 text-gray-400 text-sm">
+              No students match your search criteria
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredStudents.map((student) => (
-                <div key={student.id} className="bg-[#0f1218] p-5 rounded-lg hover:shadow-md hover:bg-[#11141d] transition duration-200 border border-gray-800">
-                  <div className="flex flex-col gap-2">
-                    <p className="text-gray-200 font-medium text-lg">{student.name}</p>
-                    <p className="text-gray-400 text-sm flex items-center gap-2">
-                      <span className="bg-blue-900 bg-opacity-30 text-blue-400 text-xs px-2 py-0.5 rounded">
-                        {student.registrationNumber}
-                      </span>
-                    </p>
-                    <p className="text-gray-400 text-sm mt-1">{student.email}</p>
-                    <p className="text-green-400 text-sm mt-2 font-medium">
-                      Package: {student.package}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
+            filteredStudents.map((student) => (
+              <div
+                key={student.id}
+                className="bg-gray-800/80 p-2 rounded-lg border border-gray-700 hover:shadow-md transition-shadow duration-200"
+              >
+                <p className="font-medium text-sm text-white line-clamp-1">{student.name}</p>
+                <p className="text-gray-400 text-xs mt-0.5">
+                  <span className="bg-teal-500/20 text-teal-400 text-[0.65rem] px-1.5 py-0.5 rounded">{student.registrationNumber}</span>
+                </p>
+                <p className="text-gray-400 text-xs mt-0.5 line-clamp-1">{student.email}</p>
+                <p className="text-green-400 text-xs mt-0.5 font-medium">Package: {student.package}</p>
+              </div>
+            ))
           )}
         </div>
         
-        <div className="border-t border-gray-700 p-4 flex justify-end">
+        <div className="flex justify-end gap-2 mt-2">
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 mr-3"
+            className="px-2 py-0.5 bg-gray-700 text-gray-300 rounded-lg shadow-md hover:bg-gray-600 transform hover:scale-105 transition-all duration-300 text-xs"
           >
             Close
           </button>
           <button
             onClick={() => downloadCompanyExcel(company, students)}
-            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+            className="px-2 py-0.5 bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white rounded-lg shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center text-xs"
           >
-            <Download size={16} />
-            Download List
+            <Download size={12} className="mr-1" /> Download
           </button>
         </div>
       </div>
