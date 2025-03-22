@@ -24,6 +24,14 @@ const StudentAddForm = () => {
   const [errors, setErrors] = useState([]);
   const [successMessage, setSuccessMessage] = useState('');
 
+  const branchOptions = [
+    'MECH',
+    'EEE',
+    'ECE',
+    'CSE',
+    'CIVIL',
+  ];
+
   // Redirect if not Advisor
   if (role !== 'Advisor') {
     return <Navigate to="/" replace />;
@@ -116,8 +124,20 @@ const StudentAddForm = () => {
             <input type="email" name="email" value={formData.email} onChange={handleInputChange} placeholder="Email" className="bg-[#2c3e50] text-white p-2 rounded" required />
             <input type="number" name="batch" value={formData.batch} onChange={handleInputChange} placeholder="Batch Year" className="bg-[#2c3e50] text-white p-2 rounded" required />
             <input type="text" name="registrationNumber" value={formData.registrationNumber} onChange={handleInputChange} placeholder="Registration Number" className="bg-[#2c3e50] text-white p-2 rounded" required />
-            <input type="text" name="branch" value={formData.branch} onChange={handleInputChange} placeholder="Branch" className="bg-[#2c3e50] text-white p-2 rounded" required />
-            <input type="number" name="semestersCompleted" value={formData.semestersCompleted} onChange={handleInputChange} placeholder="Semesters Completed" className="bg-[#2c3e50] text-white p-2 rounded" />
+            <select
+                    id="branch"
+                    name="branch"
+                    required
+                    value={formData.branch}
+                    onChange={handleInputChange}
+                    className={`bg-[#2c3e50] text-white p-2 rounded ${
+                      errors.branch ? 'border-red-500' : 'border-gray-600'
+                    }`}                  >
+                    <option value="">Select your branch</option>
+                    {branchOptions.map(branch => (
+                      <option key={branch} value={branch}>{branch}</option>
+                    ))}
+                  </select>            <input type="number" name="semestersCompleted" value={formData.semestersCompleted} onChange={handleInputChange} placeholder="Semesters Completed" className="bg-[#2c3e50] text-white p-2 rounded" />
             <input type="number" name="numberOfBacklogs" value={formData.numberOfBacklogs} onChange={handleInputChange} placeholder="Number of Backlogs" className="bg-[#2c3e50] text-white p-2 rounded" />
             <input type="tel" name="phoneNumber" value={formData.phoneNumber} onChange={handleInputChange} placeholder="Phone Number" className="bg-[#2c3e50] text-white p-2 rounded" />
             <input type="number" name="cgpa" value={formData.cgpa} onChange={handleInputChange} placeholder="CGPA (Optional)" step="0.01" className="bg-[#2c3e50] text-white p-2 rounded" />

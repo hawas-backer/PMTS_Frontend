@@ -2,6 +2,14 @@
 
 import React, { useState, useEffect } from 'react';
 
+const branchOptions = [
+  'MECH',
+  'EEE',
+  'ECE',
+  'CSE',
+  'CIVIL',
+];
+
 const AddAdvisorForm = ({ onSubmit, onCancel }) => {
   const [formData, setFormData] = useState({
     name: '',
@@ -124,15 +132,23 @@ const AddAdvisorForm = ({ onSubmit, onCancel }) => {
           
           <div className="mb-4">
             <label className="block text-gray-300 mb-2">Branch</label>
-            <input
-              type="text"
-              name="branch"
-              value={formData.branch}
-              onChange={handleChange}
-              className={`w-full px-3 py-2 bg-[#0f1218] border rounded ${
-                errors.branch ? 'border-red-500' : 'border-gray-600'
-              }`}
-            />
+
+                <div className="mt-1">
+                  <select
+                    id="branch"
+                    name="branch"
+                    required
+                    value={formData.branch}
+                    onChange={handleChange}
+                    className={`w-full px-3 py-2 bg-[#0f1218] border rounded ${
+                      errors.branch ? 'border-red-500' : 'border-gray-600'
+                    }`}                  >
+                    <option value="">Select your branch</option>
+                    {branchOptions.map(branch => (
+                      <option key={branch} value={branch}>{branch}</option>
+                    ))}
+                  </select>
+                </div>
             {errors.branch && <p className="text-red-500 text-sm mt-1">{errors.branch}</p>}
           </div>
           

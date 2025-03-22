@@ -24,12 +24,11 @@ const AlumniRegister = () => {
   const { register, verifyOTP } = useAuth();
   
   const branchOptions = [
-    'Mechanical',
-    'Electrical',
-    'Electronics',
-    'Computer Science',
-    'Civil',
-    'Information Technology'
+    'MECH',
+    'EEE',
+    'ECE',
+    'CSE',
+    'CIVIL',
   ];
   
   useEffect(() => {
