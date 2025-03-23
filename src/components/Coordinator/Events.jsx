@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Plus, Trash2, Users, Edit, X, Calendar, Clock, MapPin, User } from 'lucide-react';
 
+axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+
 const Events = () => {
   const [events, setEvents] = useState([]);
   const [showAddEvent, setShowAddEvent] = useState(false);
@@ -15,7 +17,7 @@ const Events = () => {
 
   const fetchEvents = async () => {
     try {
-      const res = await axios.get('http://localhost:8080/api/events', {
+      const res = await axios.get('/api/events', {
         withCredentials: true,
       });
       const eventsWithSafeData = res.data.map((event) => ({
@@ -32,7 +34,7 @@ const Events = () => {
     try {
       console.log('Event to be sent:', newEvent);
       const eventToAdd = { ...newEvent, registeredStudents: [] };
-      const response = await axios.post('http://localhost:8080/api/events', eventToAdd, {
+      const response = await axios.post('/api/events', eventToAdd, {
         withCredentials: true,
         headers: { 'Content-Type': 'application/json' },
       });
@@ -46,7 +48,7 @@ const Events = () => {
 
   const handleEditEvent = async (updatedEvent) => {
     try {
-      await axios.put(`http://localhost:8080/api/events/${updatedEvent._id}`, updatedEvent, {
+      await axios.put(`/api/events/${updatedEvent._id}`, updatedEvent, {
         withCredentials: true,
       });
       await fetchEvents();
@@ -59,7 +61,7 @@ const Events = () => {
   const handleDeleteEvent = async (id) => {
     if (!window.confirm('Are you sure you want to delete this event?')) return;
     try {
-      await axios.delete(`http://localhost:8080/api/events/${id}`, {
+      await axios.delete(`/api/events/${id}`, {
         withCredentials: true,
       });
       await fetchEvents();
@@ -339,9 +341,10 @@ const RegistrationsModal = ({ eventId, eventTitle, onClose }) => {
   const fetchRegistrations = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`http://localhost:8080/api/events/${eventId}/registrations`, {
+      const res = await axios.get(`/api/events/${eventId}/registrations`, {
         withCredentials: true,
       });
+      console.log("API Response:", res.data);
       setRegistrations(res.data.students || []);
       setEventDetails(res.data.event || {});
       setLoading(false);
@@ -353,7 +356,7 @@ const RegistrationsModal = ({ eventId, eventTitle, onClose }) => {
 
   const handleUnregister = async (studentId) => {
     try {
-      await axios.delete(`http://localhost:8080/api/events/${eventId}/registrations/${studentId}`, {
+      await axios.delete(`/api/events/${eventId}/registrations/${studentId}`, {
         withCredentials: true,
       });
       await fetchRegistrations();

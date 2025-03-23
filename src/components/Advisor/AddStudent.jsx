@@ -5,7 +5,7 @@ import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import { Navigate } from 'react-router-dom';
 
-axios.defaults.baseURL = 'http://localhost:8080';
+axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 const StudentAddForm = () => {
   const { user, role } = useAuth();
   const [formData, setFormData] = useState({

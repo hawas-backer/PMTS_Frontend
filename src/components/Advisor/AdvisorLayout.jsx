@@ -4,6 +4,7 @@ import Header from '../Header';
 import Footer from '../Footer';
 import { Home, ClipboardList, Pen, List, Menu } from 'lucide-react';
 
+
 const AdvisorLayout = () => {
   const [activeTab, setActiveTab] = useState('');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);

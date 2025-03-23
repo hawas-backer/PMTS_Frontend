@@ -5,7 +5,7 @@ import { Plus, Edit, Trash, Search } from 'lucide-react';
 import AddAdvisorForm from './AddAdvisorForm';
 import EditAdvisorForm from './EditAdvisorForm';
 
-const API_BASE_URL = 'http://localhost:8080';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
 const AdvisorManagement = () => {
   const { user } = useAuth();

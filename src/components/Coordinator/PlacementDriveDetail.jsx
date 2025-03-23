@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
-axios.defaults.baseURL = 'http://localhost:8080';
+axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
 const PlacementDriveDetail = () => {
   const { role } = useAuth();
@@ -123,7 +123,7 @@ const PlacementDriveDetail = () => {
 
   const handleDownloadTemplate = async () => {
     try {
-      const response = await axios.post('http://localhost:8080/api/placement-drives/template', {}, {
+      const response = await axios.post('/api/placement-drives/template', {}, {
         withCredentials: true,
         responseType: 'blob'
       });

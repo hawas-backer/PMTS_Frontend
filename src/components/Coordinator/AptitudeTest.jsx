@@ -3,6 +3,8 @@ import { Plus, Edit, Trash2, ChevronDown, ChevronUp, Search, Filter } from 'luci
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
+axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+
 const AptitudeTest = () => {
   const navigate = useNavigate();
   const [tests, setTests] = useState([]);

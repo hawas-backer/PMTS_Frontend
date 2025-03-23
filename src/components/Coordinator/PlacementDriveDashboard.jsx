@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { Plus, Briefcase, Calendar, Users, Search, Filter, Check, X, ChevronDown, ChevronUp, Award } from 'lucide-react';
 
-axios.defaults.baseURL = 'http://localhost:8080';
+axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
 const PlacementDriveDashboard = () => {
   const { role } = useAuth();

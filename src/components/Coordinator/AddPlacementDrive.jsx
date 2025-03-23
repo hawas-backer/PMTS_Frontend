@@ -4,6 +4,9 @@ import Card from '../ui/Card';
 import Button from '../ui/Button';
 import Modal from '../ui/Modal';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+
+
 const AddPlacementDrive = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -22,7 +25,7 @@ const AddPlacementDrive = () => {
   const [success, setSuccess] = useState('');
 
   const commonBranches = [
-    'Computer Science', 'Information Technology', 'Electronics',
+    'Computer Science', 'Electronics',
     'Electrical', 'Mechanical', 'Civil', 'Chemical',
   ];
 
@@ -66,7 +69,7 @@ const AddPlacementDrive = () => {
     }
 
     try {
-      const response = await fetch('/api/placement-drives', {
+      const response = await fetch(`${API_BASE_URL}/api/placement-drives`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),

@@ -4,6 +4,8 @@ import axios from 'axios';
 import { Plus, Trash2, ArrowLeft, Eye, Download } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
+axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+
 const CreateTest = () => {
   const navigate = useNavigate();
   const { id } = useParams();
