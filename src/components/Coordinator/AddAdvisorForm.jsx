@@ -80,7 +80,7 @@ const AddAdvisorForm = ({ onSubmit, onCancel }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+    <div className="fixed  inset-0 bg-black bg-opacity-60 flex items-start justify-center  z-50">
       <div className="bg-gray-900/95 backdrop-blur-md rounded-xl p-4 w-full max-w-md shadow-2xl border border-gray-800">
         <h2 className="text-xl font-extrabold text-white bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text text-transparent mb-4">
           Add New Advisor
@@ -137,7 +137,7 @@ const AddAdvisorForm = ({ onSubmit, onCancel }) => {
                     required
                     value={formData.branch}
                     onChange={handleChange}
-                    className={`w-full px-3 py-2 bg-[#0f1218] border rounded ${
+                    className={`w-full px-3 py-2 bg-gray-800/80 border  rounded ${
                       errors.branch ? 'border-red-500' : 'border-gray-600'
                     }`}                  >
                     <option value="">Select your branch</option>

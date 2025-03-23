@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import axios from 'axios';
-import { Plus, Trash2, ArrowLeft, Eye } from 'lucide-react';
+import { Plus, Trash2, ArrowLeft, Eye, Download } from 'lucide-react';
+import * as XLSX from 'xlsx';
 
 const CreateTest = () => {
   const navigate = useNavigate();
@@ -23,6 +24,8 @@ const CreateTest = () => {
   const [questionErrors, setQuestionErrors] = useState([]);
   const [totalMarks, setTotalMarks] = useState(1);
   const [showPreview, setShowPreview] = useState(false);
+  const [excelUploadFile, setExcelUploadFile] = useState(null);
+  const [exportLoading, setExportLoading] = useState(false);
 
   useEffect(() => {
     if (isEditMode && testData) {
@@ -156,6 +159,209 @@ const CreateTest = () => {
     }
   };
 
+  // Export test to Excel
+  const exportToExcel = () => {
+    try {
+      setExportLoading(true);
+      
+      // Create worksheets for test info and questions
+      const testInfoWS = XLSX.utils.json_to_sheet([{
+        Title: formData.title,
+        Description: formData.description,
+        Duration: formData.duration + ' minutes',
+        Date: formData.createdAt,
+        'Total Questions': formData.questions.length,
+        'Total Marks': totalMarks
+      }]);
+      
+      // Create questions worksheet data
+      const questionsData = formData.questions.map((q, index) => ({
+        'Question Number': index + 1,
+        'Question Text': q.question,
+        'Option A': q.options[0],
+        'Option B': q.options[1],
+        'Option C': q.options[2],
+        'Option D': q.options[3],
+        'Correct Option': String.fromCharCode(65 + q.correctOption), // Convert 0,1,2,3 to A,B,C,D
+        'Marks': q.marks
+      }));
+      
+      const questionsWS = XLSX.utils.json_to_sheet(questionsData);
+      
+      // Create workbook with multiple sheets
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, testInfoWS, 'Test Information');
+      XLSX.utils.book_append_sheet(wb, questionsWS, 'Questions');
+      
+      // Generate Excel file name
+      const fileName = `${formData.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_aptitude_test.xlsx`;
+      
+      // Write and download the file
+      XLSX.writeFile(wb, fileName);
+      setExportLoading(false);
+    } catch (error) {
+      console.error('Error exporting to Excel:', error);
+      setErrorMessage('Failed to export test to Excel');
+      setExportLoading(false);
+    }
+  };
+
+  // Import from Excel file
+  const handleExcelUpload = (e) => {
+    setExcelUploadFile(e.target.files[0]);
+  };
+
+  const processExcelImport = async () => {
+    if (!excelUploadFile) {
+      setErrorMessage('Please select an Excel file first');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const reader = new FileReader();
+      
+      reader.onload = (e) => {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          
+          // Read questions sheet
+          const questionsSheet = workbook.Sheets[workbook.SheetNames.find(name => 
+            name.toLowerCase().includes('question'))];
+          
+          if (!questionsSheet) {
+            setErrorMessage('Excel file format is incorrect. Questions sheet not found.');
+            setLoading(false);
+            return;
+          }
+          
+          const questionsData = XLSX.utils.sheet_to_json(questionsSheet);
+          
+          if (!questionsData.length) {
+            setErrorMessage('No questions found in the Excel file');
+            setLoading(false);
+            return;
+          }
+          
+          // Transform Excel data to our questions format
+          const questions = questionsData.map(row => {
+            // Determine correct option index (convert A,B,C,D to 0,1,2,3)
+            const correctOptionStr = String(row['Correct Option'] || '').trim().toUpperCase();
+            const correctOption = correctOptionStr.charCodeAt(0) - 65; // A=0, B=1, etc.
+            
+            return {
+              question: row['Question Text'] || '',
+              options: [
+                row['Option A'] || '',
+                row['Option B'] || '',
+                row['Option C'] || '',
+                row['Option D'] || ''
+              ],
+              correctOption: correctOption >= 0 && correctOption <= 3 ? correctOption : 0,
+              marks: Number(row['Marks']) || 1
+            };
+          });
+          
+          // Try to read test info sheet
+          const infoSheet = workbook.Sheets[workbook.SheetNames.find(name => 
+            name.toLowerCase().includes('information') || name.toLowerCase().includes('info'))];
+          
+          if (infoSheet) {
+            const infoData = XLSX.utils.sheet_to_json(infoSheet)[0] || {};
+            
+            // Update form data with test info if available
+            if (infoData.Title) setFormData(prev => ({ ...prev, title: infoData.Title }));
+            if (infoData.Description) setFormData(prev => ({ ...prev, description: infoData.Description }));
+            if (infoData.Duration) {
+              const duration = Number(String(infoData.Duration).replace(/\D/g, ''));
+              if (duration > 0) setFormData(prev => ({ ...prev, duration }));
+            }
+          }
+          
+          // Update form with imported questions
+          setFormData(prev => ({ ...prev, questions }));
+          setSuccessMessage(`Successfully imported ${questions.length} questions from Excel`);
+          setExcelUploadFile(null);
+          
+          // Reset file input
+          const fileInput = document.getElementById('excel-upload');
+          if (fileInput) fileInput.value = '';
+        } catch (error) {
+          console.error('Error processing Excel file:', error);
+          setErrorMessage('Failed to process Excel file. Please check the format.');
+        } finally {
+          setLoading(false);
+        }
+      };
+      
+      reader.onerror = () => {
+        setErrorMessage('Error reading the Excel file');
+        setLoading(false);
+      };
+      
+      reader.readAsArrayBuffer(excelUploadFile);
+    } catch (error) {
+      console.error('Excel import error:', error);
+      setErrorMessage('Failed to import from Excel');
+      setLoading(false);
+    }
+  };
+
+  // Download Template Excel file
+  const downloadExcelTemplate = () => {
+    try {
+      setExportLoading(true);
+      
+      // Create template for test info
+      const infoWS = XLSX.utils.json_to_sheet([{
+        Title: "Sample Aptitude Test",
+        Description: "Description of your test",
+        Duration: "60 minutes",
+        Date: new Date().toISOString().split('T')[0]
+      }]);
+      
+      // Create template for questions
+      const questionsData = [
+        {
+          'Question Number': 1,
+          'Question Text': 'Sample multiple choice question?',
+          'Option A': 'First option',
+          'Option B': 'Second option',
+          'Option C': 'Third option',
+          'Option D': 'Fourth option',
+          'Correct Option': 'A',
+          'Marks': 1
+        },
+        {
+          'Question Number': 2,
+          'Question Text': 'Another sample question?',
+          'Option A': 'Option 1',
+          'Option B': 'Option 2',
+          'Option C': 'Option 3',
+          'Option D': 'Option 4',
+          'Correct Option': 'B',
+          'Marks': 2
+        }
+      ];
+      
+      const questionsWS = XLSX.utils.json_to_sheet(questionsData);
+      
+      // Create workbook
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, infoWS, 'Test Information');
+      XLSX.utils.book_append_sheet(wb, questionsWS, 'Questions');
+      
+      // Write and download
+      XLSX.writeFile(wb, 'aptitude_test_template.xlsx');
+      setExportLoading(false);
+    } catch (error) {
+      console.error('Error creating template:', error);
+      setErrorMessage('Failed to create Excel template');
+      setExportLoading(false);
+    }
+  };
+
   if (loading && isEditMode) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center">
@@ -188,6 +394,65 @@ const CreateTest = () => {
         {errorMessage && (
           <div className="text-red-400 bg-red-500/10 p-3 rounded-lg mb-4">{errorMessage}</div>
         )}
+
+        {/* Excel Import/Export Section */}
+        <div className="mb-6 bg-gray-800/80 backdrop-blur-md p-4 rounded-lg border border-gray-700">
+          <h2 className="text-lg font-semibold text-white mb-4">Excel Import/Export</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Excel Export */}
+            <div className="space-y-2">
+              <h3 className="text-gray-400">Export Options</h3>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={exportToExcel}
+                  disabled={exportLoading}
+                  className="px-3 py-1.5 bg-blue-600/80 text-white rounded-lg shadow-md hover:bg-blue-700 transform hover:scale-105 transition-all duration-300 flex items-center text-sm"
+                >
+                  <Download size={16} className="mr-1" /> 
+                  {exportLoading ? 'Exporting...' : 'Export Test'}
+                </button>
+                <button
+                  type="button"
+                  onClick={downloadExcelTemplate}
+                  disabled={exportLoading}
+                  className="px-3 py-1.5 bg-purple-600/80 text-white rounded-lg shadow-md hover:bg-purple-700 transform hover:scale-105 transition-all duration-300 flex items-center text-sm"
+                >
+                  <Download size={16} className="mr-1" /> 
+                  {exportLoading ? 'Creating...' : 'Get Template'}
+                </button>
+              </div>
+            </div>
+            
+            {/* Excel Import */}
+            <div className="space-y-2">
+              <h3 className="text-gray-400">Import from Excel</h3>
+              <div className="flex flex-col gap-2">
+                <input
+                  type="file"
+                  id="excel-upload"
+                  accept=".xlsx,.xls"
+                  onChange={handleExcelUpload}
+                  className="block w-full text-sm text-gray-300
+                    file:mr-4 file:py-2 file:px-4
+                    file:rounded-lg file:border-0
+                    file:text-sm file:font-semibold
+                    file:bg-gray-700 file:text-gray-300
+                    hover:file:bg-gray-600"
+                />
+                <button
+                  type="button"
+                  onClick={processExcelImport}
+                  disabled={!excelUploadFile || loading}
+                  className="px-3 py-1.5 bg-green-600/80 text-white rounded-lg shadow-md hover:bg-green-700 transform hover:scale-105 transition-all duration-300 flex items-center justify-center text-sm"
+                >
+                  {loading ? 'Importing...' : 'Import Questions'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>

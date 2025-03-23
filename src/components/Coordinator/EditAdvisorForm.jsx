@@ -10,6 +10,15 @@ const EditAdvisorForm = ({ advisor, onSubmit, onCancel }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState({ type: '', text: '' });
 
+
+const branchOptions = [
+  'MECH',
+  'EEE',
+  'ECE',
+  'CSE',
+  'CIVIL',
+];
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -99,16 +108,20 @@ const EditAdvisorForm = ({ advisor, onSubmit, onCancel }) => {
 
           <div>
             <label className="block text-gray-300 font-medium text-sm mb-1">Branch</label>
-            <input
-              type="text"
-              name="branch"
-              value={formData.branch}
-              onChange={handleChange}
-              className={`w-full px-3 py-2 bg-gray-800/80 border ${
-                errors.branch ? 'border-red-500' : 'border-gray-700'
-              } rounded-lg text-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-300`}
-              placeholder="Enter branch (e.g., CSE)"
-            />
+            <select
+                    id="branch"
+                    name="branch"
+                    required
+                    value={formData.branch}
+                    onChange={handleChange}
+                    className={`w-full px-3 py-2 bg-gray-800/80 border  rounded ${
+                      errors.branch ? 'border-red-500' : 'border-gray-600'
+                    }`}                  >
+                    <option value="">Select your branch</option>
+                    {branchOptions.map(branch => (
+                      <option key={branch} value={branch}>{branch}</option>
+                    ))}
+                  </select>
             {errors.branch && (
               <p className="text-red-400 text-xs mt-1 animate-fade-in">{errors.branch}</p>
             )}
