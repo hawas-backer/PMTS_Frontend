@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Plus, Edit, Trash2, Briefcase, AlertCircle, Calendar, X, ExternalLink } from 'lucide-react';
 
+axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+
 const JobOpportunityModal = ({ onClose, onJobAdded, jobToEdit }) => {
   const [jobData, setJobData] = useState(
     jobToEdit
@@ -46,8 +48,8 @@ const JobOpportunityModal = ({ onClose, onJobAdded, jobToEdit }) => {
         applicationDeadline: jobData.applicationDeadline ? new Date(jobData.applicationDeadline).toISOString() : undefined,
       };
       const response = jobToEdit
-        ? await axios.put(`http://localhost:8080/api/jobs/${jobToEdit._id}`, submitData, { withCredentials: true })
-        : await axios.post('http://localhost:8080/api/jobs', submitData, { withCredentials: true });
+        ? await axios.put(`/api/jobs/${jobToEdit._id}`, submitData, { withCredentials: true })
+        : await axios.post('/api/jobs', submitData, { withCredentials: true });
       onJobAdded(response.data);
       setStatus('Job saved successfully!');
       setTimeout(() => {
@@ -151,7 +153,7 @@ export const ShareOpportunities = () => {
     const expiredJobs = jobsToCheck.filter((job) => job.applicationDeadline && new Date(job.applicationDeadline) < currentDate);
     if (expiredJobs.length > 0) {
       const deletePromises = expiredJobs.map((job) =>
-        axios.delete(`http://localhost:8080/api/jobs/${job._id}`, { withCredentials: true }).catch((err) => {
+        axios.delete(`/api/jobs/${job._id}`, { withCredentials: true }).catch((err) => {
           console.error(`Error deleting job ${job._id}:`, err);
           return null;
         })
@@ -174,7 +176,7 @@ export const ShareOpportunities = () => {
     const fetchJobs = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get('http://localhost:8080/api/jobs', { withCredentials: true });
+        const response = await axios.get('/api/jobs', { withCredentials: true });
         const jobData = Array.isArray(response.data) ? response.data : response.data.jobs || [];
         const filteredJobs = await checkAndDeleteExpiredJobs(jobData);
         setJobs(filteredJobs);
@@ -196,7 +198,7 @@ export const ShareOpportunities = () => {
 
   const handleDeleteJob = async (jobId) => {
     try {
-      await axios.delete(`http://localhost:8080/api/jobs/${jobId}`, { withCredentials: true });
+      await axios.delete(`/api/jobs/${jobId}`, { withCredentials: true });
       setJobs(jobs.filter((j) => j._id !== jobId));
     } catch (error) {
       console.error('Error deleting job:', error);

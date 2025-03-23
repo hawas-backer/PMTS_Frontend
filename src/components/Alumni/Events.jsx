@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Plus, Trash2, Users, Edit } from 'lucide-react';
 
+axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+
+
 const Events = () => {
   const [events, setEvents] = useState([]);
   const [showAddEvent, setShowAddEvent] = useState(false);
@@ -17,7 +20,7 @@ const Events = () => {
   const fetchEvents = async () => {
     setLoading(true);
     try {
-      const res = await axios.get('http://localhost:8080/api/events', { withCredentials: true });
+      const res = await axios.get('/api/events', { withCredentials: true });
       const eventsWithSafeData = res.data.map((event) => ({
         ...event,
         registeredStudents: event.registeredStudents || [],
@@ -33,7 +36,7 @@ const Events = () => {
   const handleAddEvent = async (newEvent) => {
     try {
       const eventToAdd = { ...newEvent, registeredStudents: [] };
-      await axios.post('http://localhost:8080/api/events', eventToAdd, {
+      await axios.post('/api/events', eventToAdd, {
         withCredentials: true,
         headers: { 'Content-Type': 'application/json' },
       });
@@ -46,7 +49,7 @@ const Events = () => {
 
   const handleEditEvent = async (updatedEvent) => {
     try {
-      await axios.put(`http://localhost:8080/api/events/${updatedEvent._id}`, updatedEvent, {
+      await axios.put(`/api/events/${updatedEvent._id}`, updatedEvent, {
         withCredentials: true,
       });
       fetchEvents();
@@ -58,7 +61,7 @@ const Events = () => {
 
   const handleDeleteEvent = async (id) => {
     try {
-      await axios.delete(`http://localhost:8080/api/events/${id}`, { withCredentials: true });
+      await axios.delete(`/api/events/${id}`, { withCredentials: true });
       fetchEvents();
     } catch (error) {
       console.error('Error deleting event:', error);
@@ -228,7 +231,7 @@ const RegistrationsModal = ({ eventId, eventTitle, onClose }) => {
   const fetchRegistrations = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`http://localhost:8080/api/events/${eventId}/registrations`, { withCredentials: true });
+      const res = await axios.get(`/api/events/${eventId}/registrations`, { withCredentials: true });
       setRegistrations(res.data.students || []);
       setEventDetails(res.data.event || {});
     } catch (error) {
@@ -240,7 +243,7 @@ const RegistrationsModal = ({ eventId, eventTitle, onClose }) => {
 
   const handleUnregister = async (studentId) => {
     try {
-      await axios.delete(`http://localhost:8080/api/events/${eventId}/registrations/${studentId}`, { withCredentials: true });
+      await axios.delete(`/api/events/${eventId}/registrations/${studentId}`, { withCredentials: true });
       fetchRegistrations();
     } catch (error) {
       console.error('Error unregistering student:', error);
