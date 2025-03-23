@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { ArrowLeft, Award, Check, X } from 'lucide-react';
-
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 const QuizResults = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -20,7 +20,7 @@ const QuizResults = () => {
     }
     const fetchResult = async () => {
       try {
-        const response = await axios.get(`/api/aptitude-tests/result/${id}`, { withCredentials: true });
+        const response = await axios.get(`${API_BASE_URL}/api/aptitude-tests/result/${id}`, { withCredentials: true });
         setResult(response.data);
         setLoading(false);
       } catch (err) {

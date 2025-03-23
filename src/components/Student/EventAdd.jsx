@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Calendar, Clock, MapPin, User, UserCheck, Info } from 'lucide-react';
-
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 const EventAdd = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -13,7 +13,7 @@ const EventAdd = () => {
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
-        const res = await axios.get('http://localhost:8080/auth/me', { withCredentials: true });
+        const res = await axios.get(`${API_BASE_URL}/auth/me`, { withCredentials: true });
         if (res.data?.user) setCurrentUser(res.data.user);
         else console.error('No user data returned from API:', res.data);
       } catch (error) {
@@ -30,7 +30,7 @@ const EventAdd = () => {
   const fetchEvents = async () => {
     setLoading(true);
     try {
-      const res = await axios.get('http://localhost:8080/api/events', { withCredentials: true });
+      const res = await axios.get(`${API_BASE_URL}/api/events`, { withCredentials: true });
       const eventsWithSafeData = res.data.map(event => ({ ...event, registeredStudents: event.registeredStudents || [] }));
       setEvents(eventsWithSafeData);
       const status = {};
@@ -50,7 +50,7 @@ const EventAdd = () => {
     try {
       setLoading(true);
       const res = await axios.put(
-        `http://localhost:8080/api/events/register/${eventId}`,
+        `${API_BASE_URL}/api/events/register/${eventId}`,
         { studentId: currentUser._id },
         { withCredentials: true }
       );

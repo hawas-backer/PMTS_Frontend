@@ -9,11 +9,11 @@ import CreateStudentAccount from './components/CreateStudentAccount';
 import CreateTest from './components/Coordinator/CreateTest';
 import HomePage from './pages/HomePage';
 import AlumniLayout from './components/Alumni/AlumniLayout';
-import ShareOpportunities from './components/alumni/ShareOpportunities';
-import ShareResources from './components/alumni/ShareResources';
+import ShareOpportunities from './components/Alumni/ShareOpportunities';
+import ShareResources from './components/Alumni/ShareResources';
 import Events from './components/Coordinator/Events';
-import Networking from './components/alumni/Networking';
-import Notifications from './components/student/Notifications'; // Ensure this import matches your file structure
+
+import Notifications from './components/Student/Notifications'; // Ensure this import matches your file structure
 import Feedback from './components/Alumni/Feedback';
 import StudentLayout from './components/Student/StudentLayout';
 import AdvisorLayout from './components/Advisor/AdvisorLayout';
@@ -98,7 +98,7 @@ const App = () => {
           <Route path="shareOpportunities" element={<ShareOpportunities />} />
           <Route path="shareResources" element={<ShareResources />} />
           <Route path="events" element={<Events />} />
-          <Route path="networking" element={<Networking />} />
+        
           <Route path="notifications" element={<Notifications />} /> {/* Updated to match sidebar */}
           <Route path="feedback" element={<Feedback />} />
         </Route>

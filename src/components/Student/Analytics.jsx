@@ -14,7 +14,7 @@ import {
   Legend 
 } from 'chart.js';
 import { ArrowLeft, Layers, TrendingUp, Award, Calendar } from 'lucide-react';
-
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -40,7 +40,7 @@ const Analytics = () => {
   useEffect(() => {
     const fetchResults = async () => {
       try {
-        const response = await axios.get('/api/aptitude-tests/result/current', { withCredentials: true });
+        const response = await axios.get(`${API_BASE_URL}/api/aptitude-tests/result/current`, { withCredentials: true });
         setResults(response.data.results);
         setAnalytics(response.data.analytics);
         setLoading(false);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FileText, Video, Link as LinkIcon, Download, Play } from 'lucide-react';
-
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 const getIcon = (type) => {
   switch (type) {
     case 'document': return <FileText className="w-6 h-6 text-highlight" />;
@@ -20,7 +20,7 @@ const ResourceAdd = () => {
     const fetchResources = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get('http://localhost:8080/api/resources', { withCredentials: true });
+        const response = await axios.get(`${API_BASE_URL}/api/resources`, { withCredentials: true });
         const resourceData = Array.isArray(response.data) ? response.data : response.data.resources || [];
         setResources(resourceData);
         setError(null);
@@ -41,11 +41,11 @@ const ResourceAdd = () => {
         window.open(resource.url, '_blank', 'noopener,noreferrer');
       } else {
         const response = await axios({
-          url: `http://localhost:8080/api/resources/download/${resource._id}`,
+          url: `${API_BASE_URL}/api/resources/download/${resource._id}`,
           method: 'GET',
           responseType: 'blob',
           withCredentials: true
-        });
+        })
         const blob = new Blob([response.data]);
         const link = document.createElement('a');
         link.href = window.URL.createObjectURL(blob);

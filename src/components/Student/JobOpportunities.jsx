@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Briefcase, AlertCircle, Calendar, ExternalLink } from 'lucide-react';
-
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 export const JobOpportunities = () => {
   const [jobs, setJobs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -16,7 +16,7 @@ export const JobOpportunities = () => {
     const fetchJobs = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get('http://localhost:8080/api/jobs', { withCredentials: true });
+        const response = await axios.get(`${API_BASE_URL}/api/jobs`, { withCredentials: true });
         const jobData = Array.isArray(response.data) ? response.data : response.data.jobs || [];
         setJobs(checkExpiredJobs(jobData));
         setError(null);

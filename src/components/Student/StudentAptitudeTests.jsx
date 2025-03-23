@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Calendar, Clock, FileText } from 'lucide-react';
-
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 const StudentAptitudeTests = () => {
   const navigate = useNavigate();
   const [tests, setTests] = useState([]);
@@ -27,7 +27,7 @@ const StudentAptitudeTests = () => {
   const fetchAvailableTests = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('/api/aptitude-tests/available', { withCredentials: true });
+      const response = await axios.get(`${API_BASE_URL}/api/aptitude-tests/available`, { withCredentials: true });
       setTests(response.data.tests);
       setFilteredTests(response.data.tests);
       setLoading(false);

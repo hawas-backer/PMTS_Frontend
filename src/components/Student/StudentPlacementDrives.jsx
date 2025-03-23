@@ -3,8 +3,7 @@ import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import { Navigate } from 'react-router-dom';
 
-axios.defaults.baseURL = 'http://localhost:8080';
-
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 const StudentPlacementDrives = () => {
   const { user, role } = useAuth();
   const [drives, setDrives] = useState([]);
@@ -23,7 +22,7 @@ const StudentPlacementDrives = () => {
   const fetchDrives = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('/api/students/placements/me', { withCredentials: true });
+      const response = await axios.get(`${API_BASE_URL}/api/students/placements/me`, { withCredentials: true });
       const studentDrives = response.data.eligibleDrives || [];
       const sortedDrives = studentDrives.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
       setDrives(sortedDrives);
@@ -38,7 +37,7 @@ const StudentPlacementDrives = () => {
 
   const applyToDrive = async (driveId) => {
     try {
-      const response = await axios.post(`/api/placement-drives/apply/${driveId}`, {}, { withCredentials: true });
+      const response = await axios.post(`${API_BASE_URL}/api/placement-drives/apply/${driveId}`, {}, { withCredentials: true });
       setMessage(response.data.message);
       setErrors([]);
       fetchDrives();

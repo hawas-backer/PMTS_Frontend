@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Clock, AlertTriangle, CheckCircle } from 'lucide-react';
-
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 const TakeQuiz = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -35,7 +35,7 @@ const TakeQuiz = () => {
   const fetchQuiz = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`/api/aptitude-tests/take/${id}`, { withCredentials: true });
+      const response = await axios.get(`${API_BASE_URL}/api/aptitude-tests/take/${id}`, { withCredentials: true });
       const quizData = response.data.test;
       setQuiz(quizData);
       setAnswers(Array(quizData.questions.length).fill(null));
@@ -92,7 +92,7 @@ const TakeQuiz = () => {
     if (timerRef.current) clearInterval(timerRef.current);
     try {
       setIsSubmitting(true);
-      const response = await axios.post(`/api/aptitude-tests/${id}/submit`, { answers }, { withCredentials: true });
+      const response = await axios.post(`${API_BASE_URL}/api/aptitude-tests/${id}/submit`, { answers }, { withCredentials: true });
       const resultId = response.data.result._id;
       navigate(`/student/quiz-results/${resultId}`, {
         state: { submissionResult: response.data.result, answers, quiz },

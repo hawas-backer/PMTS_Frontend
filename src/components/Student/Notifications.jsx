@@ -2,14 +2,14 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
-
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 const Notifications = () => {
   const { user, notifications, setNotifications } = useAuth();
   const navigate = useNavigate();
 
   const handleMarkAsRead = async (notificationId) => {
     try {
-      await axios.post('http://localhost:8080/notifications/mark-read', { notificationId }, { withCredentials: true });
+      await axios.post(`${API_BASE_URL}/notifications/mark-read`, { notificationId }, { withCredentials: true });
       setNotifications(notifications.map(n => n._id === notificationId ? { ...n, read: true } : n));
       console.log('[NOTIFICATIONS] Marked as read:', notificationId);
     } catch (error) {
@@ -19,7 +19,7 @@ const Notifications = () => {
 
   const handleClear = async (notificationId) => {
     try {
-      const response = await axios.post('http://localhost:8080/notifications/clear', { notificationId }, { withCredentials: true });
+      const response = await axios.post(`${API_BASE_URL}/notifications/clear`, { notificationId }, { withCredentials: true });
       setNotifications(response.data.notifications);
       console.log('[NOTIFICATIONS] Cleared:', notificationId);
     } catch (error) {
