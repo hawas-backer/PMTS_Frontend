@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Plus, Edit, Trash2, FileText, Video, Link as LinkIcon, Download, X, Search, Filter } from 'lucide-react';
 
-axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
-
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
+  ? `${import.meta.env.VITE_API_BASE_URL}/api` 
+  : 'http://localhost:8080/api';
+  
 const getIcon = (type) => {
   switch (type) {
     case 'document':
