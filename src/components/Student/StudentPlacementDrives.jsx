@@ -1,9 +1,11 @@
+// frontend/StudentPlacementDrives.jsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import { Navigate } from 'react-router-dom';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+
 const StudentPlacementDrives = () => {
   const { user, role } = useAuth();
   const [drives, setDrives] = useState([]);
@@ -22,7 +24,7 @@ const StudentPlacementDrives = () => {
   const fetchDrives = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/students/placements/me`, { withCredentials: true });
+      const response = await axios.get(`${API_BASE_URL}/api/placement-drives/placements/me`, { withCredentials: true });
       const studentDrives = response.data.eligibleDrives || [];
       const sortedDrives = studentDrives.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
       setDrives(sortedDrives);
@@ -53,6 +55,7 @@ const StudentPlacementDrives = () => {
       case 'Accepted': return 'text-accent'; // #10B981
       case 'Rejected': return 'text-error'; // #F87171
       case 'Not Applied': return 'text-text-secondary'; // #94A3B8
+      case 'Shortlisted': return 'text-accent'; // #10B981
       default: return 'text-text-primary'; // #F1F5F9
     }
   };
@@ -81,9 +84,21 @@ const StudentPlacementDrives = () => {
                 <p className="text-text-secondary mb-4">
                   Min CGPA: {drive.minCGPA} | Max Backlogs: {drive.maxBacklogs}
                 </p>
-                <p className="mb-4">
-                  Status: <span className={getStatusStyle(drive.status)}>{drive.status}</span>
+                <p className="mb-2">
+                  Application Status: <span className={getStatusStyle(drive.status)}>{drive.status}</span>
                 </p>
+                {drive.currentPhase && (
+                  <>
+                    <p className="mb-2">
+                      Current Phase: <span className="text-accent">{drive.currentPhase.name}</span>
+                    </p>
+                    <p className="mb-4">
+                      Phase Status: <span className={getStatusStyle(drive.studentPhaseStatus)}>
+                        {drive.studentPhaseStatus || 'Pending'}
+                      </span>
+                    </p>
+                  </>
+                )}
                 {drive.status === 'Not Applied' && (
                   <button
                     onClick={() => applyToDrive(drive._id)}
