@@ -190,12 +190,7 @@ const Analytics = () => {
               </table>
             </div>
           </div>
-          <button 
-            onClick={() => navigate('/student/aptitude-tests')}
-            className="bg-gradient-to-r from-highlight to-accent hover:from-accent hover:to-highlight text-text-primary px-4 py-2 rounded-lg flex items-center transition-all duration-300 hover:scale-105"
-          >
-            <ArrowLeft className="mr-2" size={18} /> Back to Tests
-          </button>
+  
         </div>
       </div>
     </div>
