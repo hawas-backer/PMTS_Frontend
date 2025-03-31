@@ -81,6 +81,19 @@ const TakeQuiz = () => {
     setProgress((answeredQuestions / quiz.questions.length) * 100);
   };
 
+  // New function to handle option click and prevent Chrome focus issues
+  const handleOptionClick = (questionIndex, selectedOption, event) => {
+    // Prevent default browser behavior
+    if (event) {
+      event.preventDefault();
+    }
+    handleAnswerSelect(questionIndex, selectedOption);
+    // Remove focus from the clicked element to prevent Chrome styling issues
+    if (document.activeElement) {
+      document.activeElement.blur();
+    }
+  };
+
   const handleSubmitClick = () => {
     const unansweredCount = answers.filter((a) => a === null).length;
     if (unansweredCount > 0) setConfirmSubmit(true);
@@ -150,7 +163,7 @@ const TakeQuiz = () => {
               </div>
               <div className="w-full h-2 bg-gray-700 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-highlight to-accent transition-all duration-300"
+                  className="h-full bg-gradient-to-r from-highlight to-accent transition-colors duration-300"
                   style={{ width: `${progress}%` }}
                 />
               </div>
@@ -176,11 +189,12 @@ const TakeQuiz = () => {
                 {question.options.map((option, optionIndex) => (
                   <label
                     key={optionIndex}
-                    className={`flex items-center p-3 rounded-lg cursor-pointer transition-all duration-300 ${
+                    className={`flex items-center p-3 rounded-lg cursor-pointer transition-colors duration-300 ${
                       answers[index] === optionIndex
                         ? 'bg-accent/20 border border-accent/50'
                         : 'hover:bg-highlight/10'
                     }`}
+                    onClick={(e) => handleOptionClick(index, optionIndex, e)}
                   >
                     <input
                       type="radio"
@@ -212,7 +226,7 @@ const TakeQuiz = () => {
           </div>
           <button
             onClick={handleSubmitClick}
-            className="w-full sm:w-auto bg-gradient-to-r from-highlight to-accent hover:from-accent hover:to-highlight text-text-primary px-6 py-2.5 rounded-lg flex items-center justify-center transition-all duration-300 hover:scale-105 disabled:opacity-50"
+            className="w-full sm:w-auto bg-gradient-to-r from-highlight to-accent hover:from-accent hover:to-highlight text-text-primary px-6 py-2.5 rounded-lg flex items-center justify-center transition-colors duration-300 hover:scale-105 disabled:opacity-50"
             disabled={isSubmitting}
           >
             {isSubmitting ? 'Submitting...' : 'Submit Quiz'}
@@ -230,13 +244,13 @@ const TakeQuiz = () => {
               <div className="flex flex-col sm:flex-row justify-end gap-4">
                 <button
                   onClick={() => setConfirmSubmit(false)}
-                  className="px-4 py-2 bg-gray-700 text-text-secondary rounded-lg hover:bg-gray-600 transition-all duration-300"
+                  className="px-4 py-2 bg-gray-700 text-text-secondary rounded-lg hover:bg-gray-600 transition-colors duration-300"
                 >
                   Continue Quiz
                 </button>
                 <button
                   onClick={submitQuiz}
-                  className="px-4 py-2 bg-gradient-to-r from-highlight to-accent hover:from-accent hover:to-highlight text-text-primary rounded-lg transition-all duration-300 hover:scale-105"
+                  className="px-4 py-2 bg-gradient-to-r from-highlight to-accent hover:from-accent hover:to-highlight text-text-primary rounded-lg transition-colors duration-300 hover:scale-105"
                 >
                   Submit Anyway
                 </button>
