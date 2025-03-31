@@ -1,10 +1,8 @@
-
 import React, { useState } from 'react';
 
 const PlacementDataPage = () => {
   const [activeYear, setActiveYear] = useState('2023-24');
   
-  // Sample data from the documents provided
   const placementData = {
     '2023-24': [
       { id: 1, name: 'Anaswara K P', qualification: 'B. Tech', specialisation: 'CE', company: 'Aarbee structures', package: 2.5 },
@@ -35,22 +33,21 @@ const PlacementDataPage = () => {
   const years = ['2023-24', '2021-22', '2020-21', '2019-20', '2018-19', '2017-18', '2016-17', '2015-16'];
 
   return (
-    <div className="min-h-screen bg-gray-50">
- 
+    <section className="py-20 bg-[var(--primary-bg)]">
+      <div className="container mx-auto px-4">
+        <h2 className="text-4xl font-bold text-[var(--primary-text)] text-center mb-12 bg-gradient-to-r from-[var(--primary-accent)] to-[var(--secondary-accent)] bg-clip-text text-transparent">
+          Placement Success Stories
+        </h2>
 
-
-
-
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">Placement Data</h2>
-
-        {/* Year Tabs */}
-        <div className="flex flex-wrap mb-4 border-b">
+        <div className="flex flex-wrap justify-center gap-2 mb-8 bg-[var(--secondary-bg)] p-4 rounded-xl shadow-lg">
           {years.map((year) => (
             <button
               key={year}
-              className={`px-4 py-2 ${activeYear === year ? 'border-b-2 border-blue-600 text-blue-600 font-semibold' : 'text-gray-600 hover:text-blue-600'}`}
+              className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                activeYear === year 
+                  ? 'bg-[var(--primary-accent)] text-white shadow-md' 
+                  : 'text-[var(--secondary-text)] hover:bg-[var(--primary-accent)]/10 hover:text-[var(--primary-accent)]'
+              }`}
               onClick={() => setActiveYear(year)}
             >
               {year}
@@ -58,47 +55,47 @@ const PlacementDataPage = () => {
           ))}
         </div>
 
-        {/* Placement Table */}
-        <div className="overflow-x-auto bg-white shadow-md rounded">
-          <div className="p-4 font-semibold text-gray-700">
-            List of students of Government College of Engineering Kannur placed in the year {activeYear}
+        <div className="bg-[var(--secondary-bg)] rounded-xl shadow-lg overflow-hidden border border-[var(--primary-accent)]/10">
+          <div className="p-6 bg-gradient-to-r from-[var(--primary-accent)] to-[var(--secondary-accent)] text-white">
+            <h3 className="text-xl font-semibold">
+              Placement Records {activeYear}
+            </h3>
+            <p className="text-sm mt-1">Government College of Engineering Kannur</p>
           </div>
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sl. No.</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Candidate Name</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Highest Qualification</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Specialisation</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Package (lakhs/annum)</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {placementData[activeYear] ? 
-                placementData[activeYear].map((student) => (
-                  <tr key={student.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{student.id}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{student.name}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{student.qualification}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{student.specialisation}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{student.company}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{student.package}</td>
-                  </tr>
-                )) : 
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-[var(--primary-bg)] text-[var(--secondary-text)]">
                 <tr>
-                  <td colSpan="6" className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                    No placement data available for {activeYear}
-                  </td>
+                  {['Sl. No.', 'Name', 'Qualification', 'Specialisation', 'Company', 'Package (LPA)'].map((header) => (
+                    <th key={header} className="px-6 py-4 text-left font-medium uppercase tracking-wider">
+                      {header}
+                    </th>
+                  ))}
                 </tr>
-              }
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-[var(--primary-bg)]">
+                {placementData[activeYear]?.map((student) => (
+                  <tr key={student.id} className="hover:bg-[var(--primary-bg)]/5 transition-colors duration-200">
+                    <td className="px-6 py-4">{student.id}</td>
+                    <td className="px-6 py-4 font-medium text-[var(--primary-text)]">{student.name}</td>
+                    <td className="px-6 py-4">{student.qualification}</td>
+                    <td className="px-6 py-4">{student.specialisation}</td>
+                    <td className="px-6 py-4">{student.company}</td>
+                    <td className="px-6 py-4 font-medium text-[var(--success-color)]">{student.package}</td>
+                  </tr>
+                )) || (
+                  <tr>
+                    <td colSpan="6" className="px-6 py-4 text-center text-[var(--muted-text)]">
+                      No placement data available for {activeYear}
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </main>
-
-      
-    </div>
+      </div>
+    </section>
   );
 };
 

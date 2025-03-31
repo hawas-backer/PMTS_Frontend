@@ -1,11 +1,10 @@
 import React, { useState, useEffect, lazy, Suspense } from "react";
 import { Link as RouterLink, useLocation } from "react-router-dom";
-import { Link, Element, scroller } from "react-scroll";
+import { Link, Element } from "react-scroll";
 import { Home, Users, Calendar, BookOpen, Mail, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import logo from "../../assets/gcek-transparent.png";
 
-// Lazy load components
 const Home1 = lazy(() => import("./Home"));
 const PlacementDataPage = lazy(() => import("./PlacementData"));
 const Recruiters = lazy(() => import("./Recruiters"));
@@ -28,8 +27,9 @@ const NavItem = ({ item, isActive, onClick }) => (
       smooth={true}
       offset={-100}
       duration={800}
-      className={`font-medium transition duration-300 flex items-center gap-2
-        ${isActive ? 'text-[var(--primary-accent)]' : 'text-[var(--primary-text)] opacity-80 hover:opacity-100'}`}
+      className={`font-medium transition duration-300 flex items-center gap-2 text-sm ${
+        isActive ? 'text-[var(--primary-accent)]' : 'text-[var(--primary-text)] opacity-90 hover:opacity-100'
+      }`}
       onClick={onClick}
     >
       <item.icon className="w-4 h-4" />
@@ -48,8 +48,6 @@ const HomeLayout = () => {
   const [activeSection, setActiveSection] = useState("home");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const location = useLocation();
 
   const navItems = [
     { label: "Home", icon: Home, href: "home" },
@@ -62,48 +60,31 @@ const HomeLayout = () => {
   ];
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
-      setScrollProgress((window.scrollY / totalHeight) * 100);
-    };
-
+    const handleScroll = () => setIsScrolled(window.scrollY > 50);
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Mobile menu handler
   const handleMenuToggle = () => {
     setIsMenuOpen(!isMenuOpen);
-    // Prevent body scroll when menu is open
     document.body.style.overflow = !isMenuOpen ? 'hidden' : 'unset';
   };
 
   return (
     <div className="min-h-screen text-[var(--primary-text)] bg-[var(--primary-bg)]">
-      {/* Skip to content link */}
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:p-2 focus:bg-[var(--primary-accent)] focus:text-white"
-      >
-        Skip to Content
-      </a>
-
-      {/* Header */}
       <header
-        className={`backdrop-blur-md py-4 sticky top-0 z-50 transition-all duration-300 
-          ${isScrolled ? "bg-[var(--secondary-bg)]/95 shadow-md" : "bg-[var(--secondary-bg)]/50"}`}
+        className={`fixed w-full top-0 z-50 transition-all duration-300 backdrop-blur-md ${
+          isScrolled ? "bg-[var(--header-bg)]/95 shadow-lg" : "bg-[var(--header-bg)]/70"
+        }`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            {/* Logo */}
             <motion.div className="flex items-center space-x-3" whileHover={{ scale: 1.05 }}>
-              <img src={logo} alt="GCEK Logo" className="h-10 w-10 object-contain rounded-full" />
-              <h1 className="text-lg font-semibold hidden sm:block">Placement Cell</h1>
+              <img src={logo} alt="GCEK Logo" className="h-12 w-12 object-contain rounded-full" />
+              <h1 className="text-lg font-semibold text-[var(--primary-text)] hidden sm:block">Placement Cell</h1>
             </motion.div>
 
-            {/* Desktop Navigation */}
-            <nav className="hidden lg:flex space-x-6">
+            <nav className="hidden lg:flex space-x-8">
               {navItems.map((item) => (
                 <NavItem
                   key={item.href}
@@ -114,45 +95,33 @@ const HomeLayout = () => {
               ))}
             </nav>
 
-            {/* Login Button */}
             <RouterLink to="/login">
               <motion.button
-                className="bg-[var(--primary-accent)] text-white px-4 py-2 rounded-md font-medium 
-                  hover:bg-[var(--secondary-accent)] transition-all duration-300 shadow-sm"
+                className="bg-[var(--primary-accent)] text-white px-5 py-2 rounded-full font-medium hover:bg-[var(--secondary-accent)] transition-all duration-300 text-sm"
                 whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
               >
                 Login
               </motion.button>
             </RouterLink>
 
-            {/* Mobile Menu Button */}
             <button
-              className="lg:hidden p-2 rounded-md hover:bg-[var(--secondary-bg)]"
+              className="lg:hidden p-2 rounded-md hover:bg-white/10"
               onClick={handleMenuToggle}
-              aria-label="Toggle menu"
             >
-              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              {isMenuOpen ? <X size={24} className="text-[var(--primary-text)]" /> : <Menu size={24} className="text-[var(--primary-text)]" />}
             </button>
           </div>
-
-          {/* Progress Bar */}
-          <motion.div 
-            className="absolute bottom-0 left-0 h-0.5 bg-[var(--primary-accent)]" 
-            style={{ width: `${scrollProgress}%` }}
-          />
         </div>
 
-        {/* Mobile Navigation */}
         <AnimatePresence>
           {isMenuOpen && (
             <motion.div
-              initial={{ opacity: 0, y: -10 }}
+              initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="lg:hidden absolute top-full left-0 right-0 bg-[var(--secondary-bg)] shadow-lg"
+              exit={{ opacity: 0, y: -20 }}
+              className="lg:hidden bg-[var(--header-bg)]/95 shadow-lg"
             >
-              <nav className="px-4 py-2 space-y-2">
+              <nav className="px-4 py-4 space-y-4">
                 {navItems.map((item) => (
                   <NavItem
                     key={item.href}
@@ -170,8 +139,7 @@ const HomeLayout = () => {
         </AnimatePresence>
       </header>
 
-      {/* Main Content */}
-      <main id="main-content">
+      <main className="pt-20">
         <Suspense fallback={<LoadingSpinner />}>
           {navItems.map((item) => (
             <Element key={item.href} name={item.href} id={item.href}>
@@ -186,9 +154,6 @@ const HomeLayout = () => {
           ))}
         </Suspense>
       </main>
-
-      {/* Rest of the footer code remains the same */}
-      {/* ... */}
     </div>
   );
 };
