@@ -61,6 +61,9 @@ import ProcedureL from './components/Landing/Procedure';
 import TestimonialL from './components/Landing/Testimonial';
 import HomeL from './components/Landing/Home';
 import HomeLayoutL from './components/Landing/HomeLayout';
+
+
+import PlacementDrives from './components/Advisor/PlacementDrives'; // Import the new component
 const App = () => {
   const router = createBrowserRouter(
     createRoutesFromElements(
@@ -173,6 +176,7 @@ const App = () => {
           <Route path="student-list" element={<StudentList />} />
           <Route path="edit-student/:id" element={<EditStudent />} />
           <Route path="notifications" element={<Notifications />} /> {/* Added Notifications route */}
+          <Route path="placement-drives" element={<PlacementDrives />} /> {/* New route */}
         </Route>
       </>
     )

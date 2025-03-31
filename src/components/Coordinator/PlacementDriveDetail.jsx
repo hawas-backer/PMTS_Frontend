@@ -154,6 +154,7 @@ const PlacementDriveDetail = () => {
     }
 
     const excelData = drive.applications.map(app => ({
+      'Branch': app.student.branch || 'N/A', // Include branch in export
       'Student Name': app.student.name,
       'Email': app.student.email,
       'Registration Number': app.student.registrationNumber,
@@ -178,6 +179,30 @@ const PlacementDriveDetail = () => {
     return latestPhase.shortlistedStudents.length;
   };
 
+  // Group applicants by branch
+  const groupApplicantsByBranch = () => {
+    if (!drive || !drive.applications || drive.applications.length === 0) {
+      return {};
+    }
+
+    const grouped = {};
+    drive.applications.forEach(app => {
+      const branch = app.student.branch || 'Unknown';
+      if (!grouped[branch]) {
+        grouped[branch] = [];
+      }
+      grouped[branch].push(app);
+    });
+
+    // Sort branches alphabetically
+    return Object.keys(grouped)
+      .sort((a, b) => a.localeCompare(b))
+      .reduce((acc, branch) => {
+        acc[branch] = grouped[branch];
+        return acc;
+      }, {});
+  };
+
   if (loading) return (
     <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-gray-900 to-gray-800">
       <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
@@ -191,6 +216,8 @@ const PlacementDriveDetail = () => {
       default: return 'bg-blue-500';
     }
   };
+
+  const groupedApplicants = groupApplicantsByBranch();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700">
@@ -278,41 +305,48 @@ const PlacementDriveDetail = () => {
             </button>
           </div>
           
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead className="bg-gradient-to-r from-gray-700 to-gray-600 text-white sticky top-0 z-10">
-                <tr>
-                  <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">Name</th>
-                  <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">Email</th>
-                  <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">Registration No.</th>
-                  <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-700">
-                {drive.applications?.length > 0 ? (
-                  drive.applications.map(app => (
-                    <tr key={app._id} className="hover:bg-gray-750 transition-colors duration-150">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-white">{app.student.name || 'N/A'}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{app.student.email || 'N/A'}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{app.student.registrationNumber || 'N/A'}</td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          app.status === 'Selected' ? 'bg-green-500 text-white' : 
-                          app.status === 'Rejected' ? 'bg-red-500 text-white' : 
-                          'bg-yellow-500 text-white'
-                        }`}>
-                          {app.status || 'Pending'}
-                        </span>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="4" className="px-6 py-4 text-center text-gray-400">No applicants found</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+          <div className="divide-y divide-gray-700">
+            {Object.keys(groupedApplicants).length > 0 ? (
+              Object.keys(groupedApplicants).map(branch => (
+                <div key={branch}>
+                  <div className="px-6 py-3 bg-gray-750">
+                    <h3 className="text-lg font-semibold text-indigo-300">{branch}</h3>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                      <thead className="bg-gradient-to-r from-gray-700 to-gray-600 text-white">
+                        <tr>
+                          <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">Name</th>
+                          <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">Email</th>
+                          <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">Registration No.</th>
+                          <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-700">
+                        {groupedApplicants[branch].map(app => (
+                          <tr key={app._id} className="hover:bg-gray-750 transition-colors duration-150">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-white">{app.student.name || 'N/A'}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{app.student.email || 'N/A'}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{app.student.registrationNumber || 'N/A'}</td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                app.status === 'Selected' ? 'bg-green-500 text-white' : 
+                                app.status === 'Rejected' ? 'bg-red-500 text-white' : 
+                                'bg-yellow-500 text-white'
+                              }`}>
+                                {app.status || 'Pending'}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="px-6 py-4 text-center text-gray-400">No applicants found</div>
+            )}
           </div>
         </div>
 
@@ -541,7 +575,7 @@ const PlacementDriveDetail = () => {
                     <div className="ml-3">
                       <h3 className="text-sm font-medium text-red-400">Attention Required</h3>
                       <p className="mt-2 text-sm text-red-300">
-                        Completing a placement drive is irreversible. This will mark the drive as completed and notify all selected students as of March 21, 2025.
+                        Completing a placement drive is irreversible. This will mark the drive as completed and notify all selected students as of March 29, 2025.
                       </p>
                     </div>
                   </div>
