@@ -36,7 +36,7 @@ const PlacementDataPage = () => {
     <section className="py-20 bg-[var(--primary-bg)]">
       <div className="container mx-auto px-4">
         <h2 className="text-4xl font-bold text-[var(--primary-text)] text-center mb-12 bg-gradient-to-r from-[var(--primary-accent)] to-[var(--secondary-accent)] bg-clip-text text-transparent">
-          Placement Success Stories
+          Placement Data
         </h2>
 
         <div className="flex flex-wrap justify-center gap-2 mb-8 bg-[var(--secondary-bg)] p-4 rounded-xl shadow-lg">
