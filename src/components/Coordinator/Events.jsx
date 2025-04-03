@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Plus, Trash2, Users, Edit, X, Calendar, Clock, MapPin, User } from 'lucide-react';
+import { Plus, Trash2, Users, Edit, X, Calendar, Clock, MapPin, User, Download } from 'lucide-react';
 
 axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
@@ -59,7 +59,7 @@ const Events = () => {
   };
 
   const handleDeleteEvent = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this event?')) return;
+    
     try {
       await axios.delete(`/api/events/${id}`, {
         withCredentials: true,
@@ -142,40 +142,53 @@ const Events = () => {
           ))}
         </div>
 
-        {showAddEvent && (
-          <EventFormModal
-            onClose={() => setShowAddEvent(false)}
-            onSubmit={handleAddEvent}
-            title="Add New Event"
-            buttonText="Add Event"
-          />
-        )}
-
-        {showEditEvent && (
-          <EventFormModal
-            onClose={() => setShowEditEvent(false)}
-            onSubmit={handleEditEvent}
-            title="Edit Event"
-            buttonText="Update Event"
-            eventData={selectedEvent}
-          />
-        )}
-
-        {showRegistrations && (
-          <RegistrationsModal
-            eventId={selectedEvent._id}
-            eventTitle={selectedEvent.title}
-            onClose={() => setShowRegistrations(false)}
-          />
-        )}
+        {/* Modals are now inserted at the document root level */}
       </div>
+      
+      {/* Modal Portals - moved outside the main container */}
+      {showAddEvent && (
+        <EventFormModal
+          onClose={() => setShowAddEvent(false)}
+          onSubmit={handleAddEvent}
+          title="Add New Event"
+          buttonText="Add Event"
+        />
+      )}
+
+      {showEditEvent && (
+        <EventFormModal
+          onClose={() => setShowEditEvent(false)}
+          onSubmit={handleEditEvent}
+          title="Edit Event"
+          buttonText="Update Event"
+          eventData={selectedEvent}
+        />
+      )}
+
+      {showRegistrations && (
+        <RegistrationsModal
+          eventId={selectedEvent._id}
+          eventTitle={selectedEvent.title}
+          onClose={() => setShowRegistrations(false)}
+        />
+      )}
     </div>
   );
 };
 
 const EventFormModal = ({ onClose, onSubmit, title, buttonText, eventData = null }) => {
-  const [formData, setFormData] = useState(
-    eventData || {
+  const [formData, setFormData] = useState(() => {
+    if (eventData) {
+      // Format the date properly for the date input
+      const formattedDate = eventData.date ? new Date(eventData.date).toISOString().split('T')[0] : '';
+      
+      return {
+        ...eventData,
+        date: formattedDate
+      };
+    }
+    
+    return {
       title: '',
       description: '',
       mentor: '',
@@ -184,9 +197,8 @@ const EventFormModal = ({ onClose, onSubmit, title, buttonText, eventData = null
       venue: '',
       maxParticipants: 100,
       registeredStudents: [],
-    }
-  );
-
+    };
+  });
   const handleChange = (e) => {
     const value =
       e.target.name === 'maxParticipants' ? parseInt(e.target.value) || '' : e.target.value;
@@ -196,6 +208,14 @@ const EventFormModal = ({ onClose, onSubmit, title, buttonText, eventData = null
   const handleSubmit = () => {
     onSubmit(formData);
   };
+
+  // Prevent scrolling when modal is open
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, []);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
@@ -336,6 +356,12 @@ const RegistrationsModal = ({ eventId, eventTitle, onClose }) => {
 
   useEffect(() => {
     fetchRegistrations();
+    
+    // Prevent scrolling when modal is open
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
   }, [eventId]);
 
   const fetchRegistrations = async () => {
@@ -365,9 +391,63 @@ const RegistrationsModal = ({ eventId, eventTitle, onClose }) => {
     }
   };
 
+  // Function to convert registrations data to CSV format
+  const convertToCSV = () => {
+    if (registrations.length === 0) return '';
+    
+    // Define CSV headers based on student data structure
+    const headers = ['Name', 'Registration No.', 'Department', 'Batch', 'Email', 'Phone'];
+    
+    // Create CSV content
+    let csvContent = headers.join(',') + '\n';
+    
+    // Add data rows
+    registrations.forEach(student => {
+      const row = [
+        student.name || 'N/A',
+        student.registrationNumber || 'N/A',
+        student.branch || 'N/A',
+        student.batch || 'N/A',
+        student.email || 'N/A',
+        student.phoneNumber || '-'
+      ].map(value => `"${value}"`).join(',');
+      
+      csvContent += row + '\n';
+    });
+    
+    return csvContent;
+  };
+
+  // Function to handle the download
+  const handleDownloadCSV = () => {
+    const csvContent = convertToCSV();
+    if (!csvContent) {
+      alert('No data to download');
+      return;
+    }
+    
+    // Create a blob from the CSV data
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    
+    // Create a download link
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    
+    // Set link properties
+    link.setAttribute('href', url);
+    link.setAttribute('download', `${eventTitle.replace(/\s+/g, '_')}_registrations.csv`);
+    link.style.visibility = 'hidden';
+    
+    // Append to document, trigger download and clean up
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
-      <div className="bg-gray-900/95 backdrop-blur-md rounded-xl p-4 w-full max-w-4xl shadow-2xl border border-gray-800 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 flex items-center justify-center z-50 mt-16">
+      <div className="bg-gray-900/95 backdrop-blur-md rounded-xl p-4 w-full max-w-4xl shadow-2xl border border-gray-800 max-h-[90vh] flex flex-col">
+        {/* Fixed section: Title and Event Details */}
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-xl font-extrabold text-white bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text text-transparent">
             Registrations: {eventTitle}
@@ -391,52 +471,69 @@ const RegistrationsModal = ({ eventId, eventTitle, onClose }) => {
           </div>
         </div>
 
-        {loading ? (
-          <div className="text-center py-6 text-gray-400 animate-pulse">Loading...</div>
-        ) : registrations.length > 0 ? (
-          <div className="overflow-x-auto rounded-lg border border-gray-700">
-            <table className="w-full text-left">
-              <thead className="bg-gradient-to-r from-gray-700 to-gray-600 text-white sticky top-0 z-10">
-                <tr>
-                  <th className="p-3 text-sm font-semibold">Name</th>
-                  <th className="p-3 text-sm font-semibold">Registration No.</th>
-                  <th className="p-3 text-sm font-semibold">Department</th>
-                  <th className="p-3 text-sm font-semibold">Batch</th>
-                  <th className="p-3 text-sm font-semibold">Email</th>
-                  <th className="p-3 text-sm font-semibold">Phone</th>
-                  <th className="p-3 text-sm font-semibold">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-700">
-                {registrations.map((student, index) => (
-                  <tr
-                    key={student._id}
-                    className={`${index % 2 === 0 ? 'bg-gray-800' : 'bg-gray-750'} hover:bg-gray-700 transition-colors duration-150`}
-                  >
-                    <td className="p-3 text-gray-200 text-sm">{student.name || 'N/A'}</td>
-                    <td className="p-3 text-gray-200 text-sm">{student.registrationNumber || 'N/A'}</td>
-                    <td className="p-3 text-gray-200 text-sm">{student.branch || 'N/A'}</td>
-                    <td className="p-3 text-gray-200 text-sm">{student.batch || 'N/A'}</td>
-                    <td className="p-3 text-gray-200 text-sm">{student.email || 'N/A'}</td>
-                    <td className="p-3 text-gray-200 text-sm">{student.phoneNumber || '-'}</td>
-                    <td className="p-3">
-                      <button
-                        onClick={() => handleUnregister(student._id)}
-                        className="text-red-400 hover:text-red-300 text-sm transition-colors duration-200"
-                      >
-                        Unregister
-                      </button>
-                    </td>
+        {/* Action buttons - Added Download button */}
+        <div className="mb-3 flex justify-end">
+          <button
+            onClick={handleDownloadCSV}
+            disabled={registrations.length === 0 || loading}
+            className={`flex items-center gap-1 px-3 py-1.5 rounded-lg shadow-md transform hover:scale-105 transition-all duration-300 text-sm
+              ${registrations.length === 0 || loading 
+                ? 'bg-gray-700 text-gray-400 cursor-not-allowed' 
+                : 'bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white'}`}
+          >
+            <Download size={14} /> Download CSV
+          </button>
+        </div>
+
+        {/* Scrollable section: Table or messages */}
+        <div className="flex-1 overflow-y-auto">
+          {loading ? (
+            <div className="text-center py-6 text-gray-400 animate-pulse">Loading...</div>
+          ) : registrations.length > 0 ? (
+            <div className="overflow-x-auto rounded-lg border border-gray-700">
+              <table className="w-full text-left">
+                <thead className="bg-gradient-to-r from-gray-700 to-gray-600 text-white sticky top-0 z-10">
+                  <tr>
+                    <th className="p-3 text-sm font-semibold">Name</th>
+                    <th className="p-3 text-sm font-semibold">Registration No.</th>
+                    <th className="p-3 text-sm font-semibold">Department</th>
+                    <th className="p-3 text-sm font-semibold">Batch</th>
+                    <th className="p-3 text-sm font-semibold">Email</th>
+                    <th className="p-3 text-sm font-semibold">Phone</th>
+                    <th className="p-3 text-sm font-semibold">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <div className="text-center py-6 text-gray-400">
-            No students registered for this event yet.
-          </div>
-        )}
+                </thead>
+                <tbody className="divide-y divide-gray-700">
+                  {registrations.map((student, index) => (
+                    <tr
+                      key={student._id}
+                      className={`${index % 2 === 0 ? 'bg-gray-800' : 'bg-gray-750'} hover:bg-gray-700 transition-colors duration-150`}
+                    >
+                      <td className="p-3 text-gray-200 text-sm">{student.name || 'N/A'}</td>
+                      <td className="p-3 text-gray-200 text-sm">{student.registrationNumber || 'N/A'}</td>
+                      <td className="p-3 text-gray-200 text-sm">{student.branch || 'N/A'}</td>
+                      <td className="p-3 text-gray-200 text-sm">{student.batch || 'N/A'}</td>
+                      <td className="p-3 text-gray-200 text-sm">{student.email || 'N/A'}</td>
+                      <td className="p-3 text-gray-200 text-sm">{student.phoneNumber || '-'}</td>
+                      <td className="p-3">
+                        <button
+                          onClick={() => handleUnregister(student._id)}
+                          className="text-red-400 hover:text-red-300 text-sm transition-colors duration-200"
+                        >
+                          Unregister
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="text-center py-6 text-gray-400">
+              No students registered for this event yet.
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

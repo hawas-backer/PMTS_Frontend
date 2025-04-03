@@ -149,7 +149,7 @@ const EventAdd = () => {
 
 const EventDetailsModal = ({ event, isRegistered, onRegister, onClose, currentUser }) => {
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 font-sans">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 font-sans mt-16">
       <div className="bg-secondary-bg p-6 rounded-xl w-full max-w-lg text-text-primary max-h-[90vh] overflow-y-auto shadow-glass animate-fade-in">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-2xl font-bold">{event.title}</h3>
@@ -189,7 +189,7 @@ const EventDetailsModal = ({ event, isRegistered, onRegister, onClose, currentUs
               <div className="space-y-2 text-sm">
                 <p><span className="text-text-secondary">Name:</span> {currentUser.name}</p>
                 <p><span className="text-text-secondary">Email:</span> {currentUser.email}</p>
-                <p><span className="text-text-secondary">Registration Number:</span> {currentUser.registrationNumber}</p>
+                <p><span className="text-text-secondary">Registration Number:</span> {currentUser.regNumber || currentUser.registrationNumber || 'Not available'}</p>
               </div>
             </div>
           )}
