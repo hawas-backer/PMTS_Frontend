@@ -1,92 +1,203 @@
 import React, { useState, useEffect } from 'react';
-import { LineChart, BarChart, PieChart, Pie, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Line, Rectangle, Cell } from 'recharts';
-import { Calendar, Filter, Download, BarChart2 } from 'lucide-react';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  Cell,
+} from 'recharts';
+import { Calendar, Filter, Download, X, CheckSquare, Square } from 'lucide-react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import * as d3 from 'd3';
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
-  ? `${import.meta.env.VITE_API_BASE_URL}/api` 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
+  ? `${import.meta.env.VITE_API_BASE_URL}/api`
   : 'http://localhost:8080/api';
-  
-const HeatmapChart = ({ data, xLabels, yLabels }) => {
-  const chartData = [];
-  yLabels.forEach((yLabel, yIndex) => {
-    data[yIndex].forEach((value, xIndex) => {
-      chartData.push({
-        x: xLabels[xIndex],
-        y: yLabel,
-        value: value
-      });
-    });
-  });
 
-  const maxValue = Math.max(...data.flat());
-  const getColor = (value) => {
-    const intensity = value / maxValue;
-    return `rgba(129, 201, 149, ${intensity})`; // Adjusted to green-teal for dark theme
-  };
+// Enhanced Branch Targeting Chart with stacked bars and distinct branch colors
+const EnhancedBranchTargetingChart = ({ data, branches }) => {
+  const [activeIndex, setActiveIndex] = useState(null);
+
+  // Color palette for branches
+  const branchColors = [
+    '#4299E1', '#38B2AC', '#48BB78', '#ECC94B', '#ED8936',
+    '#F56565', '#9F7AEA', '#667EEA', '#ED64A6', '#718096',
+    '#81E6D9', '#9AE6B4',
+  ];
+
+  const getBranchColor = (index) => branchColors[index % branchColors.length];
+
+  const handleMouseEnter = (_, index) => setActiveIndex(index);
+  const handleMouseLeave = () => setActiveIndex(null);
 
   return (
     <ResponsiveContainer width="100%" height={400}>
       <BarChart
-        data={chartData}
-        layout="vertical"
-        margin={{ top: 20, right: 50, left: 100, bottom: 5 }}
+        data={data}
+        margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
       >
-        <CartesianGrid stroke="#4b5563" strokeDasharray="3 3" />
-        <XAxis type="category" dataKey="x" stroke="#d1d5db" />
-        <YAxis type="category" dataKey="y" width={100} stroke="#d1d5db" />
-        <Tooltip 
-          contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #4b5563', color: '#d1d5db' }}
-          formatter={(value) => [`${value} drives`, 'Value']}
-          labelFormatter={() => ''}
+        <CartesianGrid strokeDasharray="3 3" stroke="#4b5563" strokeOpacity={0.7} />
+        <XAxis
+          dataKey="name"
+          stroke="#d1d5db"
+          tick={{ fill: '#d1d5db', fontSize: 12 }}
+          tickLine={{ stroke: '#4b5563' }}
+          axisLine={{ stroke: '#4b5563' }}
         />
-        <Bar 
-          dataKey="value" 
-          shape={(props) => {
-            const { x, y, width, height, value } = props;
-            return (
-              <Rectangle
-                x={x}
-                y={y}
-                width={width}
-                height={height}
-                fill={getColor(value)}
-                stroke="none"
+        <YAxis
+          stroke="#d1d5db"
+          tick={{ fill: '#d1d5db', fontSize: 12 }}
+          tickLine={{ stroke: '#4b5563' }}
+          axisLine={{ stroke: '#4b5563' }}
+        />
+        <Tooltip
+          contentStyle={{
+            backgroundColor: '#1f2937',
+            border: '1px solid #4b5563',
+            color: '#d1d5db',
+            borderRadius: '6px',
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)',
+          }}
+          cursor={{ fill: 'rgba(255, 255, 255, 0.1)' }}
+          formatter={(value, name) => [`${value} students`, name]}
+          labelFormatter={(label) => `Company: ${label}`}
+        />
+        <Legend
+          wrapperStyle={{ color: '#d1d5db', paddingTop: '10px' }}
+          iconType="circle"
+          formatter={(value) => <span style={{ color: '#d1d5db' }}>{value}</span>}
+        />
+        {branches.map((branch, index) => (
+          <Bar
+            key={branch}
+            dataKey={branch}
+            name={branch}
+            stackId="a" // Stack bars for each company
+            fill={getBranchColor(index)}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            animationDuration={1500}
+          >
+            {data.map((entry, entryIndex) => (
+              <Cell
+                key={`cell-${entryIndex}`}
+                fill={getBranchColor(index)}
+                fillOpacity={activeIndex === entryIndex ? 1 : 0.85}
+                stroke={activeIndex === entryIndex ? '#fff' : 'none'}
+                strokeWidth={1}
               />
-            );
-          }}
-          label={{ 
-            position: 'center', 
-            fill: '#ffffff',
-            content: (props) => props.value > 0 ? props.value : ''
-          }}
-        />
+            ))}
+          </Bar>
+        ))}
       </BarChart>
     </ResponsiveContainer>
+  );
+};
+
+// FilterPill Component
+const FilterPill = ({ label, onRemove }) => (
+  <div className="bg-teal-500/20 text-teal-300 rounded-full px-3 py-1 text-sm flex items-center gap-1 animate-fadeIn">
+    <span>{label}</span>
+    <X
+      size={14}
+      className="cursor-pointer hover:text-white transition-colors"
+      onClick={onRemove}
+    />
+  </div>
+);
+
+// MultiSelectFilterMenu Component - Enhanced to better support multiple selections
+const MultiSelectFilterMenu = ({ title, items, selectedItems, onItemToggle, onClearAll }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 rounded-lg px-4 py-2 text-sm flex items-center justify-between w-full"
+      >
+        <span>{title}</span>
+        <span className="ml-2 bg-teal-500/30 text-teal-400 rounded-full px-2 text-xs">
+          {selectedItems.length}
+        </span>
+      </button>
+      {isOpen && (
+        <div className="absolute z-10 mt-1 w-64 bg-gray-800 border border-gray-700 rounded-lg shadow-xl animate-fadeIn">
+          <div className="p-2 border-b border-gray-700 flex justify-between items-center">
+            <span className="text-sm font-medium text-gray-300">Select {title}</span>
+            <button
+              onClick={() => {
+                onClearAll();
+                // Keep dropdown open after clearing
+              }}
+              className="text-xs text-teal-400 hover:text-teal-300"
+            >
+              Clear all
+            </button>
+          </div>
+          <div className="max-h-64 overflow-y-auto p-2 space-y-1">
+            {items.map((item) => (
+              <div
+                key={item}
+                className="flex items-center space-x-2 p-2 hover:bg-gray-700/50 rounded cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent dropdown from closing
+                  onItemToggle(item);
+                }}
+              >
+                {selectedItems.includes(item) ? (
+                  <CheckSquare size={16} className="text-teal-500" />
+                ) : (
+                  <Square size={16} className="text-gray-400" />
+                )}
+                <span className="text-sm text-gray-200">{item}</span>
+              </div>
+            ))}
+          </div>
+          <div className="p-2 border-t border-gray-700 flex justify-end">
+            <button
+              onClick={() => setIsOpen(false)}
+              className="text-xs text-teal-400 hover:text-teal-300 px-3 py-1 bg-gray-700 rounded"
+            >
+              Apply
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
 const AnalyticsDashboard = () => {
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
   const [dateRange, setDateRange] = useState({
     startDate: new Date(new Date().setFullYear(new Date().getFullYear() - 1)),
-    endDate: new Date()
+    endDate: new Date(),
   });
-  const [filters, setFilters] = useState({
+  
+  // Available filter options
+  const [filterOptions, setFilterOptions] = useState({
     companies: [],
     roles: [],
     branches: [],
-    testTypes: []
+    testTypes: [],
   });
+  
+  // Currently selected filters
   const [activeFilters, setActiveFilters] = useState({
     companies: [],
     roles: [],
     branches: [],
-    testTypes: []
+    testTypes: [],
   });
 
   useEffect(() => {
@@ -94,29 +205,27 @@ const AnalyticsDashboard = () => {
       setLoading(true);
       try {
         const response = await axios.post(
-          `${API_BASE_URL}/analytics/dashboard`, 
+          `${API_BASE_URL}/analytics/dashboard`,
           {
             startDate: dateRange.startDate,
             endDate: dateRange.endDate,
-            filters: activeFilters
+            filters: activeFilters,
           },
-          { 
+          {
             headers: { 'Content-Type': 'application/json' },
-            withCredentials: true
+            withCredentials: true,
           }
         );
-        
         if (response.status === 200) {
-          const data = response.data;
-          setDashboardData(data);
-          setFilters({
-            companies: [...new Set(data.placementDrives.map(drive => drive.companyName))],
-            roles: [...new Set(data.placementDrives.map(drive => drive.role))],
-            branches: [...new Set(data.placementDrives.flatMap(drive => drive.eligibleBranches))],
-            testTypes: [...new Set(data.aptitudeTests.map(test => test.title.split(' ')[0]))]
+          setDashboardData(response.data);
+          
+          // Update available filter options based on data
+          setFilterOptions({
+            companies: [...new Set(response.data.placementDrives.map((drive) => drive.companyName))],
+            roles: [...new Set(response.data.placementDrives.map((drive) => drive.role))],
+            branches: [...new Set(response.data.placementDrives.flatMap((drive) => drive.eligibleBranches))],
+            testTypes: [...new Set(response.data.aptitudeTests.map((test) => test.title.split(' ')[0]))],
           });
-        } else {
-          console.error('Failed to fetch analytics data');
         }
       } catch (error) {
         console.error('Error fetching analytics data:', error);
@@ -127,57 +236,42 @@ const AnalyticsDashboard = () => {
     fetchDashboardData();
   }, [dateRange, activeFilters]);
 
-  const exportData = async (format) => {
-    if (!dashboardData) return;
-    
-    if (format === 'csv') {
-      const placementData = dashboardData.placementDrives.map(drive => ({
-        companyName: drive.companyName,
-        role: drive.role,
-        applications: drive.applicationCount,
-        selected: drive.selectedCount,
-        conversionRate: `${drive.conversionRate}%`
-      }));
-      
-      const csvContent = "data:text/csv;charset=utf-8," 
-        + Object.keys(placementData[0]).join(",") + "\n"
-        + placementData.map(row => Object.values(row).join(",")).join("\n");
-      
-      const encodedUri = encodeURI(csvContent);
-      const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
-      link.setAttribute("download", "placement_analytics.csv");
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } else if (format === 'pdf') {
-      try {
-        const response = await axios.post(
-          `${API_BASE_URL}/analytics/export/pdf`,
-          {
-            startDate: dateRange.startDate,
-            endDate: dateRange.endDate,
-            filters: activeFilters
-          },
-          { 
-            responseType: 'blob',
-            withCredentials: true
-          }
-        );
-        
-        const url = window.URL.createObjectURL(new Blob([response.data]));
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', 'placement_analytics.pdf');
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      } catch (error) {
-        console.error('Error exporting PDF:', error);
-        alert('Failed to export PDF. Please try again later.');
-      }
-    }
+  const exportData = (format) => {
+    console.log(`Exporting data in ${format} format`);
+    // You could implement actual CSV export functionality here
   };
+
+  // Toggle a specific filter item (add or remove)
+  const handleItemToggle = (filterType, item) => {
+    setActiveFilters((prev) => ({
+      ...prev,
+      [filterType]: prev[filterType].includes(item)
+        ? prev[filterType].filter((i) => i !== item)
+        : [...prev[filterType], item],
+    }));
+  };
+
+  // Remove a specific filter pill
+  const removeFilterItem = (filterType, item) => {
+    setActiveFilters((prev) => ({
+      ...prev,
+      [filterType]: prev[filterType].filter((i) => i !== item),
+    }));
+  };
+
+  // Clear all filters of a specific type
+  const clearFilterType = (filterType) => {
+    setActiveFilters((prev) => ({ ...prev, [filterType]: [] }));
+  };
+
+  // Clear all filters across all types
+  const clearAllFilters = () => {
+    setActiveFilters({ companies: [], roles: [], branches: [], testTypes: [] });
+  };
+
+  // Count total active filters
+  const getTotalActiveFilterCount = () =>
+    Object.values(activeFilters).reduce((sum, arr) => sum + arr.length, 0);
 
   if (loading) {
     return (
@@ -205,29 +299,17 @@ const AnalyticsDashboard = () => {
 
   const companyStatsArray = Object.values(
     dashboardData.placementDrives.reduce((acc, drive) => {
-      if (!acc[drive.companyName]) {
-        acc[drive.companyName] = {
-          name: drive.companyName,
-          drives: 0,
-          applications: 0,
-          selected: 0
-        };
-      }
+      acc[drive.companyName] = acc[drive.companyName] || {
+        name: drive.companyName,
+        drives: 0,
+        applications: 0,
+        selected: 0,
+      };
       acc[drive.companyName].drives += 1;
       acc[drive.companyName].applications += drive.applicationCount;
       acc[drive.companyName].selected += drive.selectedCount;
       return acc;
     }, {})
-  );
-
-  const branches = [...new Set(dashboardData.placementDrives.flatMap(drive => drive.eligibleBranches))];
-  const companies = [...new Set(dashboardData.placementDrives.map(drive => drive.companyName))];
-  const heatmapData = companies.map(company => 
-    branches.map(branch => 
-      dashboardData.placementDrives
-        .filter(drive => drive.companyName === company && drive.eligibleBranches.includes(branch))
-        .length
-    )
   );
 
   const phaseProgressionData = [
@@ -238,24 +320,20 @@ const AnalyticsDashboard = () => {
     { name: 'Coding', count: dashboardData.phaseProgression.codingTest || 0 },
     { name: 'HR', count: dashboardData.phaseProgression.interviewHR || 0 },
     { name: 'Technical', count: dashboardData.phaseProgression.interviewTechnical || 0 },
-    { name: 'Selected', count: dashboardData.phaseProgression.selected || 0 }
+    { name: 'Selected', count: dashboardData.phaseProgression.selected || 0 },
   ];
 
-  const cgpaData = [
-    { name: '6.0-6.5', value: dashboardData.cgpaDistribution['6.0-6.5'] || 0 },
-    { name: '6.5-7.0', value: dashboardData.cgpaDistribution['6.5-7.0'] || 0 },
-    { name: '7.0-7.5', value: dashboardData.cgpaDistribution['7.0-7.5'] || 0 },
-    { name: '7.5-8.0', value: dashboardData.cgpaDistribution['7.5-8.0'] || 0 },
-    { name: '8.0-8.5', value: dashboardData.cgpaDistribution['8.0-8.5'] || 0 },
-    { name: '8.5-9.0', value: dashboardData.cgpaDistribution['8.5-9.0'] || 0 },
-    { name: '9.0-9.5', value: dashboardData.cgpaDistribution['9.0-9.5'] || 0 },
-    { name: '9.5-10.0', value: dashboardData.cgpaDistribution['9.5-10.0'] || 0 }
-  ];
+  // Prepare data for Branch Targeting Chart
+  const barChartData = dashboardData.branchTargeting?.companies.map((company, index) => {
+    const companyData = { name: company };
+    dashboardData.branchTargeting?.branches.forEach((branch, branchIndex) => {
+      companyData[branch] = dashboardData.branchTargeting?.data[index][branchIndex];
+    });
+    return companyData;
+  }) || [];
 
-  const scoreData = dashboardData.aptitudeScoreDistribution.map(item => ({
-    name: `${item.range}`,
-    count: item.count
-  }));
+  // Filter out aptitude test entries from the timeline
+  const filteredTimeline = dashboardData.timeline?.filter(item => item.type !== 'Aptitude Test') || [];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 p-4">
@@ -286,7 +364,7 @@ const AnalyticsDashboard = () => {
                 />
               </div>
             </div>
-            <button 
+            <button
               onClick={() => exportData('csv')}
               className="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white px-3 py-1.5 rounded-lg shadow-md transform hover:scale-105 transition-all duration-300 flex items-center text-sm"
             >
@@ -305,9 +383,9 @@ const AnalyticsDashboard = () => {
             <p className="text-sm text-green-400">Conversion Rate</p>
             <h2 className="text-3xl font-bold text-white">{dashboardData.summary.conversionRate}%</h2>
           </div>
-          <div className="bg-purple-500/20 rounded-lg p-4">
-            <p className="text-sm text-purple-400">Avg. Aptitude Score</p>
-            <h2 className="text-3xl font-bold text-white">{dashboardData.summary.avgAptitudeScore}/10</h2>
+          <div className="bg-blue-500/20 rounded-lg p-4">
+            <p className="text-sm text-blue-400">Participation Rate</p>
+            <h2 className="text-3xl font-bold text-white">{dashboardData.aptitudeSummary.participationRate}%</h2>
           </div>
           <div className="bg-amber-500/20 rounded-lg p-4">
             <p className="text-sm text-amber-400">Students Placed</p>
@@ -315,34 +393,73 @@ const AnalyticsDashboard = () => {
           </div>
         </div>
 
-        {/* Filters */}
+        {/* Enhanced Multi-Select Filters */}
         <div className="bg-gray-800/80 rounded-lg p-6 mb-6 border border-gray-700">
-          <div className="flex items-center mb-4">
-            <Filter className="text-gray-400 mr-2" size={20} />
-            <h2 className="text-lg font-semibold text-white bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text text-transparent">
-              Filters
-            </h2>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {['companies', 'roles', 'branches', 'testTypes'].map((filterType) => (
-              <div key={filterType}>
-                <label className="block text-gray-400 mb-1 text-sm font-medium capitalize">{filterType}</label>
-                <select 
-                  multiple
-                  className="w-full bg-gray-800/80 border border-gray-700 rounded-lg p-2 text-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 h-32"
-                  value={activeFilters[filterType]}
-                  onChange={(e) => setActiveFilters({
-                    ...activeFilters, 
-                    [filterType]: Array.from(e.target.selectedOptions, option => option.value)
-                  })}
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center">
+              <Filter className="text-gray-400 mr-2" size={20} />
+              <h2 className="text-lg font-semibold text-white bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text text-transparent">
+                Filters
+              </h2>
+              {getTotalActiveFilterCount() > 0 && (
+                <span className="ml-2 bg-teal-500/30 text-teal-400 rounded-full px-2 py-0.5 text-xs">
+                  {getTotalActiveFilterCount()} active
+                </span>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              {getTotalActiveFilterCount() > 0 && (
+                <button
+                  onClick={clearAllFilters}
+                  className="text-sm text-gray-400 hover:text-white transition-colors"
                 >
-                  {filters[filterType].map(item => (
-                    <option key={item} value={item} className="text-gray-200">{item}</option>
-                  ))}
-                </select>
-              </div>
-            ))}
+                  Clear All
+                </button>
+              )}
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className="text-sm text-teal-400 hover:text-teal-300 transition-colors flex items-center"
+              >
+                {showFilters ? 'Hide Filters' : 'Show Filters'}
+              </button>
+            </div>
           </div>
+          
+          {/* Active filter pills */}
+          {getTotalActiveFilterCount() > 0 && (
+            <div className="flex flex-wrap gap-2 mb-4">
+              {Object.entries(activeFilters).flatMap(([filterType, items]) =>
+                items.map((item) => (
+                  <FilterPill
+                    key={`${filterType}-${item}`}
+                    label={item}
+                    onRemove={() => removeFilterItem(filterType, item)}
+                  />
+                ))
+              )}
+            </div>
+          )}
+          
+          {/* Filter selection menus */}
+          {showFilters && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4 animate-fadeIn">
+              {[
+                { key: 'companies', title: 'Companies' },
+                { key: 'roles', title: 'Roles' },
+                { key: 'branches', title: 'Branches' },
+                { key: 'testTypes', title: 'Test Types' },
+              ].map((filter) => (
+                <MultiSelectFilterMenu
+                  key={filter.key}
+                  title={filter.title}
+                  items={filterOptions[filter.key]}
+                  selectedItems={activeFilters[filter.key]}
+                  onItemToggle={(item) => handleItemToggle(filter.key, item)}
+                  onClearAll={() => clearFilterType(filter.key)}
+                />
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Charts */}
@@ -364,7 +481,6 @@ const AnalyticsDashboard = () => {
               </BarChart>
             </ResponsiveContainer>
           </div>
-
           <div className="bg-gray-800/80 rounded-lg p-6 border border-gray-700">
             <h2 className="text-lg font-semibold text-white bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text text-transparent mb-4">
               Student Phase Progression
@@ -376,41 +492,24 @@ const AnalyticsDashboard = () => {
                 <YAxis stroke="#d1d5db" />
                 <Tooltip contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #4b5563', color: '#d1d5db' }} />
                 <Legend wrapperStyle={{ color: '#d1d5db' }} />
-                <Line type="monotone" dataKey="count" stroke="#60a5fa" name="Student Count" />
+                <Line type="monotone" dataKey="count" stroke="#60a5fa" name="Student Count" strokeWidth={2} activeDot={{ r: 6 }} />
               </LineChart>
             </ResponsiveContainer>
           </div>
+        </div>
 
-          <div className="bg-gray-800/80 rounded-lg p-6 border border-gray-700">
-            <h2 className="text-lg font-semibold text-white bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text text-transparent mb-4">
-              Branch Targeting Heatmap
-            </h2>
-            <HeatmapChart data={heatmapData} xLabels={branches} yLabels={companies} />
-          </div>
-
-          <div className="bg-gray-800/80 rounded-lg p-6 border border-gray-700">
-            <h2 className="text-lg font-semibold text-white bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text text-transparent mb-4">
-              CGPA vs Selection Rate
-            </h2>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={cgpaData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={true}
-                  outerRadius={100}
-                  dataKey="value"
-                  nameKey="name"
-                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                >
-                  {cgpaData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={d3.schemeBlues[9][index % 9 + 1]} />
-                  ))}
-                </Pie>
-                <Tooltip contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #4b5563', color: '#d1d5db' }} />
-              </PieChart>
-            </ResponsiveContainer>
+        {/* Branch Targeting Chart */}
+        <div className="bg-gray-800/80 rounded-lg p-6 border border-gray-700 mb-6">
+          <h2 className="text-lg font-semibold text-white bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text text-transparent mb-4">
+            Branch Targeting Analysis
+          </h2>
+          <div className="w-full overflow-x-auto">
+            <div style={{ minWidth: '800px', width: '100%' }}>
+              <EnhancedBranchTargetingChart
+                data={barChartData}
+                branches={dashboardData.branchTargeting?.branches || []}
+              />
+            </div>
           </div>
         </div>
 
@@ -429,27 +528,11 @@ const AnalyticsDashboard = () => {
               <h2 className="text-3xl font-bold text-white">{dashboardData.aptitudeSummary.passRate}%</h2>
             </div>
             <div className="bg-purple-500/20 rounded-lg p-4">
-              <p className="text-sm text-purple-400">Participation Rate</p>
-              <h2 className="text-3xl font-bold text-white">{dashboardData.aptitudeSummary.participationRate}%</h2>
+              <p className="text-sm text-purple-400">Avg. Aptitude Score</p>
+              <h2 className="text-3xl font-bold text-white">{dashboardData.summary.avgAptitudeScore}%</h2>
             </div>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div>
-              <h3 className="text-md font-semibold text-gray-300 mb-3">Score Distribution</h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={scoreData}>
-                  <CartesianGrid stroke="#4b5563" strokeDasharray="3 3" />
-                  <XAxis dataKey="name" stroke="#d1d5db" />
-                  <YAxis stroke="#d1d5db" />
-                  <Tooltip contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #4b5563', color: '#d1d5db' }} />
-                  <Bar dataKey="count" name="Students">
-                    {scoreData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={d3.schemeBlues[9][Math.min(index + 3, 8)]} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
             <div>
               <h3 className="text-md font-semibold text-gray-300 mb-3">Test Performance Trend</h3>
               <ResponsiveContainer width="100%" height={300}>
@@ -459,15 +542,15 @@ const AnalyticsDashboard = () => {
                   <YAxis stroke="#d1d5db" />
                   <Tooltip contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #4b5563', color: '#d1d5db' }} />
                   <Legend wrapperStyle={{ color: '#d1d5db' }} />
-                  <Line type="monotone" dataKey="avgScore" stroke="#60a5fa" name="Avg Score" />
-                  <Line type="monotone" dataKey="passRate" stroke="#81c995" name="Pass Rate %" />
+                  <Line type="monotone" dataKey="avgScore" stroke="#60a5fa" name="Avg Score" strokeWidth={2} />
+                  <Line type="monotone" dataKey="passRate" stroke="#81c995" name="Pass Rate %" strokeWidth={2} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
           </div>
         </div>
 
-        {/* Timeline */}
+        {/* Timeline - Modified to exclude aptitude test entries */}
         <div className="bg-gray-800/80 rounded-lg p-6 border border-gray-700">
           <h2 className="text-lg font-semibold text-white bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text text-transparent mb-4">
             Placement Activity Timeline
@@ -484,18 +567,22 @@ const AnalyticsDashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                {dashboardData.timeline.map((item, index) => (
+                {filteredTimeline.map((item, index) => (
                   <tr key={index} className={index % 2 === 0 ? 'bg-gray-800/50' : 'bg-gray-800/30'}>
                     <td className="py-2 px-4 text-gray-200 text-sm">{new Date(item.date).toLocaleDateString()}</td>
                     <td className="py-2 px-4 text-gray-200 text-sm">{item.type}</td>
                     <td className="py-2 px-4 text-gray-200 text-sm">{item.title}</td>
                     <td className="py-2 px-4 text-gray-200 text-sm">{item.details}</td>
                     <td className="py-2 px-4">
-                      <span className={`px-2 py-1 rounded text-xs ${
-                        item.status === 'Completed' ? 'bg-green-500/20 text-green-400' :
-                        item.status === 'In Progress' ? 'bg-teal-500/20 text-teal-400' :
-                        'bg-gray-500/20 text-gray-400'
-                      }`}>
+                      <span
+                        className={`px-2 py-1 rounded text-xs ${
+                          item.status === 'Completed'
+                            ? 'bg-green-500/20 text-green-400'
+                            : item.status === 'In Progress'
+                            ? 'bg-teal-500/20 text-teal-400'
+                            : 'bg-gray-500/20 text-gray-400'
+                        }`}
+                      >
                         {item.status}
                       </span>
                     </td>
