@@ -62,6 +62,7 @@ import TestimonialL from './components/Landing/Testimonial';
 import HomeL from './components/Landing/Home';
 import HomeLayoutL from './components/Landing/HomeLayout';
 
+import Profile from './components/Student/Profile';
 
 import PlacementDrives from './components/Advisor/PlacementDrives'; // Import the new component
 const App = () => {
@@ -155,7 +156,8 @@ const App = () => {
           <Route path="aptitude-tests" element={<StudentAptitudeTests />} />
           <Route path="take-quiz/:id" element={<TakeQuiz />} />
           <Route path="quiz-results/:id" element={<QuizResults />} />
-          <Route path="notifications" element={<Notifications />} /> {/* Added Notifications route */}
+          <Route path="notifications" element={<Notifications />} />
+          <Route path="profile" element={<Profile />} />
         </Route>
 
         <Route

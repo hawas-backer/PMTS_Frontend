@@ -15,7 +15,9 @@ import {
   Award, 
   CheckCircle2,
   XCircle,
-  ListFilter
+  ListFilter,
+  Trash2,
+  UserPlus
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
@@ -35,6 +37,7 @@ const PlacementDriveDetail = () => {
   const [expandedPhase, setExpandedPhase] = useState(null);
   const [isAddingPhase, setIsAddingPhase] = useState(false);
   const [isEndingDrive, setIsEndingDrive] = useState(false);
+  const [addStudentEmail, setAddStudentEmail] = useState('');
 
   if (role !== 'Coordinator') {
     return <Navigate to="/" replace />;
@@ -121,6 +124,43 @@ const PlacementDriveDetail = () => {
     }
   };
 
+  const handleRemoveStudent = async (studentId, phaseIndex) => {
+    try {
+      await axios.put(`/api/placement-drives/status/${id}/${studentId}`, 
+        { status: 'Rejected' }, 
+        { withCredentials: true }
+      );
+      setMessage('Student removed from shortlist successfully');
+      fetchDrive();
+    } catch (error) {
+      setErrors([error.response?.data.message || 'Error removing student']);
+    }
+  };
+
+  const handleAddStudent = async (e) => {
+    e.preventDefault();
+    setErrors([]);
+    setMessage('');
+
+    try {
+      const studentResponse = await axios.get(`/api/placement-drives/student/email/${addStudentEmail}`, { withCredentials: true });
+      const student = studentResponse.data;
+      if (!student || student.role !== 'Student') {
+        throw new Error('Student not found or not a valid student');
+      }
+
+      await axios.put(`/api/placement-drives/status/${id}/${student._id}`, 
+        { status: 'Selected' },
+        { withCredentials: true }
+      );
+      setMessage('Student added to shortlist successfully');
+      setAddStudentEmail('');
+      fetchDrive();
+    } catch (error) {
+      setErrors([error.response?.data.message || 'Error adding student']);
+    }
+  };
+
   const handleDownloadTemplate = async () => {
     try {
       const response = await axios.post('/api/placement-drives/template', {}, {
@@ -154,7 +194,7 @@ const PlacementDriveDetail = () => {
     }
 
     const excelData = drive.applications.map(app => ({
-      'Branch': app.student.branch || 'N/A', // Include branch in export
+      'Branch': app.student.branch || 'N/A',
       'Student Name': app.student.name,
       'Email': app.student.email,
       'Registration Number': app.student.registrationNumber,
@@ -179,7 +219,6 @@ const PlacementDriveDetail = () => {
     return latestPhase.shortlistedStudents.length;
   };
 
-  // Group applicants by branch
   const groupApplicantsByBranch = () => {
     if (!drive || !drive.applications || drive.applications.length === 0) {
       return {};
@@ -194,7 +233,28 @@ const PlacementDriveDetail = () => {
       grouped[branch].push(app);
     });
 
-    // Sort branches alphabetically
+    return Object.keys(grouped)
+      .sort((a, b) => a.localeCompare(b))
+      .reduce((acc, branch) => {
+        acc[branch] = grouped[branch];
+        return acc;
+      }, {});
+  };
+
+  const groupShortlistedByBranch = (shortlistedStudents) => {
+    if (!shortlistedStudents || shortlistedStudents.length === 0) {
+      return {};
+    }
+
+    const grouped = {};
+    shortlistedStudents.forEach(student => {
+      const branch = student.branch || 'Unknown';
+      if (!grouped[branch]) {
+        grouped[branch] = [];
+      }
+      grouped[branch].push(student);
+    });
+
     return Object.keys(grouped)
       .sort((a, b) => a.localeCompare(b))
       .reduce((acc, branch) => {
@@ -431,31 +491,71 @@ const PlacementDriveDetail = () => {
                       </div>
                       
                       <h4 className="text-sm font-medium text-gray-300 mt-4 mb-2">Shortlisted Students</h4>
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-left">
-                          <thead className="bg-gray-700">
-                            <tr>
-                              <th className="px-4 py-2 text-xs font-medium text-gray-300 uppercase tracking-wider">Name</th>
-                              <th className="px-4 py-2 text-xs font-medium text-gray-300 uppercase tracking-wider">Email</th>
-                              <th className="px-4 py-2 text-xs font-medium text-gray-300 uppercase tracking-wider">Registration No.</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-gray-700">
-                            {phase.shortlistedStudents?.length > 0 ? (
-                              phase.shortlistedStudents.map(student => (
-                                <tr key={student._id} className="hover:bg-gray-700 transition-colors duration-150">
-                                  <td className="px-4 py-2 whitespace-nowrap text-sm text-white">{student.name || 'N/A'}</td>
-                                  <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-300">{student.email || 'N/A'}</td>
-                                  <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-300">{student.registrationNumber || 'N/A'}</td>
-                                </tr>
-                              ))
-                            ) : (
-                              <tr>
-                                <td colSpan="3" className="px-4 py-2 text-center text-gray-400">No students shortlisted</td>
-                              </tr>
-                            )}
-                          </tbody>
-                        </table>
+                      {drive.status !== 'Completed' && (
+                        <form onSubmit={handleAddStudent} className="flex items-center mb-4 space-x-3">
+                          <input
+                            type="email"
+                            value={addStudentEmail}
+                            onChange={e => setAddStudentEmail(e.target.value)}
+                            placeholder="Enter student email"
+                            className="flex-1 px-4 py-2 bg-gray-800/80 border border-gray-700 rounded-lg text-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-300"
+                            required
+                          />
+                          <button
+                            type="submit"
+                            className="inline-flex items-center bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white px-4 py-2 rounded-lg shadow-md transform hover:scale-105 transition-all duration-300"
+                          >
+                            <UserPlus size={16} className="mr-2" />
+                            Add
+                          </button>
+                        </form>
+                      )}
+                      <div className="divide-y divide-gray-700">
+                        {Object.keys(groupShortlistedByBranch(phase.shortlistedStudents)).length > 0 ? (
+                          Object.keys(groupShortlistedByBranch(phase.shortlistedStudents)).map(branch => (
+                            <div key={branch}>
+                              <div className="px-4 py-3 bg-gray-700">
+                                <h3 className="text-lg font-semibold text-indigo-300">{branch}</h3>
+                              </div>
+                              <div className="overflow-x-auto">
+                                <table className="w-full text-left">
+                                  <thead className="bg-gradient-to-r from-gray-700 to-gray-600 text-white">
+                                    <tr>
+                                      <th className="px-4 py-2 text-xs font-medium uppercase tracking-wider">Name</th>
+                                      <th className="px-4 py-2 text-xs font-medium uppercase tracking-wider">Email</th>
+                                      <th className="px-4 py-2 text-xs font-medium uppercase tracking-wider">Registration No.</th>
+                                      {drive.status !== 'Completed' && (
+                                        <th className="px-4 py-2 text-xs font-medium uppercase tracking-wider">Actions</th>
+                                      )}
+                                    </tr>
+                                  </thead>
+                                  <tbody className="divide-y divide-gray-700">
+                                    {groupShortlistedByBranch(phase.shortlistedStudents)[branch].map(student => (
+                                      <tr key={student._id} className="hover:bg-gray-700 transition-colors duration-150">
+                                        <td className="px-4 py-2 whitespace-nowrap text-sm text-white">{student.name || 'N/A'}</td>
+                                        <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-300">{student.email || 'N/A'}</td>
+                                        <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-300">{student.registrationNumber || 'N/A'}</td>
+                                        {drive.status !== 'Completed' && (
+                                          <td className="px-4 py-2 whitespace-nowrap">
+                                            <button
+                                              onClick={() => handleRemoveStudent(student._id, index)}
+                                              className="text-red-400 hover:text-red-500 transition-colors duration-150"
+                                              title="Remove from shortlist"
+                                            >
+                                              <Trash2 size={16} />
+                                            </button>
+                                          </td>
+                                        )}
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="px-4 py-2 text-center text-gray-400">No students shortlisted</div>
+                        )}
                       </div>
                     </div>
                   )}
@@ -575,7 +675,7 @@ const PlacementDriveDetail = () => {
                     <div className="ml-3">
                       <h3 className="text-sm font-medium text-red-400">Attention Required</h3>
                       <p className="mt-2 text-sm text-red-300">
-                        Completing a placement drive is irreversible. This will mark the drive as completed and notify all selected students as of March 29, 2025.
+                        Completing a placement drive is irreversible. This will mark the drive as completed and notify all selected students as of April 10, 2025.
                       </p>
                     </div>
                   </div>

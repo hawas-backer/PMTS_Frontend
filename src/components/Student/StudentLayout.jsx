@@ -10,7 +10,8 @@ import {
   Briefcase, 
   BrainCircuit,
   Bell,
-  Menu
+  Menu,
+  User
 } from 'lucide-react';
 
 const Layout = () => {
@@ -28,6 +29,7 @@ const Layout = () => {
     { id: 'jobs', icon: Briefcase, label: 'Job Opportunities', color: 'text-orange-400', hoverColor: 'hover:text-orange-400' },
     { id: 'aptitude-tests', icon: BrainCircuit, label: 'Exam Corner', color: 'text-red-400', hoverColor: 'hover:text-red-400' },
     { id: 'notifications', icon: Bell, label: 'Notifications', color: 'text-teal-400', hoverColor: 'hover:text-teal-400' },
+    { id: 'profile', icon: User, label: 'Profile', color: 'text-indigo-400', hoverColor: 'hover:text-indigo-400' },
   ];
 
   const currentPath = location.pathname.split('/').pop() || '';
