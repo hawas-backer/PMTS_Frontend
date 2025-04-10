@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Plus, Trash2, Users, Edit, X, Calendar, Clock, MapPin, User, Download } from 'lucide-react';
-
 axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
 const Events = () => {
@@ -41,8 +40,13 @@ const Events = () => {
       console.log('Event added successfully:', response.data);
       await fetchEvents();
       setShowAddEvent(false);
+      return { success: true };
     } catch (error) {
       console.error('Error adding event:', error.response?.data || error.message);
+      return { 
+        success: false, 
+        error: error.response?.data?.message || 'Failed to create event'
+      };
     }
   };
 
@@ -53,13 +57,17 @@ const Events = () => {
       });
       await fetchEvents();
       setShowEditEvent(false);
+      return { success: true };
     } catch (error) {
       console.error('Error updating event:', error);
+      return { 
+        success: false, 
+        error: error.response?.data?.message || 'Failed to update event'
+      };
     }
   };
 
   const handleDeleteEvent = async (id) => {
-    
     try {
       await axios.delete(`/api/events/${id}`, {
         withCredentials: true,
@@ -94,7 +102,6 @@ const Events = () => {
             <Plus size={16} className="mr-1" /> Add Event
           </button>
         </div>
-
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {events.map((event) => (
             <div
@@ -141,10 +148,7 @@ const Events = () => {
             </div>
           ))}
         </div>
-
-        {/* Modals are now inserted at the document root level */}
       </div>
-      
       {/* Modal Portals - moved outside the main container */}
       {showAddEvent && (
         <EventFormModal
@@ -154,7 +158,6 @@ const Events = () => {
           buttonText="Add Event"
         />
       )}
-
       {showEditEvent && (
         <EventFormModal
           onClose={() => setShowEditEvent(false)}
@@ -164,7 +167,6 @@ const Events = () => {
           eventData={selectedEvent}
         />
       )}
-
       {showRegistrations && (
         <RegistrationsModal
           eventId={selectedEvent._id}
@@ -181,13 +183,11 @@ const EventFormModal = ({ onClose, onSubmit, title, buttonText, eventData = null
     if (eventData) {
       // Format the date properly for the date input
       const formattedDate = eventData.date ? new Date(eventData.date).toISOString().split('T')[0] : '';
-      
       return {
         ...eventData,
         date: formattedDate
       };
     }
-    
     return {
       title: '',
       description: '',
@@ -199,14 +199,29 @@ const EventFormModal = ({ onClose, onSubmit, title, buttonText, eventData = null
       registeredStudents: [],
     };
   });
+  const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const handleChange = (e) => {
     const value =
       e.target.name === 'maxParticipants' ? parseInt(e.target.value) || '' : e.target.value;
     setFormData({ ...formData, [e.target.name]: value });
+    
+    // Clear error when user makes changes
+    if (error) setError('');
   };
 
-  const handleSubmit = () => {
-    onSubmit(formData);
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    setError('');
+    
+    const result = await onSubmit(formData);
+    
+    setIsSubmitting(false);
+    
+    if (!result.success) {
+      setError(result.error);
+    }
   };
 
   // Prevent scrolling when modal is open
@@ -231,7 +246,17 @@ const EventFormModal = ({ onClose, onSubmit, title, buttonText, eventData = null
             <X size={16} />
           </button>
         </div>
-
+        
+        {/* Error message display */}
+        {error && (
+          <div className="mb-3 p-2 bg-red-900/60 border border-red-700 rounded-lg text-red-200 text-sm">
+            <p className="flex items-center">
+              <X size={14} className="mr-1.5" />
+              {error}
+            </p>
+          </div>
+        )}
+        
         <div className="space-y-2">
           <div>
             <label className="block text-gray-300 font-medium text-xs mb-1">Event Title</label>
@@ -244,7 +269,6 @@ const EventFormModal = ({ onClose, onSubmit, title, buttonText, eventData = null
               placeholder="Enter event title"
             />
           </div>
-
           <div>
             <label className="block text-gray-300 font-medium text-xs mb-1">Description</label>
             <textarea
@@ -255,7 +279,6 @@ const EventFormModal = ({ onClose, onSubmit, title, buttonText, eventData = null
               placeholder="Enter event description"
             />
           </div>
-
           <div className="grid grid-cols-2 gap-2">
             <div>
               <label className="block text-gray-300 font-medium text-xs mb-1">Mentor</label>
@@ -284,7 +307,6 @@ const EventFormModal = ({ onClose, onSubmit, title, buttonText, eventData = null
               />
             </div>
           </div>
-
           <div className="grid grid-cols-2 gap-2">
             <div>
               <label className="block text-gray-300 font-medium text-xs mb-1">Date</label>
@@ -313,7 +335,6 @@ const EventFormModal = ({ onClose, onSubmit, title, buttonText, eventData = null
               </div>
             </div>
           </div>
-
           <div>
             <label className="block text-gray-300 font-medium text-xs mb-1">Venue</label>
             <div className="relative">
@@ -329,7 +350,6 @@ const EventFormModal = ({ onClose, onSubmit, title, buttonText, eventData = null
             </div>
           </div>
         </div>
-
         <div className="flex justify-end gap-2 mt-3">
           <button
             onClick={onClose}
@@ -339,9 +359,15 @@ const EventFormModal = ({ onClose, onSubmit, title, buttonText, eventData = null
           </button>
           <button
             onClick={handleSubmit}
-            className="px-3 py-1 bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white rounded-lg shadow-lg transform hover:scale-105 transition-all duration-300 text-sm"
+            disabled={isSubmitting}
+            className={`px-3 py-1 bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white rounded-lg shadow-lg transform hover:scale-105 transition-all duration-300 text-sm flex items-center ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
           >
-            {buttonText}
+            {isSubmitting ? (
+              <>
+                <span className="inline-block w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                Processing...
+              </>
+            ) : buttonText}
           </button>
         </div>
       </div>
@@ -356,7 +382,6 @@ const RegistrationsModal = ({ eventId, eventTitle, onClose }) => {
 
   useEffect(() => {
     fetchRegistrations();
-    
     // Prevent scrolling when modal is open
     document.body.style.overflow = 'hidden';
     return () => {
@@ -394,13 +419,10 @@ const RegistrationsModal = ({ eventId, eventTitle, onClose }) => {
   // Function to convert registrations data to CSV format
   const convertToCSV = () => {
     if (registrations.length === 0) return '';
-    
     // Define CSV headers based on student data structure
     const headers = ['Name', 'Registration No.', 'Department', 'Batch', 'Email', 'Phone'];
-    
     // Create CSV content
     let csvContent = headers.join(',') + '\n';
-    
     // Add data rows
     registrations.forEach(student => {
       const row = [
@@ -411,10 +433,8 @@ const RegistrationsModal = ({ eventId, eventTitle, onClose }) => {
         student.email || 'N/A',
         student.phoneNumber || '-'
       ].map(value => `"${value}"`).join(',');
-      
       csvContent += row + '\n';
     });
-    
     return csvContent;
   };
 
@@ -425,19 +445,15 @@ const RegistrationsModal = ({ eventId, eventTitle, onClose }) => {
       alert('No data to download');
       return;
     }
-    
     // Create a blob from the CSV data
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    
     // Create a download link
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
-    
     // Set link properties
     link.setAttribute('href', url);
     link.setAttribute('download', `${eventTitle.replace(/\s+/g, '_')}_registrations.csv`);
     link.style.visibility = 'hidden';
-    
     // Append to document, trigger download and clean up
     document.body.appendChild(link);
     link.click();
@@ -459,7 +475,6 @@ const RegistrationsModal = ({ eventId, eventTitle, onClose }) => {
             <X size={18} />
           </button>
         </div>
-
         <div className="mb-4 bg-gray-800/80 p-3 rounded-lg border border-gray-700 text-sm text-gray-300">
           <div className="grid grid-cols-2 gap-2">
             <p><span className="text-gray-500">Date:</span> {new Date(eventDetails.date).toLocaleDateString() || 'N/A'}</p>
@@ -470,21 +485,19 @@ const RegistrationsModal = ({ eventId, eventTitle, onClose }) => {
             <p><span className="text-gray-500">Max Participants:</span> {eventDetails.maxParticipants || 'Unlimited'}</p>
           </div>
         </div>
-
         {/* Action buttons - Added Download button */}
         <div className="mb-3 flex justify-end">
           <button
             onClick={handleDownloadCSV}
             disabled={registrations.length === 0 || loading}
             className={`flex items-center gap-1 px-3 py-1.5 rounded-lg shadow-md transform hover:scale-105 transition-all duration-300 text-sm
-              ${registrations.length === 0 || loading 
-                ? 'bg-gray-700 text-gray-400 cursor-not-allowed' 
+              ${registrations.length === 0 || loading
+                ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
                 : 'bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white'}`}
           >
             <Download size={14} /> Download CSV
           </button>
         </div>
-
         {/* Scrollable section: Table or messages */}
         <div className="flex-1 overflow-y-auto">
           {loading ? (
