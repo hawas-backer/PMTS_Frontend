@@ -21,20 +21,37 @@ const PlacementResults = () => {
 
   if (role !== 'Coordinator') return <Navigate to="/" replace />;
 
+  // Fetch all available years once on component mount
   useEffect(() => {
     fetchAllYears();
-    fetchCompletedDrives(selectedYear);
   }, []);
+
+  // Fetch drives whenever selected year changes
+  useEffect(() => {
+    if (selectedYear) {
+      fetchCompletedDrives(selectedYear);
+    }
+  }, [selectedYear]);
 
   const fetchAllYears = async () => {
     try {
       const response = await axios.get('/api/placement-drives/all', { withCredentials: true });
       const completedDrives = response.data.filter(drive => drive.status === 'Completed');
-      const years = [...new Set(completedDrives.map(drive => new Date(drive.date).getFullYear()))].sort((a, b) => a - b);
-      console.log('All available years:', years);
-      setAvailableYears(years);
+      const years = [...new Set(completedDrives.map(drive => new Date(drive.date).getFullYear()))].sort((a, b) => b - a); // Sort newest first
+      
+      if (years.length > 0) {
+        setAvailableYears(years);
+        // If we have years but current selectedYear isn't in the list, pick the most recent one
+        if (!years.includes(parseInt(selectedYear))) {
+          setSelectedYear(years[0].toString());
+        }
+      } else {
+        // If no years found, keep current year as default
+        setAvailableYears([new Date().getFullYear()]);
+      }
     } catch (err) {
       console.error('Error fetching all years:', err);
+      setError(err.response?.data.message || 'Error fetching years');
     }
   };
 
@@ -43,47 +60,54 @@ const PlacementResults = () => {
       setLoading(true);
       const url = year ? `/api/placement-drives/all?year=${year}` : '/api/placement-drives/all';
       const response = await axios.get(url, { withCredentials: true });
-      const completedDrives = response.data.filter(drive => drive.status === 'Completed');
+      
+      let completedDrives = response.data.filter(drive => drive.status === 'Completed');
+      
+      // If year is provided, filter drives by that year
+      if (year) {
+        completedDrives = completedDrives.filter(drive => 
+          new Date(drive.date).getFullYear().toString() === year
+        );
+      }
 
-      console.log('Total drives fetched:', response.data.length);
-      console.log('Completed drives:', completedDrives.length);
-      const yearsWithCounts = completedDrives.reduce((acc, drive) => {
-        const year = new Date(drive.date).getFullYear();
-        acc[year] = (acc[year] || 0) + 1;
-        return acc;
-      }, {});
-      console.log('Years with completed drives:', yearsWithCounts);
-
-      console.log('Completed drives details:', completedDrives.map(d => ({
-        company: d.companyName,
-        role: d.role,
-        phases: d.phases,
-        hasFinalSelection: !!d.phases.find(p => p.name === 'Final Selection'),
-        shortlistedCount: d.phases.find(p => p.name === 'Final Selection')?.shortlistedStudents?.length || 0
-      })));
+      console.log('Raw API response for completed drives:', completedDrives);
 
       const placementData = completedDrives.reduce((acc, drive) => {
         const companyKey = `${drive.companyName} (${drive.role})`;
         const finalPhase = drive.phases.find(phase => phase.name === 'Final Selection');
-        acc[companyKey] = {
-          date: drive.date,
-          students: finalPhase && finalPhase.shortlistedStudents && finalPhase.shortlistedStudents.length > 0
-            ? finalPhase.shortlistedStudents.map(student => ({
-                id: student._id,
-                name: student.name,
-                email: student.email,
-                registrationNumber: student.registrationNumber,
+        
+        // Handle both populated and unpopulated student data
+        const students = finalPhase?.shortlistedStudents ? 
+          finalPhase.shortlistedStudents.map(student => {
+            // Check if student is a populated object or just an ID
+            if (typeof student === 'string' || !student.name) {
+              return {
+                id: typeof student === 'object' ? student._id || student : student,
+                name: 'Unknown',
+                email: 'N/A',
+                registrationNumber: 'N/A',
                 package: drive.package || 'N/A'
-              }))
-            : []
-        };
+              };
+            }
+            
+            return {
+              id: student._id || 'N/A',
+              name: student.name || 'Unknown',
+              email: student.email || 'N/A',
+              registrationNumber: student.registrationNumber || 'N/A',
+              package: drive.package || 'N/A'
+            };
+          }) : [];
+        
+        console.log(`Transformed students for ${companyKey}:`, students);
+        acc[companyKey] = { date: drive.date, students };
         return acc;
       }, {});
 
-      console.log('Placement data set:', placementData);
       setPlacements(placementData);
       setLoading(false);
     } catch (err) {
+      console.error('Error fetching placement data:', err);
       setError(err.response?.data.message || 'Error fetching placement results');
       setLoading(false);
     }
@@ -91,7 +115,6 @@ const PlacementResults = () => {
 
   const handleYearChange = (year) => {
     setSelectedYear(year);
-    fetchCompletedDrives(year);
   };
 
   const downloadCompanyExcel = (company, students) => {
@@ -181,7 +204,7 @@ const PlacementResults = () => {
         <div className="bg-gray-800/90 backdrop-blur-md p-4 rounded-lg shadow-lg border border-red-500/50 max-w-md">
           <h3 className="text-lg font-bold text-red-400 mb-2">Error</h3>
           <p className="text-gray-300">{error}</p>
-          <button onClick={() => fetchCompletedDrives()} className="mt-4 px-4 py-1.5 bg-teal-500 hover:bg-teal-600 text-white rounded-lg shadow-md transition-all duration-300">
+          <button onClick={() => fetchCompletedDrives(selectedYear)} className="mt-4 px-4 py-1.5 bg-teal-500 hover:bg-teal-600 text-white rounded-lg shadow-md transition-all duration-300">
             Retry
           </button>
         </div>
@@ -209,7 +232,7 @@ const PlacementResults = () => {
               className="bg-gray-800/80 border border-gray-700 rounded-lg px-2 py-1 text-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
               {availableYears.map(year => (
-                <option key={year} value={year} className="bg-gray-900 text-gray-200">{year}</option>
+                <option key={year} value={year.toString()} className="bg-gray-900 text-gray-200">{year}</option>
               ))}
             </select>
             <button
@@ -307,21 +330,40 @@ const PlacementResults = () => {
         )}
       </div>
 
-      {showDetails && (
-        <DetailView company={showDetails} students={placements[showDetails].students} onClose={() => setShowDetails(null)} />
+      {showDetails && placements[showDetails] && (
+        <DetailView 
+          company={showDetails} 
+          students={placements[showDetails].students || []} 
+          onClose={() => setShowDetails(null)} 
+          downloadCompanyExcel={downloadCompanyExcel}
+        />
       )}
     </div>
   );
 };
 
-const DetailView = ({ company, students, onClose }) => {
+const DetailView = ({ company, students, onClose, downloadCompanyExcel }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  
-  const filteredStudents = students.filter(student => 
-    student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    student.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    student.registrationNumber.toLowerCase().includes(searchTerm.toLowerCase())
+
+  console.log(`DetailView - Raw students for ${company}:`, students);
+
+  // Check if all students have only placeholder data
+  const hasValidStudentData = students.some(student => 
+    student.name !== 'Unknown' || student.email !== 'N/A' || student.registrationNumber !== 'N/A'
   );
+
+  const filteredStudents = students.filter(student => {
+    const name = (student.name || '').toLowerCase();
+    const email = (student.email || '').toLowerCase();
+    const registrationNumber = (student.registrationNumber || '').toLowerCase();
+    const search = searchTerm.toLowerCase();
+
+    return (
+      name.includes(search) ||
+      email.includes(search) ||
+      registrationNumber.includes(search)
+    );
+  });
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
@@ -353,22 +395,25 @@ const DetailView = ({ company, students, onClose }) => {
         </div>
         
         <div className="space-y-2 max-h-[50vh] overflow-y-auto">
-          {filteredStudents.length === 0 ? (
+          {!hasValidStudentData && students.length > 0 ? (
             <div className="text-center py-4 text-gray-400 text-sm">
-              No students match your search criteria
+              Student data is incomplete. Please check the placement records.
+            </div>
+          ) : filteredStudents.length === 0 ? (
+            <div className="text-center py-4 text-gray-400 text-sm">
+              {searchTerm ? "No students match your search criteria" : "No students placed in this drive"}
             </div>
           ) : (
-            filteredStudents.map((student) => (
+            filteredStudents.map((student, index) => (
               <div
-                key={student.id}
+                key={student.id || index}
                 className="bg-gray-800/80 p-2 rounded-lg border border-gray-700 hover:shadow-md transition-shadow duration-200"
               >
-                <p className="font-medium text-sm text-white line-clamp-1">{student.name}</p>
+                <p className="font-medium text-sm text-white line-clamp-1">{student.name || 'Unknown'}</p>
                 <p className="text-gray-400 text-xs mt-0.5">
-                  <span className="bg-teal-500/20 text-teal-400 text-[0.65rem] px-1.5 py-0.5 rounded">{student.registrationNumber}</span>
+                  <span className="bg-teal-500/20 text-teal-400 text-[0.65rem] px-1.5 py-0.5 rounded">{student.registrationNumber || 'N/A'}</span>
                 </p>
-                <p className="text-gray-400 text-xs mt-0.5 line-clamp-1">{student.email}</p>
-                <p className="text-green-400 text-xs mt-0.5 font-medium">Package: {student.package}</p>
+                <p className="text-gray-400 text-xs mt-0.5 line-clamp-1">{student.email || 'N/A'}</p>
               </div>
             ))
           )}

@@ -19,6 +19,7 @@ const PlacementDriveDashboard = () => {
   const [filterStatus, setFilterStatus] = useState('All');
   const [sortBy, setSortBy] = useState('date');
   const [sortOrder, setSortOrder] = useState('desc');
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
   if (role !== 'Coordinator') return <Navigate to="/" replace />;
@@ -28,11 +29,14 @@ const PlacementDriveDashboard = () => {
   }, []);
 
   const fetchDrives = async () => {
+    setIsLoading(true);
     try {
       const response = await axios.get('/api/placement-drives/all', { withCredentials: true });
       setDrives(response.data);
     } catch (error) {
       setErrors([error.response?.data.message || 'Error fetching placement drives']);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -88,6 +92,33 @@ const PlacementDriveDashboard = () => {
     else { setSortBy(field); setSortOrder('desc'); }
   };
 
+  // Loading Skeleton Components
+  const StatCardSkeleton = () => (
+    <div className="bg-secondary-bg p-4 sm:p-6 rounded-lg shadow-glass animate-pulse">
+      <div className="flex items-center justify-between">
+        <div className="h-4 w-24 bg-gray-700 rounded"></div>
+        <div className="p-2 bg-gray-700 rounded-full w-10 h-10"></div>
+      </div>
+      <div className="h-8 w-16 bg-gray-700 rounded mt-4"></div>
+    </div>
+  );
+
+  const DriveCardSkeleton = () => (
+    <div className="bg-secondary-bg p-4 sm:p-6 rounded-lg shadow-glass border border-gray-700 animate-pulse">
+      <div className="flex items-start justify-between mb-3">
+        <div className="p-2 rounded-full bg-gray-700 w-10 h-10"></div>
+        <div className="h-6 w-20 bg-gray-700 rounded-full"></div>
+      </div>
+      <div className="h-6 w-3/4 bg-gray-700 rounded mb-2"></div>
+      <div className="h-4 w-1/2 bg-gray-700 rounded mb-4"></div>
+      <div className="space-y-2">
+        <div className="h-4 w-2/3 bg-gray-700 rounded"></div>
+        <div className="h-4 w-1/2 bg-gray-700 rounded"></div>
+        <div className="h-4 w-2/3 bg-gray-700 rounded"></div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-primary-bg p-4 sm:p-6 lg:p-8 text-text-primary">
       <div className="max-w-7xl mx-auto">
@@ -101,70 +132,99 @@ const PlacementDriveDashboard = () => {
           <button
             onClick={() => setIsFormOpen(true)}
             className="flex items-center gap-2 bg-accent hover:bg-accent/80 text-white px-4 py-2 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
+            disabled={isLoading}
           >
             <Plus size={18} /> Create New Drive
           </button>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6">
-          {[
-            { title: 'Active Drives', value: activeDrives, icon: Briefcase, color: 'highlight' },
-            { title: 'Completed Drives', value: completedDrives, icon: Check, color: 'accent' },
-            { title: 'Total Applicants', value: totalApplicants, icon: Users, color: 'highlight' },
-          ].map(stat => (
-            <div key={stat.title} className="bg-secondary-bg p-4 sm:p-6 rounded-lg shadow-glass hover:shadow-xl transition-all duration-200">
-              <div className="flex items-center justify-between">
-                <h3 className="text-text-secondary font-medium">{stat.title}</h3>
-                <div className={`p-2 bg-${stat.color}/20 rounded-full`}>
-                  <stat.icon className={`text-${stat.color}`} size={20} />
-                </div>
-              </div>
-              <p className="text-2xl sm:text-3xl font-bold mt-2">{stat.value}</p>
-            </div>
-          ))}
-        </div>
-
-        <div className="bg-secondary-bg p-4 rounded-lg shadow-glass mb-6 flex flex-col sm:flex-row gap-4">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-text-secondary" size={18} />
-            <input
-              type="text"
-              placeholder="Search drives by company or role..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-primary-bg text-text-primary pl-10 pr-4 py-2 rounded-lg border border-gray-700 focus:border-highlight focus:outline-none transition-all"
-            />
+        {isLoading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6">
+            <StatCardSkeleton />
+            <StatCardSkeleton />
+            <StatCardSkeleton />
           </div>
-          <div className="flex gap-2 sm:gap-3">
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              className="bg-primary-bg text-text-primary px-3 py-2 rounded-lg border border-gray-700 focus:border-highlight focus:outline-none"
-            >
-              <option value="All">All Status</option>
-              <option value="Upcoming">Upcoming</option>
-              <option value="In Progress">In Progress</option>
-              <option value="Completed">Completed</option>
-            </select>
-            {['date', 'company', 'applicants'].map(field => (
-              <button
-                key={field}
-                onClick={() => toggleSort(field)}
-                className={`flex items-center gap-1 px-3 py-2 rounded-lg border ${
-                  sortBy === field ? 'border-highlight bg-highlight/20' : 'border-gray-700 bg-primary-bg'
-                }`}
-              >
-                {field === 'date' && <Calendar size={16} />}
-                {field === 'company' && <Briefcase size={16} />}
-                {field === 'applicants' && <Users size={16} />}
-                <span className="hidden sm:inline">{field.charAt(0).toUpperCase() + field.slice(1)}</span>
-                {sortBy === field && (sortOrder === 'desc' ? <ChevronDown size={16} /> : <ChevronUp size={16} />)}
-              </button>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6">
+            {[
+              { title: 'Active Drives', value: activeDrives, icon: Briefcase, color: 'highlight' },
+              { title: 'Completed Drives', value: completedDrives, icon: Check, color: 'accent' },
+              { title: 'Total Applicants', value: totalApplicants, icon: Users, color: 'highlight' },
+            ].map(stat => (
+              <div key={stat.title} className="bg-secondary-bg p-4 sm:p-6 rounded-lg shadow-glass hover:shadow-xl transition-all duration-200">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-text-secondary font-medium">{stat.title}</h3>
+                  <div className={`p-2 bg-${stat.color}/20 rounded-full`}>
+                    <stat.icon className={`text-${stat.color}`} size={20} />
+                  </div>
+                </div>
+                <p className="text-2xl sm:text-3xl font-bold mt-2">{stat.value}</p>
+              </div>
             ))}
           </div>
-        </div>
+        )}
 
-        {filteredDrives.length === 0 ? (
+        {isLoading ? (
+          <div className="bg-secondary-bg p-4 rounded-lg shadow-glass mb-6 animate-pulse">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex-1 h-10 bg-gray-700 rounded-lg"></div>
+              <div className="flex gap-2 sm:gap-3">
+                <div className="h-10 w-24 bg-gray-700 rounded-lg"></div>
+                <div className="h-10 w-16 bg-gray-700 rounded-lg"></div>
+                <div className="h-10 w-16 bg-gray-700 rounded-lg"></div>
+                <div className="h-10 w-16 bg-gray-700 rounded-lg"></div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-secondary-bg p-4 rounded-lg shadow-glass mb-6 flex flex-col sm:flex-row gap-4">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-text-secondary" size={18} />
+              <input
+                type="text"
+                placeholder="Search drives by company or role..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full bg-primary-bg text-text-primary pl-10 pr-4 py-2 rounded-lg border border-gray-700 focus:border-highlight focus:outline-none transition-all"
+              />
+            </div>
+            <div className="flex gap-2 sm:gap-3">
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="bg-primary-bg text-text-primary px-3 py-2 rounded-lg border border-gray-700 focus:border-highlight focus:outline-none"
+              >
+                <option value="All">All Status</option>
+                <option value="Upcoming">Upcoming</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Completed">Completed</option>
+              </select>
+              {['date', 'company', 'applicants'].map(field => (
+                <button
+                  key={field}
+                  onClick={() => toggleSort(field)}
+                  className={`flex items-center gap-1 px-3 py-2 rounded-lg border ${
+                    sortBy === field ? 'border-highlight bg-highlight/20' : 'border-gray-700 bg-primary-bg'
+                  }`}
+                >
+                  {field === 'date' && <Calendar size={16} />}
+                  {field === 'company' && <Briefcase size={16} />}
+                  {field === 'applicants' && <Users size={16} />}
+                  <span className="hidden sm:inline">{field.charAt(0).toUpperCase() + field.slice(1)}</span>
+                  {sortBy === field && (sortOrder === 'desc' ? <ChevronDown size={16} /> : <ChevronUp size={16} />)}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {isLoading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <DriveCardSkeleton />
+            <DriveCardSkeleton />
+            <DriveCardSkeleton />
+          </div>
+        ) : filteredDrives.length === 0 ? (
           <div className="text-center text-text-secondary py-12 bg-secondary-bg rounded-lg shadow-glass">
             <Briefcase className="mx-auto mb-4 opacity-50" size={48} />
             <p className="text-lg sm:text-xl font-semibold mb-2">{drives.length === 0 ? 'No placement drives available' : 'No matching drives found'}</p>
