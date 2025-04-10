@@ -113,22 +113,27 @@ const CreateTest = () => {
   const validateForm = () => {
     const errors = [];
     let globalError = '';
-
+  
     if (!formData.title.trim()) globalError = 'Test title is required';
     else if (formData.duration <= 0) globalError = 'Duration must be a positive number';
     else if (!formData.createdAt) globalError = 'Test date is required';
-
+  
     formData.questions.forEach((q, i) => {
       const qErrors = {};
       if (!q.question.trim()) qErrors.question = 'Question text is required';
       q.options.forEach((opt, j) => {
-        if (!opt.trim()) qErrors[`option${j}`] = `Option ${j + 1} is required`;
+        // Handle both string and number options
+        if (opt === null || opt === undefined || 
+            (typeof opt === 'string' && !opt.trim()) || 
+            (typeof opt === 'number' && isNaN(opt))) {
+          qErrors[`option${j}`] = `Option ${j + 1} is required`;
+        }
       });
       if (q.correctOption < 0 || q.correctOption > 3) qErrors.correctOption = 'Correct option must be A-D';
       if (q.marks <= 0) qErrors.marks = 'Marks must be positive';
       errors[i] = qErrors;
     });
-
+  
     setQuestionErrors(errors);
     return globalError || errors.some(e => Object.keys(e).length > 0) ? 'Validation failed' : '';
   };
