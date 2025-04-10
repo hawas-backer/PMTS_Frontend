@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Plus, Edit, Trash2, FileText, Video, Link as LinkIcon, Download, X, Search, Filter } from 'lucide-react';
+import { Plus, Edit, Trash2, FileText, Video, Link as LinkIcon, Download, X, Search, Filter, AlertTriangle } from 'lucide-react';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL 
   ? `${import.meta.env.VITE_API_BASE_URL}/api` 
@@ -19,17 +19,42 @@ const getIcon = (type) => {
   }
 };
 
+// Error message component
+const ErrorMessage = ({ message, onDismiss }) => {
+  return (
+    <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-3 mb-4 text-red-200 flex items-center justify-between">
+      <div className="flex items-center">
+        <AlertTriangle size={18} className="mr-2 text-red-400" />
+        <span>{message}</span>
+      </div>
+      {onDismiss && (
+        <button 
+          onClick={onDismiss} 
+          className="text-red-300 hover:text-white transition-colors duration-200"
+        >
+          <X size={16} />
+        </button>
+      )}
+    </div>
+  );
+};
+
 export const AddResource = ({ onClose, onResourceAdded, resourceToEdit }) => {
   const [resourceData, setResourceData] = useState(
     resourceToEdit 
       ? { ...resourceToEdit, file: null }
       : { title: '', description: '', type: 'document', file: null, url: '' }
   );
+  const [formError, setFormError] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   console.log('AddResource rendered with:', { resourceToEdit, resourceData });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
+    setFormError(null);
+    
     const formData = new FormData();
     formData.append('title', resourceData.title);
     formData.append('description', resourceData.description);
@@ -38,6 +63,10 @@ export const AddResource = ({ onClose, onResourceAdded, resourceToEdit }) => {
       formData.append('url', resourceData.url);
     } else if (resourceData.file) {
       formData.append('file', resourceData.file);
+    } else if (!resourceToEdit && resourceData.type !== 'link') {
+      setFormError('Please select a file to upload');
+      setIsSubmitting(false);
+      return;
     }
 
     try {
@@ -58,7 +87,13 @@ export const AddResource = ({ onClose, onResourceAdded, resourceToEdit }) => {
       onClose();
     } catch (error) {
       console.error('Error saving resource:', error);
-      alert('Failed to save resource. Please try again.');
+      setFormError(
+        error.response?.data?.message || 
+        error.message || 
+        'Failed to save resource. Please try again.'
+      );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -72,7 +107,7 @@ export const AddResource = ({ onClose, onResourceAdded, resourceToEdit }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-70 flex items-start justify-center z-[100] pt-12">
-      <div className="bg-gray-800/90 backdrop-blur-md rounded-lg border border-gray-700 p-4 w-full max-w-md">
+      <div className="bg-gray-800/90 backdrop-blur-md rounded-lg border border-gray-700 p-4 w-full max-w-md max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-extrabold text-white bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text text-transparent">
             {resourceToEdit ? 'Edit Resource' : 'Add Resource'}
@@ -86,6 +121,13 @@ export const AddResource = ({ onClose, onResourceAdded, resourceToEdit }) => {
           </button>
         </div>
         
+        {formError && (
+          <ErrorMessage 
+            message={formError} 
+            onDismiss={() => setFormError(null)} 
+          />
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-gray-400 mb-1 text-sm font-medium">Resource Type</label>
@@ -93,6 +135,7 @@ export const AddResource = ({ onClose, onResourceAdded, resourceToEdit }) => {
               value={resourceData.type}
               onChange={(e) => setResourceData({ ...resourceData, type: e.target.value, file: null, url: '' })}
               className="w-full bg-gray-800/80 border border-gray-700 rounded-lg p-2 text-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+              disabled={isSubmitting}
             >
               <option value="document">Document</option>
               <option value="video">Video</option>
@@ -109,6 +152,7 @@ export const AddResource = ({ onClose, onResourceAdded, resourceToEdit }) => {
               className="w-full bg-gray-800/80 border border-gray-700 rounded-lg p-2 text-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
               placeholder="Enter resource title"
               required
+              disabled={isSubmitting}
             />
           </div>
 
@@ -120,6 +164,7 @@ export const AddResource = ({ onClose, onResourceAdded, resourceToEdit }) => {
               className="w-full bg-gray-800/80 border border-gray-700 rounded-lg p-2 text-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none"
               placeholder="Enter resource description"
               rows="2"
+              disabled={isSubmitting}
             />
           </div>
 
@@ -133,6 +178,7 @@ export const AddResource = ({ onClose, onResourceAdded, resourceToEdit }) => {
                 className="w-full bg-gray-800/80 border border-gray-700 rounded-lg p-2 text-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
                 placeholder="Enter resource URL"
                 required
+                disabled={isSubmitting}
               />
             </div>
           )}
@@ -146,15 +192,28 @@ export const AddResource = ({ onClose, onResourceAdded, resourceToEdit }) => {
                 className="w-full bg-gray-800/80 border border-gray-700 rounded-lg p-2 text-gray-200 text-sm file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-teal-500 file:text-white file:text-sm file:hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500"
                 accept={resourceData.type === 'video' ? 'video/*' : '*'}
                 required={!resourceToEdit}
+                disabled={isSubmitting}
               />
             </div>
           )}
 
           <button
             type="submit"
-            className="w-full bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white px-4 py-1.5 rounded-lg shadow-md transform hover:scale-105 transition-all duration-300 font-medium text-sm"
+            className={`w-full ${
+              isSubmitting 
+                ? 'bg-gray-600 cursor-not-allowed' 
+                : 'bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600'
+            } text-white px-4 py-1.5 rounded-lg shadow-md transform hover:scale-105 transition-all duration-300 font-medium text-sm flex justify-center items-center`}
+            disabled={isSubmitting}
           >
-            {resourceToEdit ? 'Update Resource' : 'Add Resource'}
+            {isSubmitting ? (
+              <>
+                <div className="w-4 h-4 border-t-2 border-white border-solid rounded-full animate-spin mr-2"></div>
+                {resourceToEdit ? 'Updating...' : 'Adding...'}
+              </>
+            ) : (
+              <>{resourceToEdit ? 'Update Resource' : 'Add Resource'}</>
+            )}
           </button>
         </form>
       </div>
@@ -169,6 +228,8 @@ export const Resources = () => {
   const [showAddResource, setShowAddResource] = useState(false);
   const [editingResource, setEditingResource] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [operationError, setOperationError] = useState(null);
+  const [operationStatus, setOperationStatus] = useState(null);
 
   useEffect(() => {
     const fetchResources = async () => {
@@ -180,7 +241,7 @@ export const Resources = () => {
         setError(null);
       } catch (err) {
         console.error('Error fetching resources:', err);
-        setError(err.message || 'Failed to fetch resources');
+        setError(err.response?.data?.message || err.message || 'Failed to fetch resources');
         setResources([]);
       } finally {
         setIsLoading(false);
@@ -189,18 +250,34 @@ export const Resources = () => {
     fetchResources();
   }, []);
 
+  // Auto-dismiss operation messages after 5 seconds
+  useEffect(() => {
+    if (operationError || operationStatus) {
+      const timer = setTimeout(() => {
+        setOperationError(null);
+        setOperationStatus(null);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [operationError, operationStatus]);
+
   const handleDeleteResource = async (resourceId) => {
     try {
+      setOperationError(null);
+      setOperationStatus("Deleting resource...");
       await axios.delete(`${API_BASE_URL}/resources/${resourceId}`, { withCredentials: true });
       setResources(resources.filter(r => r._id !== resourceId));
+      setOperationStatus("Resource deleted successfully!");
     } catch (error) {
       console.error('Error deleting resource:', error);
-      alert('Failed to delete resource');
+      setOperationError(error.response?.data?.message || error.message || 'Failed to delete resource');
     }
   };
 
   const handleDownload = async (resource) => {
     try {
+      setOperationError(null);
+      setOperationStatus("Preparing download...");
       const response = await axios({
         url: `${API_BASE_URL}/resources/download/${resource._id}`,
         method: 'GET',
@@ -212,17 +289,20 @@ export const Resources = () => {
       link.href = window.URL.createObjectURL(blob);
       link.download = resource.originalFileName || 'download';
       link.click();
+      setOperationStatus("Download started!");
     } catch (error) {
       console.error('Download error:', error);
-      alert('Failed to download resource');
+      setOperationError(error.response?.data?.message || error.message || 'Failed to download resource');
     }
   };
 
   const handleResourceAdded = (updatedOrNewResource) => {
     if (editingResource) {
       setResources(resources.map(r => r._id === updatedOrNewResource._id ? updatedOrNewResource : r));
+      setOperationStatus("Resource updated successfully!");
     } else {
       setResources([...resources, updatedOrNewResource]);
+      setOperationStatus("Resource added successfully!");
     }
   };
 
@@ -231,6 +311,21 @@ export const Resources = () => {
     return resources.filter(resource => 
       resource.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       resource.description.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  };
+
+  // Status message component
+  const StatusMessage = ({ status }) => {
+    return (
+      <div className="bg-teal-500/20 border border-teal-500/50 rounded-lg p-3 mb-4 text-teal-200 flex items-center justify-between">
+        <span>{status}</span>
+        <button 
+          onClick={() => setOperationStatus(null)} 
+          className="text-teal-300 hover:text-white transition-colors duration-200"
+        >
+          <X size={16} />
+        </button>
+      </div>
     );
   };
 
@@ -282,6 +377,17 @@ export const Resources = () => {
             <Plus size={16} className="mr-1" /> Add Resource
           </button>
         </div>
+
+        {operationError && (
+          <ErrorMessage 
+            message={operationError} 
+            onDismiss={() => setOperationError(null)} 
+          />
+        )}
+
+        {operationStatus && (
+          <StatusMessage status={operationStatus} />
+        )}
 
         <div className="relative mb-4">
           <Search className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400" size={16} />

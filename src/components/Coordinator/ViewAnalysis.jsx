@@ -364,17 +364,11 @@ const AnalyticsDashboard = () => {
                 />
               </div>
             </div>
-            <button
-              onClick={() => exportData('csv')}
-              className="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white px-3 py-1.5 rounded-lg shadow-md transform hover:scale-105 transition-all duration-300 flex items-center text-sm"
-            >
-              <Download size={16} className="mr-1" /> Export CSV
-            </button>
           </div>
         </div>
 
         {/* Key Metrics */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
           <div className="bg-teal-500/20 rounded-lg p-4">
             <p className="text-sm text-teal-400">Total Placement Drives</p>
             <h2 className="text-3xl font-bold text-white">{dashboardData.summary.totalDrives}</h2>
@@ -382,10 +376,6 @@ const AnalyticsDashboard = () => {
           <div className="bg-green-500/20 rounded-lg p-4">
             <p className="text-sm text-green-400">Conversion Rate</p>
             <h2 className="text-3xl font-bold text-white">{dashboardData.summary.conversionRate}%</h2>
-          </div>
-          <div className="bg-blue-500/20 rounded-lg p-4">
-            <p className="text-sm text-blue-400">Participation Rate</p>
-            <h2 className="text-3xl font-bold text-white">{dashboardData.aptitudeSummary.participationRate}%</h2>
           </div>
           <div className="bg-amber-500/20 rounded-lg p-4">
             <p className="text-sm text-amber-400">Students Placed</p>
