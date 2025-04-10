@@ -1,28 +1,46 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { Edit, Upload, Download } from 'lucide-react';
+import { Edit, Upload, Download, Search } from 'lucide-react';
 
 axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
-
 const StudentList = () => {
   const [students, setStudents] = useState([]);
+  const [filteredStudents, setFilteredStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [uploadStatus, setUploadStatus] = useState({ message: '', isError: false });
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchStudents();
   }, []);
 
+  useEffect(() => {
+    // Filter students when search term changes
+    if (searchTerm.trim() === '') {
+      setFilteredStudents(students);
+    } else {
+      const lowercasedSearch = searchTerm.toLowerCase();
+      const filtered = students.filter(
+        student => 
+          student.name.toLowerCase().includes(lowercasedSearch) ||
+          student.registrationNumber.toLowerCase().includes(lowercasedSearch) ||
+          student.branch.toLowerCase().includes(lowercasedSearch)
+      );
+      setFilteredStudents(filtered);
+    }
+  }, [searchTerm, students]);
+
   const fetchStudents = async () => {
     try {
       const response = await axios.get('/api/students/list', { withCredentials: true });
       setStudents(response.data);
+      setFilteredStudents(response.data);
       setLoading(false);
     } catch (err) {
       setError('Failed to fetch students');
@@ -86,6 +104,10 @@ const StudentList = () => {
     }
   };
 
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
   if (loading) return <div className="text-text-primary text-center py-12">Loading...</div>;
   if (error) return <div className="text-error text-center py-12">{error}</div>;
 
@@ -93,7 +115,7 @@ const StudentList = () => {
     <div className="min-h-screen bg-primary-bg p-4 sm:p-6 lg:p-8">
       <div className="bg-secondary-bg rounded-xl shadow-glass p-6">
         <h2 className="text-2xl md:text-3xl text-text-primary mb-6">Student List</h2>
-
+        
         {/* Bulk Upload Section */}
         <div className="mb-6 p-4 bg-[#232d3f] rounded-lg">
           <h3 className="text-xl text-text-primary mb-3">Bulk Update Students</h3>
@@ -140,6 +162,21 @@ const StudentList = () => {
           )}
         </div>
 
+        {/* Search Bar */}
+        <div className="mb-6 relative">
+          <div className="flex items-center bg-[#1e2a3a] rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-highlight">
+            <Search size={20} className="text-text-secondary mr-2" />
+            <input
+              type="text"
+              placeholder="Search by name or registration number..."
+              value={searchTerm}
+              onChange={handleSearchChange}
+              className="bg-transparent border-none w-full text-text-primary focus:outline-none"
+              aria-label="Search students"
+            />
+          </div>
+        </div>
+
         {/* Student List */}
         <div className="overflow-x-auto">
           <table className="w-full text-text-primary">
@@ -153,14 +190,14 @@ const StudentList = () => {
               </tr>
             </thead>
             <tbody>
-              {students.length === 0 ? (
+              {filteredStudents.length === 0 ? (
                 <tr>
                   <td colSpan="4" className="p-3 text-center text-text-secondary">
-                    No students found.
+                    {students.length === 0 ? 'No students found.' : 'No matching students found.'}
                   </td>
                 </tr>
               ) : (
-                students.map((student) => (
+                filteredStudents.map((student) => (
                   <tr key={student._id} className="border-b border-gray-700 hover:bg-gray-700 transition-all duration-200">
                     <td className="p-3">{student.name}</td>
                     <td className="p-3">{student.registrationNumber}</td>
