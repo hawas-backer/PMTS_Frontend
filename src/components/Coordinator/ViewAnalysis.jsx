@@ -364,12 +364,6 @@ const AnalyticsDashboard = () => {
                 />
               </div>
             </div>
-            <button
-              onClick={() => exportData('csv')}
-              className="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white px-3 py-1.5 rounded-lg shadow-md transform hover:scale-105 transition-all duration-300 flex items-center text-sm"
-            >
-              <Download size={16} className="mr-1" /> Export CSV
-            </button>
           </div>
         </div>
 
