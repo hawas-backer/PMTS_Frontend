@@ -383,10 +383,6 @@ const AnalyticsDashboard = () => {
             <p className="text-sm text-green-400">Conversion Rate</p>
             <h2 className="text-3xl font-bold text-white">{dashboardData.summary.conversionRate}%</h2>
           </div>
-          <div className="bg-blue-500/20 rounded-lg p-4">
-            <p className="text-sm text-blue-400">Participation Rate</p>
-            <h2 className="text-3xl font-bold text-white">{dashboardData.aptitudeSummary.participationRate}%</h2>
-          </div>
           <div className="bg-amber-500/20 rounded-lg p-4">
             <p className="text-sm text-amber-400">Students Placed</p>
             <h2 className="text-3xl font-bold text-white">{dashboardData.summary.totalPlacements}</h2>
