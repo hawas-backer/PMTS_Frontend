@@ -374,7 +374,7 @@ const AnalyticsDashboard = () => {
         </div>
 
         {/* Key Metrics */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
           <div className="bg-teal-500/20 rounded-lg p-4">
             <p className="text-sm text-teal-400">Total Placement Drives</p>
             <h2 className="text-3xl font-bold text-white">{dashboardData.summary.totalDrives}</h2>
